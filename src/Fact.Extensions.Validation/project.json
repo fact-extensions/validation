@@ -1,0 +1,64 @@
+﻿{
+  "version": "1.0.0-*",
+  "authors": [ "Malachi Burke" ],
+  "description": "Validation core code",
+  "packOptions": {
+    "releaseNotes": ""
+  },
+
+  "buildOptions": {
+    "xmlDoc": "true",
+    /* Disable warnings about malformed XmlDoc stuff */
+    "nowarn": [ "1591", "1571", "1572", "1573", "1574", "1587" ]
+  },
+
+
+  "dependencies": {
+  },
+
+  "frameworks": {
+    /*
+     Commenting out due to what appears to be compilation glitch, where .NET App 1.0.1 stuff is
+     not picking up code because .NET Standard 1.1 excludes it, even though .NET Standard 1.6 includes
+     it (NamedBagWrapper, for example) */
+    /*
+    "netstandard1.1": {
+      "buildOptions": {
+        "define": [
+          "NETSTANDARD1_1"
+        ]
+      },
+
+      "dependencies": {
+        "System.IO": "4.1.0",
+        "System.Threading.Tasks.Parallel": "4.0.1"
+      }
+      //"imports": "dnxcore50"
+    },*/
+    "netstandard1.1": {
+      "buildOptions": {
+        "define": [
+          "NETSTANDARD1_1"
+        ]
+      },
+
+      "dependencies": {
+        "System.IO": "4.1.0",
+        "System.Linq": "4.1.0" // For ToString(delim)
+        //"System.Runtime.Extensions": "4.1.0", // for Convert in NamedBagWrapper class
+        //"System.Threading.Tasks.Parallel": "4.0.1"
+      }
+      //"imports": "dnxcore50"
+    },
+    "netstandard1.6": {
+      "buildOptions": {
+        "define": [
+          "NETSTANDARD1_6"
+        ]
+      },
+      "dependencies": {
+        "NETStandard.Library": "1.6.0"
+      }
+    }
+  }
+}
