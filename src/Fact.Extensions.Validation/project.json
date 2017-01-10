@@ -14,6 +14,7 @@
 
 
   "dependencies": {
+    //"Fact.Extensions.Collection": "1.0.0-alpha016"
   },
 
   "frameworks": {
@@ -35,10 +36,10 @@
       }
       //"imports": "dnxcore50"
     },*/
-    "netstandard1.1": {
+    "netstandard1.3": {
       "buildOptions": {
         "define": [
-          "NETSTANDARD1_1"
+          "NETSTANDARD1_3"
         ]
       },
 
