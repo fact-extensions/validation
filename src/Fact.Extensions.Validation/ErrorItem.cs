@@ -12,26 +12,26 @@ namespace Fact.Extensions.Validation
     {
         public FieldStatus() { }
         public FieldStatus(FieldStatus copyFrom) :
-            this(copyFrom.parameter, copyFrom.Description, copyFrom.value)
+            this(copyFrom.name, copyFrom.Description, copyFrom.value)
         {
             Level = copyFrom.Level;
         }
 
-        public FieldStatus(string parameter, string description, object value)
+        public FieldStatus(string name, string description, object value)
         {
-            this.parameter = parameter;
+            this.name = name;
             this.Description = description;
             this.value = value;
             Level = ErrorLevel.Error;
         }
 
         private object value;
-        private string parameter;
+        private string name;
 
         public object Value => value;
 
 
-        public string Parameter => parameter;
+        public string Name => name;
 
         // the time is coming where ErrorItem is going to become StatusItem...
         public enum ErrorLevel
@@ -58,12 +58,12 @@ namespace Fact.Extensions.Validation
 
         public override int GetHashCode()
         {
-            return (Parameter ?? "").GetHashCode() ^ (Description ?? "").GetHashCode() ^ (Value ?? "").GetHashCode();
+            return (Name ?? "").GetHashCode() ^ (Description ?? "").GetHashCode() ^ (Value ?? "").GetHashCode();
         }
 
         public override string ToString()
         {
-            return "[" + Level.ToString()[0] + ":" + parameter + "]: " + Description + " / original value = " + Value;
+            return "[" + Level.ToString()[0] + ":" + name + "]: " + Description + " / original value = " + Value;
         }
 
         #region IComparable<ErrorItem> Members
@@ -169,20 +169,14 @@ namespace Fact.Extensions.Validation
         /// <param name="prefix"></param>
         /// <param name="parameter">overrides copyFrom's parameter</param>
         /// <param name="index">Index.</param>
-        public ExtendedFieldStatus(FieldStatus copyFrom, string prefix, string parameter, int index) : base(copyFrom)
+        public ExtendedFieldStatus(FieldStatus copyFrom, string prefix, int index) : base(copyFrom)
         {
             Prefix = prefix;
             Index = index;
         }
-        public ExtendedFieldStatus(string prefix, string parameter, string description, object value) : 
-            base(parameter, description, value)
-        {
-            Prefix = prefix;
-            Level = ErrorLevel.Error;
-        }
 
-        public ExtendedFieldStatus(string prefix, string parameter, string description, object value, ErrorLevel level) :
-            base(parameter, description, value)
+        public ExtendedFieldStatus(string prefix, string name, string description, object value, ErrorLevel level = ErrorLevel.Error) :
+            base(name, description, value)
         {
             Prefix = prefix;
             Level = level;
@@ -194,12 +188,6 @@ namespace Fact.Extensions.Validation
             Prefix = prefix;
             Index = index;
             Level = level;
-        }
-
-        public ExtendedFieldStatus(string prefix, string parameter, string description, object value, int index) :
-            this(prefix, parameter, description, value)
-        {
-            Index = index;
         }
 
         public override string ToString()
