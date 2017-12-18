@@ -9,13 +9,13 @@ namespace Fact.Extensions.Validation
     /// Mechanism for actual gathering of errors; has no specific contract for reviewing 
     /// these errors
     /// </summary>
-    public interface IErrorGatherer
+    public interface IErrorCollection
     {
         /// <summary>
         /// Gather an error to be (probably) reviewed at a later time
         /// </summary>
         /// <param name="item"></param>
-        void Error(ErrorItem item);
+        void Error(FieldStatus item);
     }
 
 
@@ -23,12 +23,12 @@ namespace Fact.Extensions.Validation
     /// Mechanism to inspect present state of errors; has no contract to append/modify
     /// said errors
     /// </summary>
-    public interface IErrorView
+    public interface IErrorProvider
     {
         /// <summary>
         /// Acquire list of accumulated errors
         /// </summary>
-        IEnumerable<ErrorItem> Errors { get; }
+        IEnumerable<FieldStatus> Errors { get; }
 
         bool IsValid { get; }
     }

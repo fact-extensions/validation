@@ -8,16 +8,16 @@ namespace Fact.Extensions.Validation
     // TODO: refactor this since ErrorItem isn't a proper description anymore.
     // should be something like FieldStatus
     // TODO: Consider interacting with IDataErrorInfo interface, as per MS standard
-    public class ErrorItem : IComparable<ErrorItem>
+    public class FieldStatus : IComparable<FieldStatus>
     {
-        public ErrorItem() { }
-        public ErrorItem(ErrorItem copyFrom) :
+        public FieldStatus() { }
+        public FieldStatus(FieldStatus copyFrom) :
             this(copyFrom.parameter, copyFrom.Description, copyFrom.value)
         {
             Level = copyFrom.Level;
         }
 
-        public ErrorItem(string parameter, string description, object value)
+        public FieldStatus(string parameter, string description, object value)
         {
             this.parameter = parameter;
             this.Description = description;
@@ -28,18 +28,10 @@ namespace Fact.Extensions.Validation
         private object value;
         private string parameter;
 
-        public object Value
-        {
-            get { return value; }
-            set { this.value = value; }
-        }
+        public object Value => value;
 
 
-        public string Parameter
-        {
-            get { return parameter; }
-            set { parameter = value; }
-        }
+        public string Parameter => parameter;
 
         // the time is coming where ErrorItem is going to become StatusItem...
         public enum ErrorLevel
@@ -76,7 +68,7 @@ namespace Fact.Extensions.Validation
 
         #region IComparable<ErrorItem> Members
 
-        int IComparable<ErrorItem>.CompareTo(ErrorItem other)
+        int IComparable<FieldStatus>.CompareTo(FieldStatus other)
         {
             return other.GetHashCode() - GetHashCode();
         }
@@ -132,7 +124,7 @@ namespace Fact.Extensions.Validation
     /// <summary>
     /// Error item with machine-discernable category and error code
     /// </summary>
-    public class ErrorItemCoded : ErrorItem
+    public class ErrorItemCoded : FieldStatus
     {
         public readonly CategoryCode Category;
         /// <summary>
@@ -150,7 +142,7 @@ namespace Fact.Extensions.Validation
         }
     }
 
-    public class ExtendedErrorItem : ErrorItem
+    public class ExtendedFieldStatus : FieldStatus
     {
         public const int INDEX_NA = -1;
         public const int INDEX_SPREAD = -2;
@@ -167,8 +159,8 @@ namespace Fact.Extensions.Validation
         /// </remarks>
         public int Index { get; set; }
 
-        public ExtendedErrorItem() { }
-        public ExtendedErrorItem(ErrorItem copyFrom) : base(copyFrom) { }
+        public ExtendedFieldStatus() { }
+        public ExtendedFieldStatus(FieldStatus copyFrom) : base(copyFrom) { }
 
         /// <summary>
         /// 
@@ -177,41 +169,34 @@ namespace Fact.Extensions.Validation
         /// <param name="prefix"></param>
         /// <param name="parameter">overrides copyFrom's parameter</param>
         /// <param name="index">Index.</param>
-        public ExtendedErrorItem(ErrorItem copyFrom, string prefix, string parameter, int index) : base(copyFrom)
+        public ExtendedFieldStatus(FieldStatus copyFrom, string prefix, string parameter, int index) : base(copyFrom)
         {
-            Parameter = parameter;
             Prefix = prefix;
             Index = index;
         }
-        public ExtendedErrorItem(string prefix, string parameter, string description, object value)
+        public ExtendedFieldStatus(string prefix, string parameter, string description, object value) : 
+            base(parameter, description, value)
         {
             Prefix = prefix;
-            Parameter = parameter;
-            Description = description;
-            Value = value;
             Level = ErrorLevel.Error;
         }
 
-        public ExtendedErrorItem(string prefix, string parameter, string description, object value, ErrorLevel level)
+        public ExtendedFieldStatus(string prefix, string parameter, string description, object value, ErrorLevel level) :
+            base(parameter, description, value)
         {
             Prefix = prefix;
-            Parameter = parameter;
-            Description = description;
-            Value = value;
             Level = level;
         }
 
-        public ExtendedErrorItem(string prefix, string parameter, string description, object value, int index, ErrorLevel level)
+        public ExtendedFieldStatus(string prefix, string parameter, string description, object value, int index, ErrorLevel level) :
+            base(parameter, description, value)
         {
             Prefix = prefix;
-            Parameter = parameter;
-            Description = description;
-            Value = value;
             Index = index;
             Level = level;
         }
 
-        public ExtendedErrorItem(string prefix, string parameter, string description, object value, int index) :
+        public ExtendedFieldStatus(string prefix, string parameter, string description, object value, int index) :
             this(prefix, parameter, description, value)
         {
             Index = index;
@@ -238,13 +223,13 @@ namespace Fact.Extensions.Validation
         /// <param name="errorItem"></param>
         /// <param name="prefix"></param>
         /// <returns></returns>
-        public static void SetPrefix(ref ErrorItem errorItem, string prefix)
+        public static void SetPrefix(ref FieldStatus errorItem, string prefix)
         {
-            var _errorItem = errorItem as ExtendedErrorItem;
+            var _errorItem = errorItem as ExtendedFieldStatus;
             if (_errorItem != null)
                 _errorItem.Prefix = prefix;
             else
-                _errorItem = new ExtendedErrorItem(errorItem) { Prefix = prefix };
+                _errorItem = new ExtendedFieldStatus(errorItem) { Prefix = prefix };
         }
 
 
@@ -253,9 +238,9 @@ namespace Fact.Extensions.Validation
         /// </summary>
         /// <param name="errors"></param>
         /// <returns>Enumeration of errors matching the criteria</returns>
-        public static IEnumerable<ErrorItem> OnlyErrors(this IEnumerable<ErrorItem> errors)
+        public static IEnumerable<FieldStatus> OnlyErrors(this IEnumerable<FieldStatus> errors)
         {
-            return errors.Where(x => x.Level == ErrorItem.ErrorLevel.Error || x.Level == ErrorItem.ErrorLevel.Exception);
+            return errors.Where(x => x.Level == FieldStatus.ErrorLevel.Error || x.Level == FieldStatus.ErrorLevel.Exception);
         }
     }
 }
