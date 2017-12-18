@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Fact.Extensions.Validation", "Fact.Extensions.Validation\Fact.Extensions.Validation.xproj", "{FD29BDBF-DF98-4F29-9AED-10A848D940E3}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D4BFC9D0-5884-4C65-842B-2DB336F05445}"
 	ProjectSection(SolutionItems) = preProject
 		..\.gitmodules = ..\.gitmodules
@@ -15,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		upload_all.sh = upload_all.sh
 		upload_project.sh = upload_project.sh
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fact.Extensions.Validation", "Fact.Extensions.Validation\Fact.Extensions.Validation.csproj", "{FD29BDBF-DF98-4F29-9AED-10A848D940E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,5 +29,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B322F746-8523-4749-93D2-9A89515AD73A}
 	EndGlobalSection
 EndGlobal

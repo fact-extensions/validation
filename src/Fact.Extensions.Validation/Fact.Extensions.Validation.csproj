@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Validation core code</Description>
+    <Authors>Malachi Burke</Authors>
+    <TargetFrameworks>netstandard1.3;netstandard1.6</TargetFrameworks>
+    <NoWarn>$(NoWarn);1591;1571;1572;1573;1574;1587</NoWarn>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyName>Fact.Extensions.Validation</AssemblyName>
+    <PackageId>Fact.Extensions.Validation</PackageId>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+    <PackageReference Include="System.IO" Version="4.3.0" />
+    <PackageReference Include="System.Linq" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>
