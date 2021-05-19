@@ -11,9 +11,14 @@ namespace Fact.Extensions.Validation
     public interface IFieldStatusCollector
     {
         /// <summary>
-        /// Gather an error to be (probably) reviewed at a later time
+        /// Gather an status to be (probably) reviewed at a later time
         /// </summary>
         /// <param name="item"></param>
-        void Append(FieldStatus item);
+        void Append(string fieldName, FieldStatus.Status status);
+    }
+
+
+    public static class IFieldStatusProviderExtensions
+    {
     }
 }

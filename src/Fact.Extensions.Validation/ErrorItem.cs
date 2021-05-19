@@ -10,22 +10,24 @@ namespace Fact.Extensions.Validation
     {
         public FieldStatus() { }
         public FieldStatus(FieldStatus copyFrom) :
-            this(copyFrom.name, copyFrom.Description, copyFrom.value)
+            this(copyFrom.name, copyFrom.value, copyFrom.Statuses)
         {
-            Level = copyFrom.Level;
         }
 
-        public FieldStatus(string name, string description, object value)
+        public FieldStatus(string name, object value, IEnumerable<Status> statuses = null)
         {
             this.name = name;
-            this.Description = description;
             this.value = value;
-            Level = Code.Error;
+            if(statuses != null)
+                Statuses.AddRange(statuses);
         }
 
         private object value;
         private string name;
 
+        /// <summary>
+        /// Original value presented to engine at beginning of validation/conversion chain
+        /// </summary>
         public object Value => value;
 
 
@@ -51,21 +53,41 @@ namespace Fact.Extensions.Validation
             Focus = 102         // experimental: UI specific (but not technology specific) status code for focusing input to a field
         }
 
-        public Code Level { get; set; }
+        public class Status
+        {
+            public Code Level { get; set; }
 
-        public string Description { get; set; }
+            public string Description { get; set; }
+
+            public override int GetHashCode() =>
+                (Description ?? "").GetHashCode();
+
+            public string ToString(string name, object value)
+            {
+                return "[" + Level.ToString()[0] + ":" + name + "]: " + Description + " / original value = " + value;
+            }
+        }
+
+        // DEBT: Make this into an IEnumerable so that aggregator has an easier time of it
+        public readonly List<Status> Statuses = new List<Status>();
+
+        public void Add(Code code, string description) =>
+            Statuses.Add(new Status() { Level = code, Description = description });
 
         public override int GetHashCode()
         {
-            return (Name ?? "").GetHashCode() ^ (Description ?? "").GetHashCode() ^ (Value ?? "").GetHashCode();
+            var statusHash = Statuses.Sum(x => x.GetHashCode());
+
+            return (Name ?? "").GetHashCode() ^ statusHash.GetHashCode() ^ (Value ?? "").GetHashCode();
         }
 
         public override string ToString()
         {
-            return "[" + Level.ToString()[0] + ":" + name + "]: " + Description + " / original value = " + Value;
+            string s = string.Join("\r", Statuses.Select(x => x.ToString(Name, value)));
+            return s;
         }
 
-        #region IComparable<ErrorItem> Members
+        #region IComparable<FieldStatus> Members
 
         int IComparable<FieldStatus>.CompareTo(FieldStatus other)
         {
@@ -134,7 +156,7 @@ namespace Fact.Extensions.Validation
         public readonly short Code;
 
         public ErrorItemCoded(string parameter, string description, object value, CategoryCode category, short code) :
-            base(parameter, description, value)
+            base(parameter, value)
         {
             Category = category;
             Code = code;
@@ -175,18 +197,18 @@ namespace Fact.Extensions.Validation
         }
 
         public ExtendedFieldStatus(string prefix, string name, string description, object value, Code level = Code.Error) :
-            base(name, description, value)
+            base(name, value)
         {
             Prefix = prefix;
-            Level = level;
+            Add(level, description);
         }
 
         public ExtendedFieldStatus(string prefix, string parameter, string description, object value, int index, Code level) :
-            base(parameter, description, value)
+            base(parameter, value)
         {
             Prefix = prefix;
             Index = index;
-            Level = level;
+            Add(level, description);
         }
 
         public override string ToString()
@@ -221,13 +243,15 @@ namespace Fact.Extensions.Validation
 
 
         /// <summary>
-        /// Return only errors from this enumerable, suppressing Information/Warning messages
+        /// Return only fields which have an error status.  Some of the statuses in the field
+        /// may NOT be in error.
         /// </summary>
         /// <param name="errors"></param>
         /// <returns>Enumeration of errors matching the criteria</returns>
         public static IEnumerable<FieldStatus> OnlyErrors(this IEnumerable<FieldStatus> errors)
         {
-            return errors.Where(x => x.Level == FieldStatus.Code.Error || x.Level == FieldStatus.Code.Exception);
+            return errors.Where(x => 
+                x.Statuses.Any(y => y.Level == FieldStatus.Code.Error || y.Level == FieldStatus.Code.Exception));
         }
     }
 }
