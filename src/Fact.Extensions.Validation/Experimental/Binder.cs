@@ -52,7 +52,7 @@ namespace Fact.Extensions.Validation.Experimental
         public event Action<FieldStatus> Validate;
         public event Func<FieldStatus, object, object> Convert;
 
-        public FieldStatus Evaluate(object value)
+        public FieldStatus Evaluate<T>(T value)
         {
             var f = new FieldStatus(field.Name, value);
 

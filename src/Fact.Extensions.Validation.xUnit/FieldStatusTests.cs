@@ -19,7 +19,7 @@ namespace Fact.Extensions.Validation.xUnit
 
             b.Validate += f =>
             {
-                f.Add(FieldStatus.Code.Error, "You didn't do it right!");
+                f.Error("You didn't do it right");
             };
         }
     }

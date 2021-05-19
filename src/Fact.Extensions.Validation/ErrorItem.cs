@@ -5,8 +5,18 @@ using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation
 {
+    public interface IFieldStatus
+    {
+        string Name { get; }
+        object Value { get; }
+
+        void Add(FieldStatus.Code code, string description);
+    }
+
+
     // TODO: Consider interacting with IDataErrorInfo interface, as per MS standard
-    public class FieldStatus : IComparable<FieldStatus>
+    public class FieldStatus : IComparable<FieldStatus>,
+        IFieldStatus
     {
         public FieldStatus() { }
         public FieldStatus(FieldStatus copyFrom) :
@@ -253,5 +263,9 @@ namespace Fact.Extensions.Validation
             return errors.Where(x => 
                 x.Statuses.Any(y => y.Level == FieldStatus.Code.Error || y.Level == FieldStatus.Code.Exception));
         }
+
+
+        public static void Error(this IFieldStatus field, string description) =>
+            field.Add(FieldStatus.Code.Error, description);
     }
 }
