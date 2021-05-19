@@ -6,9 +6,9 @@ namespace Fact.Extensions.Validation.xUnit
     public class FieldStatusTests
     {
         [Fact]
-        public void Test1()
+        public void FieldStatusCollectionTest()
         {
-
+            var fsc = new Experimental.FieldStatusCollection();
         }
     }
 }
