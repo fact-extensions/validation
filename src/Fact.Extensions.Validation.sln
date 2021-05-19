@@ -16,7 +16,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fact.Extensions.Validation", "Fact.Extensions.Validation\Fact.Extensions.Validation.csproj", "{FD29BDBF-DF98-4F29-9AED-10A848D940E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fact.Extensions.Validation.xUnit", "Fact.Extensions.Validation.xUnit\Fact.Extensions.Validation.xUnit.csproj", "{E69D3301-E007-4562-9F94-53422411B5E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fact.Extensions.Validation.xUnit", "Fact.Extensions.Validation.xUnit\Fact.Extensions.Validation.xUnit.csproj", "{E69D3301-E007-4562-9F94-53422411B5E5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fact.Extensions.Validation.WinForms", "Fact.Extensions.Validation.WinForms\Fact.Extensions.Validation.WinForms.csproj", "{9EB20443-0179-44F4-A38D-828C97E3B0FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fact.Extensions.Validation.WinForms.Tester", "Fact.Extensions.Validation.WinForms.Tester\Fact.Extensions.Validation.WinForms.Tester.csproj", "{14EEE453-8DCF-4D38-97C6-E8002ED94372}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +36,14 @@ Global
 		{E69D3301-E007-4562-9F94-53422411B5E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E69D3301-E007-4562-9F94-53422411B5E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E69D3301-E007-4562-9F94-53422411B5E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EB20443-0179-44F4-A38D-828C97E3B0FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EB20443-0179-44F4-A38D-828C97E3B0FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EB20443-0179-44F4-A38D-828C97E3B0FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EB20443-0179-44F4-A38D-828C97E3B0FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14EEE453-8DCF-4D38-97C6-E8002ED94372}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14EEE453-8DCF-4D38-97C6-E8002ED94372}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14EEE453-8DCF-4D38-97C6-E8002ED94372}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14EEE453-8DCF-4D38-97C6-E8002ED94372}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
