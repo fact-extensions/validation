@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation
 {
-    // TODO: refactor this since ErrorItem isn't a proper description anymore.
-    // should be something like FieldStatus
     // TODO: Consider interacting with IDataErrorInfo interface, as per MS standard
     public class FieldStatus : IComparable<FieldStatus>
     {
@@ -22,7 +20,7 @@ namespace Fact.Extensions.Validation
             this.name = name;
             this.Description = description;
             this.value = value;
-            Level = ErrorLevel.Error;
+            Level = Code.Error;
         }
 
         private object value;
@@ -34,10 +32,11 @@ namespace Fact.Extensions.Validation
         public string Name => name;
 
         // the time is coming where ErrorItem is going to become StatusItem...
-        public enum ErrorLevel
+        public enum Code
         {
             NoChange = -2,      // Specialized error code representing no error state change since last the client issued a request
             Exception = -1,     // Exceptions should be very, very rare - indication of a non-user instigated error
+            OK = 0,             // Generally unused, since we assume
             Error = 0,
             Warning = 1,
             Informational = 2,
@@ -52,7 +51,7 @@ namespace Fact.Extensions.Validation
             Focus = 102         // experimental: UI specific (but not technology specific) status code for focusing input to a field
         }
 
-        public ErrorLevel Level { get; set; }
+        public Code Level { get; set; }
 
         public string Description { get; set; }
 
@@ -175,14 +174,14 @@ namespace Fact.Extensions.Validation
             Index = index;
         }
 
-        public ExtendedFieldStatus(string prefix, string name, string description, object value, ErrorLevel level = ErrorLevel.Error) :
+        public ExtendedFieldStatus(string prefix, string name, string description, object value, Code level = Code.Error) :
             base(name, description, value)
         {
             Prefix = prefix;
             Level = level;
         }
 
-        public ExtendedFieldStatus(string prefix, string parameter, string description, object value, int index, ErrorLevel level) :
+        public ExtendedFieldStatus(string prefix, string parameter, string description, object value, int index, Code level) :
             base(parameter, description, value)
         {
             Prefix = prefix;
@@ -228,7 +227,7 @@ namespace Fact.Extensions.Validation
         /// <returns>Enumeration of errors matching the criteria</returns>
         public static IEnumerable<FieldStatus> OnlyErrors(this IEnumerable<FieldStatus> errors)
         {
-            return errors.Where(x => x.Level == FieldStatus.ErrorLevel.Error || x.Level == FieldStatus.ErrorLevel.Exception);
+            return errors.Where(x => x.Level == FieldStatus.Code.Error || x.Level == FieldStatus.Code.Exception);
         }
     }
 }
