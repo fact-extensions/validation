@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation
 {
-    public interface IFieldStatus
+    public interface IEntity { }
+
+    public interface IField : IFieldStatusProvider2
     {
         string Name { get; }
         object Value { get; }
@@ -16,7 +18,7 @@ namespace Fact.Extensions.Validation
 
     // TODO: Consider interacting with IDataErrorInfo interface, as per MS standard
     public class FieldStatus : IComparable<FieldStatus>,
-        IFieldStatus
+        IField
     {
         public FieldStatus() { }
         public FieldStatus(FieldStatus copyFrom) :
@@ -52,6 +54,7 @@ namespace Fact.Extensions.Validation
             Error = 0,
             Warning = 1,
             Informational = 2,
+            Conflict = 3,       // This field is in conflict with another
             Update = 10,        // Update is a special case status and not an error.  Notifies UI to update given
                                 // field with Value
 
@@ -69,6 +72,14 @@ namespace Fact.Extensions.Validation
 
             public string Description { get; set; }
 
+            public Status() { }
+
+            public Status(Code level, string description = null)
+            {
+                Level = level;
+                Description = description;
+            }
+
             public override int GetHashCode() =>
                 (Description ?? "").GetHashCode();
 
@@ -78,8 +89,35 @@ namespace Fact.Extensions.Validation
             }
         }
 
+
+        public class ConflictStatus : Status
+        {
+            readonly IField conflictingWith;
+
+            public ConflictStatus(IField conflictingWith) : base(Code.Conflict)
+            {
+                this.conflictingWith = conflictingWith;
+            }
+        }
+
         // DEBT: Make this into an IEnumerable so that aggregator has an easier time of it
         public readonly List<Status> Statuses = new List<Status>();
+
+        // EXPERIMENTAL - primarily for 'Conflict' registrations
+        List<IFieldStatusProvider2> ExternalStatuses = new List<IFieldStatusProvider2>();
+
+        // EXPERIMENTAL - probably not use -- cross field validation better done at a top level
+        IEnumerable<Status> IFieldStatusProvider2.Statuses
+        {
+            get
+            {
+                foreach (Status status in ExternalStatuses.SelectMany(x => Statuses))
+                    yield return status;
+
+                foreach (Status status in Statuses)
+                    yield return status;
+            }
+        }
 
         public void Add(Code code, string description) =>
             Statuses.Add(new Status() { Level = code, Description = description });
@@ -265,7 +303,7 @@ namespace Fact.Extensions.Validation
         }
 
 
-        public static void Error(this IFieldStatus field, string description) =>
+        public static void Error(this IField field, string description) =>
             field.Add(FieldStatus.Code.Error, description);
     }
 }

@@ -18,4 +18,13 @@ namespace Fact.Extensions.Validation
 
         bool IsValid { get; }
     }
+
+
+    /// <summary>
+    /// FIX: Naming - this represents .Status in fieldstatus
+    /// </summary>
+    public interface IFieldStatusProvider2
+    {
+        IEnumerable<FieldStatus.Status> Statuses { get; }
+    }
 }
