@@ -42,11 +42,16 @@ namespace Fact.Extensions.Validation.Experimental
     {
         object converted;
         readonly FieldStatus field;
+        readonly FieldStatus uncommitted;
 
-        public Binder(string name)
+        public Binder(string name, object initialValue = null)
         {
-            field = new FieldStatus(name, null);
+            field = new FieldStatus(name, initialValue);
+            uncommitted = new FieldStatus(name, initialValue);
         }
+
+        // EXPERIMENTAL
+        public object Value => converted;
 
         public event Action<object> Finalize;
         public event Action<FieldStatus> Validate;
@@ -54,6 +59,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public FieldStatus Evaluate<T>(T value)
         {
+            // Copying to do pre-commit validation
             var f = new FieldStatus(field.Name, value);
 
             Validate?.Invoke(f);
