@@ -18,7 +18,18 @@ namespace Fact.Extensions.Validation
     }
 
 
+    public interface IFieldStatusCollector2
+    {
+        void Add(FieldStatus.Status status);
+    }
+
+
     public static class IFieldStatusProviderExtensions
     {
+        public static void Add(this IFieldStatusCollector2 field, FieldStatus.Code code, string description) =>
+            field.Add(new FieldStatus.Status(code, description));
+
+        public static void Error(this IFieldStatusCollector2 field, string description) =>
+            field.Add(FieldStatus.Code.Error, description);
     }
 }

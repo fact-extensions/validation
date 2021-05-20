@@ -22,7 +22,7 @@ namespace Fact.Extensions.Validation.Experimental
                 field = new FieldStatus(name, null);
                 fields.Add(field);
             }
-            field.Statuses.Add(item);
+            field.Add(item);
         }
     }
 
@@ -38,20 +38,49 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public class Binder
+    public class EntityBinder
+    {
+        readonly Dictionary<string, Binder> fields = new Dictionary<string, Binder>();
+
+        public Binder Add(string name, object initialValue = null)
+        {
+            var binder = new Binder(name, initialValue);
+            fields.Add(name, binder);
+            return binder;
+        }
+
+        public Binder this[string name] => fields[name];
+    }
+
+
+    public class Binder : 
+        IFieldStatusProvider2,
+        IFieldStatusCollector2
     {
         object converted;
         readonly FieldStatus field;
-        readonly FieldStatus uncommitted;
+        FieldStatus uncommitted;
+
+        public FieldStatus Field => uncommitted;
+
+        // For exporting status
+        List<FieldStatus.Status> Statuses = new List<FieldStatus.Status>();
+
+        IEnumerable<FieldStatus.Status> IFieldStatusProvider2.Statuses => Statuses;
+
+        public void Add(FieldStatus.Status status) =>
+            Statuses.Add(status);
 
         public Binder(string name, object initialValue = null)
         {
             field = new FieldStatus(name, initialValue);
-            uncommitted = new FieldStatus(name, initialValue);
         }
 
         // EXPERIMENTAL
-        public object Value => converted;
+        public object Value => uncommitted?.Value;
+
+        // EXPERIMENTAL
+        public object Converted => converted;
 
         public event Action<object> Finalize;
         public event Action<FieldStatus> Validate;
@@ -60,7 +89,12 @@ namespace Fact.Extensions.Validation.Experimental
         public FieldStatus Evaluate<T>(T value)
         {
             // Copying to do pre-commit validation
-            var f = new FieldStatus(field.Name, value);
+            uncommitted = new FieldStatus(field.Name, value);
+            //var f = new FieldStatus(field.Name, value);
+            var f = uncommitted;
+
+            f.Clear();
+            Statuses.Clear();
 
             Validate?.Invoke(f);
             // Easier to do with a ConvertContext to carry the obj around, or a manual list

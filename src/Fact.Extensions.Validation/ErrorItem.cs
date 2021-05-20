@@ -7,7 +7,9 @@ namespace Fact.Extensions.Validation
 {
     public interface IEntity { }
 
-    public interface IField : IFieldStatusProvider2
+    public interface IField : 
+        IFieldStatusProvider2,
+        IFieldStatusCollector2
     {
         string Name { get; }
         object Value { get; }
@@ -31,7 +33,7 @@ namespace Fact.Extensions.Validation
             this.name = name;
             this.value = value;
             if(statuses != null)
-                Statuses.AddRange(statuses);
+                this.statuses.AddRange(statuses);
         }
 
         private object value;
@@ -101,26 +103,37 @@ namespace Fact.Extensions.Validation
         }
 
         // DEBT: Make this into an IEnumerable so that aggregator has an easier time of it
-        public readonly List<Status> Statuses = new List<Status>();
+        readonly List<Status> statuses = new List<Status>();
 
         // EXPERIMENTAL - primarily for 'Conflict' registrations
         List<IFieldStatusProvider2> ExternalStatuses = new List<IFieldStatusProvider2>();
 
+        public void AddIfNotPresent(IFieldStatusProvider2 external)
+        {
+            if(!ExternalStatuses.Contains(external))
+                ExternalStatuses.Add(external);
+        }
+
         // EXPERIMENTAL - probably not use -- cross field validation better done at a top level
-        IEnumerable<Status> IFieldStatusProvider2.Statuses
+        public IEnumerable<Status> Statuses
         {
             get
             {
-                foreach (Status status in ExternalStatuses.SelectMany(x => Statuses))
+                foreach (Status status in ExternalStatuses.SelectMany(x => x.Statuses))
                     yield return status;
 
-                foreach (Status status in Statuses)
+                foreach (Status status in statuses)
                     yield return status;
             }
         }
 
+        public void Clear() => statuses.Clear();
+
         public void Add(Code code, string description) =>
-            Statuses.Add(new Status() { Level = code, Description = description });
+            statuses.Add(new Status() { Level = code, Description = description });
+
+        public void Add(Status status) =>
+            statuses.Add(status);
 
         public override int GetHashCode()
         {
