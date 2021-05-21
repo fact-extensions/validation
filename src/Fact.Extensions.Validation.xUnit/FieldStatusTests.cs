@@ -66,6 +66,28 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public void ConfirmPasswordTest2()
         {
-        }
+            var entity = new Experimental.EntityBinder();
+            var pass1 = entity.Add("pass1");
+            var pass2 = entity.Add("pass2");
+            var inputContext = new Experimental.InputContext()
+            {
+                FieldName = "pass1"
+            };
+            pass1.getter = () => "password1";
+            pass2.getter = () => "password2";
+
+            entity.Validate += (b, context) =>
+            {
+                var _pass1 = b["pass1"];
+                var _pass2 = b["pass2"];
+
+                if (!object.Equals(_pass1.Value, _pass2.Value))
+                {
+                    _pass1.Error("mismatch");
+                    _pass2.Error("mismatch");
+                }
+            };
+            entity.Evaluate(null, inputContext);
         }
     }
+}

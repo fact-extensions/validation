@@ -40,7 +40,7 @@ namespace Fact.Extensions.Validation.Experimental
 
     public class InputContext
     {
-
+        public string FieldName { get; set; }
     }
 
 
@@ -59,7 +59,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public Binder this[string name] => fields[name];
 
-        public event Action<EntityBinder> Validate;
+        public event Action<EntityBinder, InputContext> Validate;
 
         public void Evaluate(object uncommitted, InputContext context)
         {
@@ -68,10 +68,10 @@ namespace Fact.Extensions.Validation.Experimental
             foreach(Binder binder in fields.Values)
             {
                 object _uncommitted = binder.getter();
-                binder.Evaluate(uncommitted);
+                binder.Evaluate(_uncommitted);
             }
 
-            Validate?.Invoke(this);
+            Validate?.Invoke(this, context);
         }
     }
 
