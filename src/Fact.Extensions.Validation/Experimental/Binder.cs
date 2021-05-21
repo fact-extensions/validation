@@ -44,7 +44,32 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public class EntityBinder : IFieldStatusCollector
+    public class ShimFieldBase : IField
+    {
+        public string Name { get; }
+
+        public object Value => binder.Value;
+
+        readonly internal ICollection<FieldStatus.Status> statuses;
+
+        public IEnumerable<FieldStatus.Status> Statuses => binder.Field.Statuses;
+
+        public void Add(FieldStatus.Status status) =>
+            statuses.Add(status);
+
+        internal readonly Binder binder;
+
+        internal ShimFieldBase(Binder binder, ICollection<FieldStatus.Status> statuses)
+        {
+            this.statuses = statuses;
+            this.binder = binder;
+            Name = binder.Field.Name;
+        }
+
+    }
+
+
+    public class GroupBinder : IFieldStatusCollector
     {
         object uncommitted;
 
@@ -53,36 +78,21 @@ namespace Fact.Extensions.Validation.Experimental
         /// the EntityBinder too
         /// Also serves as a 1:1 holder for the underlying field binder
         /// </summary>
-        class _Item : IField
+        class _Item : ShimFieldBase
         {
-            public string Name { get; }
-
-            public object Value => binder.Field.Value;
-
-            readonly internal List<FieldStatus.Status> statuses = new List<FieldStatus.Status>();
-
-            // These statuses are for the entitybinder aka groupbinder representing a flat list of fields
-            public IEnumerable<FieldStatus.Status> Statuses => statuses;
-
-            public void Add(FieldStatus.Status status) =>
-                statuses.Add(status);
-
-            internal readonly Binder binder;
-
-            internal _Item(Binder binder)
+            internal _Item(Binder binder) : 
+                base(binder, new List<FieldStatus.Status>())
             {
-                this.binder = binder;
-                Name = binder.Field.Name;
             }
         }
 
         readonly Dictionary<string, _Item> fields = new Dictionary<string, _Item>();
 
-        public Binder Add(string name, object initialValue = null)
+        public Binder Add(FieldStatus field)
         {
-            var binder = new Binder(name, initialValue);
+            var binder = new Binder(field);
             var item = new _Item(binder);
-            fields.Add(name, item);
+            fields.Add(field.Name, item);
             // Underlying field will now report error statuses tracked by our shim shield too
             binder.Field.Add(item.Statuses);
             return binder;
@@ -96,7 +106,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public IField this[string name] => fields[name];
 
-        public event Action<EntityBinder, InputContext> Validate;
+        public event Action<GroupBinder, InputContext> Validate;
 
         public void Evaluate(object uncommitted, InputContext context)
         {
@@ -133,6 +143,9 @@ namespace Fact.Extensions.Validation.Experimental
         // For exporting status
         List<FieldStatus.Status> Statuses = new List<FieldStatus.Status>();
 
+        /// <summary>
+        /// Statuses tracked by this binder 1:1 with this tracked field
+        /// </summary>
         List<FieldStatus.Status> InternalStatuses = new List<FieldStatus.Status>();
 
         IEnumerable<FieldStatus.Status> IFieldStatusProvider2.Statuses => Statuses;
@@ -140,9 +153,17 @@ namespace Fact.Extensions.Validation.Experimental
         public void Add(FieldStatus.Status status) =>
             Statuses.Add(status);
 
-        public Binder(string name, object initialValue = null)
+        public Binder(FieldStatus field)
         {
-            field = new FieldStatus(name, initialValue);
+            this.field = field;
+            Attach();
+        }
+
+
+        void Attach()
+        {
+            field.Add(InternalStatuses);
+            //field.AddIfNotPresent(this);
         }
 
         // EXPERIMENTAL
@@ -152,17 +173,17 @@ namespace Fact.Extensions.Validation.Experimental
         public object Converted => converted;
 
         public event Action<object> Finalize;
-        public event Action<FieldStatus> Validate;
+        public event Action<IField> Validate;
         public event Func<FieldStatus, object, object> Convert;
 
-        public FieldStatus Evaluate<T>(T value)
+        public IField Evaluate<T>(T value)
         {
             field.Value = value;
-            var f = field;
+            var f = new ShimFieldBase(this, InternalStatuses);
 
-            f.Add(InternalStatuses);
-            f.Clear();
+            //f.Clear();
             Statuses.Clear();
+            InternalStatuses.Clear();
 
             Validate?.Invoke(f);
             // Easier to do with a ConvertContext to carry the obj around, or a manual list
