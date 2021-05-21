@@ -26,7 +26,7 @@ namespace Fact.Extensions.Validation.xUnit
 
 
         [Fact]
-        public void ConfirmPasswordTest()
+        public void ConfirmPasswordTest1()
         {
             var entity = new Experimental.EntityBinder();
             var pass1 = entity.Add("pass1");
@@ -62,5 +62,10 @@ namespace Fact.Extensions.Validation.xUnit
             pass2.Evaluate("nonmatched");
             pass2.Evaluate("password");
         }
+
+        [Fact]
+        public void ConfirmPasswordTest2()
+        {
+        }
+        }
     }
-}

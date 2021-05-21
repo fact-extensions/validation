@@ -38,8 +38,16 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+    public class InputContext
+    {
+
+    }
+
+
     public class EntityBinder
     {
+        object uncommitted;
+
         readonly Dictionary<string, Binder> fields = new Dictionary<string, Binder>();
 
         public Binder Add(string name, object initialValue = null)
@@ -50,6 +58,21 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
         public Binder this[string name] => fields[name];
+
+        public event Action<EntityBinder> Validate;
+
+        public void Evaluate(object uncommitted, InputContext context)
+        {
+            this.uncommitted = uncommitted;
+
+            foreach(Binder binder in fields.Values)
+            {
+                object _uncommitted = binder.getter();
+                binder.Evaluate(uncommitted);
+            }
+
+            Validate?.Invoke(this);
+        }
     }
 
 
@@ -57,6 +80,8 @@ namespace Fact.Extensions.Validation.Experimental
         IFieldStatusProvider2,
         IFieldStatusCollector2
     {
+        public Func<object> getter;
+
         object converted;
         readonly FieldStatus field;
         FieldStatus uncommitted;
