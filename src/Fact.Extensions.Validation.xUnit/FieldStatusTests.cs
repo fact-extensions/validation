@@ -40,13 +40,13 @@ namespace Fact.Extensions.Validation.xUnit
                 {
                     string otherName = f.Name == "pass1" ? "pass2" : "pass1";
 
-                    Experimental.Binder binder = entity[f.Name];
-                    Experimental.Binder otherBinder = entity[otherName];
+                    IField binder = entity[f.Name];
+                    IField otherBinder = entity[otherName];
                     f.Error("Password does not match");
                     // DEBT: If field not yet present, that means it hasn't been input yet.
                     // Don't bother adding to it then.  However, really, we want a kind of
                     // "hollow" field ready to go
-                    otherBinder.Field?.AddIfNotPresent(binder);
+                    //otherBinder.Field?.AddIfNotPresent(binder);
                     binder.Add(FieldStatus.Code.Conflict, "Test conflict");
                 }
             });
@@ -83,8 +83,9 @@ namespace Fact.Extensions.Validation.xUnit
 
                 if (!object.Equals(_pass1.Value, _pass2.Value))
                 {
-                    _pass1.Error("mismatch");
-                    _pass2.Error("mismatch");
+                    //_pass1.Error("mismatch");
+                    //_pass2.Error("mismatch");
+                    b.Error("pass1", "mismatch");
                 }
             };
             entity.Evaluate(null, inputContext);

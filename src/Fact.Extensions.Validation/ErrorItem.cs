@@ -13,8 +13,6 @@ namespace Fact.Extensions.Validation
     {
         string Name { get; }
         object Value { get; }
-
-        void Add(FieldStatus.Code code, string description);
     }
 
 
@@ -42,7 +40,11 @@ namespace Fact.Extensions.Validation
         /// <summary>
         /// Original value presented to engine at beginning of validation/conversion chain
         /// </summary>
-        public object Value => value;
+        public object Value
+        {
+            get => value;
+            internal set => this.value = value;
+        }
 
 
         public string Name => name;
@@ -108,10 +110,19 @@ namespace Fact.Extensions.Validation
         // EXPERIMENTAL - primarily for 'Conflict' registrations
         List<IFieldStatusProvider2> ExternalStatuses = new List<IFieldStatusProvider2>();
 
+        List<IEnumerable<Status>> externalStatuses2 = new List<IEnumerable<Status>>();
+
         public void AddIfNotPresent(IFieldStatusProvider2 external)
         {
             if(!ExternalStatuses.Contains(external))
                 ExternalStatuses.Add(external);
+        }
+
+
+        // EXPERIMENTAL
+        public void Add(IEnumerable<Status> external)
+        {
+            externalStatuses2.Add(external);
         }
 
         // EXPERIMENTAL - probably not use -- cross field validation better done at a top level
@@ -123,6 +134,9 @@ namespace Fact.Extensions.Validation
                     yield return status;
 
                 foreach (Status status in statuses)
+                    yield return status;
+
+                foreach (Status status in externalStatuses2.SelectMany(x => x))
                     yield return status;
             }
         }

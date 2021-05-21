@@ -32,4 +32,11 @@ namespace Fact.Extensions.Validation
         public static void Error(this IFieldStatusCollector2 field, string description) =>
             field.Add(FieldStatus.Code.Error, description);
     }
+
+
+    public static class IFieldStatusCollectorExtensions
+    {
+        public static void Error(this IFieldStatusCollector fsc, string field, string description) =>
+            fsc.Append(field, new FieldStatus.Status(FieldStatus.Code.Error, description));
+    }
 }

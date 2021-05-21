@@ -44,20 +44,57 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public class EntityBinder
+    public class EntityBinder : IFieldStatusCollector
     {
         object uncommitted;
 
-        readonly Dictionary<string, Binder> fields = new Dictionary<string, Binder>();
+        /// <summary>
+        /// Serves as a shim so that error registrations for this field associate to
+        /// the EntityBinder too
+        /// Also serves as a 1:1 holder for the underlying field binder
+        /// </summary>
+        class _Item : IField
+        {
+            public string Name { get; }
+
+            public object Value => binder.Field.Value;
+
+            readonly internal List<FieldStatus.Status> statuses = new List<FieldStatus.Status>();
+
+            // These statuses are for the entitybinder aka groupbinder representing a flat list of fields
+            public IEnumerable<FieldStatus.Status> Statuses => statuses;
+
+            public void Add(FieldStatus.Status status) =>
+                statuses.Add(status);
+
+            internal readonly Binder binder;
+
+            internal _Item(Binder binder)
+            {
+                this.binder = binder;
+                Name = binder.Field.Name;
+            }
+        }
+
+        readonly Dictionary<string, _Item> fields = new Dictionary<string, _Item>();
 
         public Binder Add(string name, object initialValue = null)
         {
             var binder = new Binder(name, initialValue);
-            fields.Add(name, binder);
+            var item = new _Item(binder);
+            fields.Add(name, item);
+            // Underlying field will now report error statuses tracked by our shim shield too
+            binder.Field.Add(item.Statuses);
             return binder;
         }
 
-        public Binder this[string name] => fields[name];
+        public void Clear()
+        {
+            foreach (_Item item in fields.Values)
+                item.statuses.Clear();
+        }
+
+        public IField this[string name] => fields[name];
 
         public event Action<EntityBinder, InputContext> Validate;
 
@@ -65,13 +102,19 @@ namespace Fact.Extensions.Validation.Experimental
         {
             this.uncommitted = uncommitted;
 
-            foreach(Binder binder in fields.Values)
+            foreach(_Item item in fields.Values)
             {
+                Binder binder = item.binder;
                 object _uncommitted = binder.getter();
                 binder.Evaluate(_uncommitted);
             }
 
             Validate?.Invoke(this, context);
+        }
+
+        public void Append(string fieldName, FieldStatus.Status status)
+        {
+            fields[fieldName].Add(status);
         }
     }
 
@@ -84,12 +127,13 @@ namespace Fact.Extensions.Validation.Experimental
 
         object converted;
         readonly FieldStatus field;
-        FieldStatus uncommitted;
 
-        public FieldStatus Field => uncommitted;
+        public FieldStatus Field => field;
 
         // For exporting status
         List<FieldStatus.Status> Statuses = new List<FieldStatus.Status>();
+
+        List<FieldStatus.Status> InternalStatuses = new List<FieldStatus.Status>();
 
         IEnumerable<FieldStatus.Status> IFieldStatusProvider2.Statuses => Statuses;
 
@@ -102,7 +146,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
         // EXPERIMENTAL
-        public object Value => uncommitted?.Value;
+        public object Value => field.Value;
 
         // EXPERIMENTAL
         public object Converted => converted;
@@ -113,11 +157,10 @@ namespace Fact.Extensions.Validation.Experimental
 
         public FieldStatus Evaluate<T>(T value)
         {
-            // Copying to do pre-commit validation
-            uncommitted = new FieldStatus(field.Name, value);
-            //var f = new FieldStatus(field.Name, value);
-            var f = uncommitted;
+            field.Value = value;
+            var f = field;
 
+            f.Add(InternalStatuses);
             f.Clear();
             Statuses.Clear();
 
