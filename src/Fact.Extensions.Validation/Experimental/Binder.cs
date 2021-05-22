@@ -93,8 +93,6 @@ namespace Fact.Extensions.Validation.Experimental
             var binder = new Binder(field);
             var item = new _Item(binder);
             fields.Add(field.Name, item);
-            // Underlying field will now report error statuses tracked by our shim shield too
-            binder.Field.Add(item.Statuses);
             return binder;
         }
 

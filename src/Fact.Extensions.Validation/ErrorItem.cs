@@ -55,10 +55,10 @@ namespace Fact.Extensions.Validation
             NoChange = -2,      // Specialized error code representing no error state change since last the client issued a request
             Exception = -1,     // Exceptions should be very, very rare - indication of a non-user instigated error
             OK = 0,             // Generally unused, since we assume
-            Error = 0,
-            Warning = 1,
-            Informational = 2,
-            Conflict = 3,       // This field is in conflict with another
+            Error = 1,
+            Warning = 2,
+            Informational = 3,
+            Conflict = 4,       // This field is in conflict with another
             Update = 10,        // Update is a special case status and not an error.  Notifies UI to update given
                                 // field with Value
 
@@ -87,9 +87,15 @@ namespace Fact.Extensions.Validation
             public override int GetHashCode() =>
                 (Description ?? "").GetHashCode();
 
+            public override string ToString() =>
+                $"[{Level}: {Description}]";
+
+            public string ToString(object value) =>
+                Description + " / original value = " + value;
+
             public string ToString(string name, object value)
             {
-                return "[" + Level.ToString()[0] + ":" + name + "]: " + Description + " / original value = " + value;
+                return "[" + Level.ToString()[0] + ":" + name + "]: " + ToString(value);
             }
         }
 
@@ -158,8 +164,8 @@ namespace Fact.Extensions.Validation
 
         public override string ToString()
         {
-            string s = string.Join("\r", Statuses.Select(x => x.ToString(Name, value)));
-            return s;
+            string s = string.Join("\r", Statuses.Select(x => x.ToString()));
+            return $"Name={Name}, Value={Value}, Statuses={s}";
         }
 
         #region IComparable<FieldStatus> Members

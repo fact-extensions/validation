@@ -1,3 +1,4 @@
+using FluentAssertions;
 using System;
 using System.Linq;
 using Xunit;
@@ -26,7 +27,8 @@ namespace Fact.Extensions.Validation.xUnit
 
             b.Evaluate(0);
 
-            //f.Statuses.Should()
+            f.Statuses.Should().HaveCount(1).And.
+                Subject.First().Level.Should().Be(FieldStatus.Code.Error);
         }
 
 
