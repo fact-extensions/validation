@@ -40,8 +40,10 @@ namespace Fact.Extensions.Validation.xUnit
             var entity = new Experimental.GroupBinder();
             var f1 = new FieldStatus("pass1", null);
             var f2 = new FieldStatus("pass2", null);
-            var pass1 = entity.Add<string>(f1);
-            var pass2 = entity.Add<string>(f2);
+            var pass1 = new Experimental.Binder<string>(f1);
+            entity.Add(pass1);
+            var pass2 = new Experimental.Binder<string>(f2);
+            entity.Add(pass2);
             var validator = new Action<IField>(f =>
             {
                 var pass1str = (string)pass1.Field.Value;
@@ -80,8 +82,10 @@ namespace Fact.Extensions.Validation.xUnit
             var entity = new Experimental.GroupBinder();
             var f1 = new FieldStatus("pass1", null);
             var f2 = new FieldStatus("pass2", null);
-            var pass1 = entity.Add<string>(f1);
-            var pass2 = entity.Add<string>(f2);
+            var pass1 = new Experimental.Binder<string>(f1);
+            entity.Add(pass1);
+            var pass2 = new Experimental.Binder<string>(f2);
+            entity.Add(pass2);
             var inputContext = new Experimental.InputContext()
             {
                 FieldName = "pass1"

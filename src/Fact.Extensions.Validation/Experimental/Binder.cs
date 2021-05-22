@@ -48,7 +48,7 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public string Name { get; }
 
-        public object Value => binder.Field.Value;
+        public object Value => binder.getter();
 
         readonly internal ICollection<FieldStatus.Status> statuses;
 
@@ -101,16 +101,17 @@ namespace Fact.Extensions.Validation.Experimental
 
         readonly Dictionary<string, _Item> fields = new Dictionary<string, _Item>();
 
-        public IBinder Add(FieldStatus field) =>
-            Add<object>(field);
-
-
-        public Binder<T> Add<T>(FieldStatus field)
+        public IBinder Add(FieldStatus field)
         {
-            var binder = new Binder<T>(field);
-            var item = new _Item(binder);
-            fields.Add(field.Name, item);
+            var binder = new BinderBase(field);
+            Add(binder);
             return binder;
+        }
+
+        public void Add(IBinder binder)
+        {
+            var item = new _Item(binder);
+            fields.Add(binder.Field.Name, item);
         }
 
         public void Clear()
@@ -129,9 +130,12 @@ namespace Fact.Extensions.Validation.Experimental
 
             foreach(_Item item in fields.Values)
             {
+                /* group is now distinct from one-off fields.  a 3rd party must 
+                 * coordinate their validation together
                 IBinder binder = item.binder;
                 object _uncommitted = binder.getter();
-                binder.Evaluate(_uncommitted);
+                binder.Field.Value = _uncommitted;
+                    binder.Evaluate(_uncommitted); */
             }
 
             Validate?.Invoke(this, context);
@@ -149,24 +153,33 @@ namespace Fact.Extensions.Validation.Experimental
 
         Func<object> getter { get; }
 
-        void Evaluate(object o);
+        //void Evaluate(object o);
+    }
+
+    public class BinderBase : IBinder
+    {
+        // DEBT:
+        public Func<object> getter { get; set; }
+
+        protected readonly FieldStatus field;
+
+        public FieldStatus Field => field;
+
+        public BinderBase(FieldStatus field)
+        {
+            this.field = field;
+        }
     }
 
     /// <summary>
     /// Binder is a very fancy getter and IField status maintainer
     /// </summary>
-    public class Binder<T> :
+    public class Binder<T> : BinderBase,
         IBinder,
         IFieldStatusProvider2,
         IFieldStatusCollector2
     {
-        // DEBT:
-        public Func<object> getter { get; set; }
-
         object converted;
-        readonly FieldStatus field;
-
-        public FieldStatus Field => field;
 
         // For exporting status
         List<FieldStatus.Status> Statuses = new List<FieldStatus.Status>();
@@ -181,9 +194,8 @@ namespace Fact.Extensions.Validation.Experimental
         public void Add(FieldStatus.Status status) =>
             Statuses.Add(status);
 
-        public Binder(FieldStatus field)
+        public Binder(FieldStatus field) : base(field)
         {
-            this.field = field;
             Attach();
         }
 
@@ -204,10 +216,9 @@ namespace Fact.Extensions.Validation.Experimental
         public event Action<IField<T>> Validate;
         public event Func<FieldStatus, object, object> Convert;
 
-        void IBinder.Evaluate(object o) => Evaluate((T)o);
-
         public IField Evaluate(T value)
         {
+            getter = () => value;
             field.Value = value;
             var f = new ShimFieldBase<T>(this, InternalStatuses);
 
