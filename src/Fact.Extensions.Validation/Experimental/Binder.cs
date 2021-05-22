@@ -82,10 +82,13 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+    /// <summary>
+    /// Like an abstract entity, distinct binders are added to this so that they
+    /// all may interact with each other as a group.  Need not be a "flat" structure
+    /// like a simple POCO
+    /// </summary>
     public class GroupBinder : IFieldStatusCollector
     {
-        object uncommitted;
-
         /// <summary>
         /// Serves as a shim so that error registrations for this field associate to
         /// the EntityBinder too
@@ -124,9 +127,9 @@ namespace Fact.Extensions.Validation.Experimental
 
         public event Action<GroupBinder, InputContext> Validate;
 
-        public void Evaluate(object uncommitted, InputContext context)
+        public void Evaluate(InputContext context)
         {
-            this.uncommitted = uncommitted;
+            Clear();
 
             foreach(_Item item in fields.Values)
             {
@@ -141,6 +144,7 @@ namespace Fact.Extensions.Validation.Experimental
             Validate?.Invoke(this, context);
         }
 
+        // Recommended to use shims instead
         public void Append(string fieldName, FieldStatus.Status status)
         {
             fields[fieldName].Add(status);
@@ -194,8 +198,9 @@ namespace Fact.Extensions.Validation.Experimental
         public void Add(FieldStatus.Status status) =>
             Statuses.Add(status);
 
-        public Binder(FieldStatus field) : base(field)
+        public Binder(FieldStatus field, Func<object> getter = null) : base(field)
         {
+            this.getter = getter;
             Attach();
         }
 
@@ -216,10 +221,9 @@ namespace Fact.Extensions.Validation.Experimental
         public event Action<IField<T>> Validate;
         public event Func<FieldStatus, object, object> Convert;
 
-        public IField Evaluate(T value)
+        public IField Evaluate()
         {
-            getter = () => value;
-            field.Value = value;
+            field.Value = getter();
             var f = new ShimFieldBase<T>(this, InternalStatuses);
 
             //f.Clear();
@@ -230,7 +234,7 @@ namespace Fact.Extensions.Validation.Experimental
             // Easier to do with a ConvertContext to carry the obj around, or a manual list
             // of delegates which we can abort if things go wrong
             //Convert?.Invoke(f);
-            converted = value;
+            //converted = value;
 
             return f;
         }
@@ -238,6 +242,21 @@ namespace Fact.Extensions.Validation.Experimental
         public void DoFinalize()
         {
             Finalize?.Invoke(converted);
+        }
+    }
+}
+
+
+namespace Fact.Extensions.Validation
+{
+    public static class BinderExtensions
+    {
+        // DEBT: This stateful and non-stateful can't fully coexist and we'll have to choose one
+        // or the other eventually
+        public static void Evaluate<T>(this Experimental.Binder<T> binder, T value)
+        {
+            binder.getter = () => value;
+            binder.Evaluate();
         }
     }
 }

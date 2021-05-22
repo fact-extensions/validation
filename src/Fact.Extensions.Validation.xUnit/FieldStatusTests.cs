@@ -86,6 +86,7 @@ namespace Fact.Extensions.Validation.xUnit
             entity.Add(pass1);
             var pass2 = new Experimental.Binder<string>(f2);
             entity.Add(pass2);
+            // Looks like we may not need context anymore...
             var inputContext = new Experimental.InputContext()
             {
                 FieldName = "pass1"
@@ -105,7 +106,7 @@ namespace Fact.Extensions.Validation.xUnit
                     //b.Error("pass1", "mismatch");
                 }
             };
-            entity.Evaluate(null, inputContext);
+            entity.Evaluate(inputContext);
 
             var _pass1 = (Experimental.GroupBinder._Item)entity["pass1"];
             f1.InternalStatuses.Should().BeEmpty();
