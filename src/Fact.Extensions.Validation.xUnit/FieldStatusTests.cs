@@ -18,11 +18,11 @@ namespace Fact.Extensions.Validation.xUnit
         public void BinderTest()
         {
             var f = new FieldStatus("field1", null);
-            var b = new Experimental.Binder(f);
+            var b = new Experimental.Binder<int>(f);
 
             b.Validate += f =>
             {
-                if((int?)f.Value == 1)
+                if(f.Value == 1)
                     f.Error("You didn't do it right");
             };
 
@@ -40,12 +40,12 @@ namespace Fact.Extensions.Validation.xUnit
             var entity = new Experimental.GroupBinder();
             var f1 = new FieldStatus("pass1", null);
             var f2 = new FieldStatus("pass2", null);
-            var pass1 = entity.Add(f1);
-            var pass2 = entity.Add(f2);
+            var pass1 = entity.Add<string>(f1);
+            var pass2 = entity.Add<string>(f2);
             var validator = new Action<IField>(f =>
             {
-                var pass1str = (string)pass1.Value;
-                var pass2str = (string)pass2.Value;
+                var pass1str = (string)pass1.Field.Value;
+                var pass2str = (string)pass2.Field.Value;
 
                 if (!object.Equals(pass2str, pass1str))
                 {
@@ -80,8 +80,8 @@ namespace Fact.Extensions.Validation.xUnit
             var entity = new Experimental.GroupBinder();
             var f1 = new FieldStatus("pass1", null);
             var f2 = new FieldStatus("pass2", null);
-            var pass1 = entity.Add(f1);
-            var pass2 = entity.Add(f2);
+            var pass1 = entity.Add<string>(f1);
+            var pass2 = entity.Add<string>(f2);
             var inputContext = new Experimental.InputContext()
             {
                 FieldName = "pass1"

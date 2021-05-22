@@ -48,7 +48,7 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public string Name { get; }
 
-        public object Value => binder.Value;
+        public object Value => binder.Field.Value;
 
         readonly internal ICollection<FieldStatus.Status> statuses;
 
@@ -57,9 +57,9 @@ namespace Fact.Extensions.Validation.Experimental
         public void Add(FieldStatus.Status status) =>
             statuses.Add(status);
 
-        internal readonly Binder binder;
+        internal readonly IBinder binder;
 
-        internal ShimFieldBase(Binder binder, ICollection<FieldStatus.Status> statuses)
+        internal ShimFieldBase(IBinder binder, ICollection<FieldStatus.Status> statuses)
         {
             this.statuses = statuses;
             this.binder = binder;
@@ -75,7 +75,7 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public new T Value => (T)base.Value;
 
-        internal ShimFieldBase(Binder binder, ICollection<FieldStatus.Status> statuses) :
+        internal ShimFieldBase(IBinder binder, ICollection<FieldStatus.Status> statuses) :
             base(binder, statuses)
         { 
         }
@@ -93,7 +93,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// </summary>
         internal class _Item : ShimFieldBase
         {
-            internal _Item(Binder binder) : 
+            internal _Item(IBinder binder) : 
                 base(binder, new List<FieldStatus.Status>())
             {
             }
@@ -101,9 +101,13 @@ namespace Fact.Extensions.Validation.Experimental
 
         readonly Dictionary<string, _Item> fields = new Dictionary<string, _Item>();
 
-        public Binder Add(FieldStatus field)
+        public IBinder Add(FieldStatus field) =>
+            Add<object>(field);
+
+
+        public Binder<T> Add<T>(FieldStatus field)
         {
-            var binder = new Binder(field);
+            var binder = new Binder<T>(field);
             var item = new _Item(binder);
             fields.Add(field.Name, item);
             return binder;
@@ -125,7 +129,7 @@ namespace Fact.Extensions.Validation.Experimental
 
             foreach(_Item item in fields.Values)
             {
-                Binder binder = item.binder;
+                IBinder binder = item.binder;
                 object _uncommitted = binder.getter();
                 binder.Evaluate(_uncommitted);
             }
@@ -139,15 +143,25 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
+    public interface IBinder
+    {
+        FieldStatus Field { get; }
+
+        Func<object> getter { get; }
+
+        void Evaluate(object o);
+    }
 
     /// <summary>
     /// Binder is a very fancy getter and IField status maintainer
     /// </summary>
-    public class Binder : 
+    public class Binder<T> :
+        IBinder,
         IFieldStatusProvider2,
         IFieldStatusCollector2
     {
-        public Func<object> getter;
+        // DEBT:
+        public Func<object> getter { get; set; }
 
         object converted;
         readonly FieldStatus field;
@@ -187,13 +201,15 @@ namespace Fact.Extensions.Validation.Experimental
         public object Converted => converted;
 
         public event Action<object> Finalize;
-        public event Action<IField> Validate;
+        public event Action<IField<T>> Validate;
         public event Func<FieldStatus, object, object> Convert;
 
-        public IField Evaluate<T>(T value)
+        void IBinder.Evaluate(object o) => Evaluate((T)o);
+
+        public IField Evaluate(T value)
         {
             field.Value = value;
-            var f = new ShimFieldBase(this, InternalStatuses);
+            var f = new ShimFieldBase<T>(this, InternalStatuses);
 
             //f.Clear();
             Statuses.Clear();
