@@ -69,6 +69,19 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+    public class ShimFieldBase<T> : 
+        ShimFieldBase,
+        IField<T>
+    {
+        public new T Value => (T)base.Value;
+
+        internal ShimFieldBase(Binder binder, ICollection<FieldStatus.Status> statuses) :
+            base(binder, statuses)
+        { 
+        }
+    }
+
+
     public class GroupBinder : IFieldStatusCollector
     {
         object uncommitted;
@@ -127,6 +140,9 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+    /// <summary>
+    /// Binder is a very fancy getter and IField status maintainer
+    /// </summary>
     public class Binder : 
         IFieldStatusProvider2,
         IFieldStatusCollector2

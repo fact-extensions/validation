@@ -16,6 +16,12 @@ namespace Fact.Extensions.Validation
     }
 
 
+    public interface IField<T> : IField
+    {
+        new T Value { get; }
+    }
+
+
     // TODO: Consider interacting with IDataErrorInfo interface, as per MS standard
     public class FieldStatus : IComparable<FieldStatus>,
         IField
