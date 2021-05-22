@@ -78,7 +78,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// the EntityBinder too
         /// Also serves as a 1:1 holder for the underlying field binder
         /// </summary>
-        class _Item : ShimFieldBase
+        internal class _Item : ShimFieldBase
         {
             internal _Item(Binder binder) : 
                 base(binder, new List<FieldStatus.Status>())

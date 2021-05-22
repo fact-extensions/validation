@@ -94,12 +94,19 @@ namespace Fact.Extensions.Validation.xUnit
 
                 if (!object.Equals(_pass1.Value, _pass2.Value))
                 {
-                    //_pass1.Error("mismatch");
-                    //_pass2.Error("mismatch");
-                    b.Error("pass1", "mismatch");
+                    _pass1.Error("mismatch");
+                    _pass2.Error("mismatch");
+                    //b.Error("pass1", "mismatch");
                 }
             };
             entity.Evaluate(null, inputContext);
+
+            var _pass1 = (Experimental.GroupBinder._Item)entity["pass1"];
+            f1.InternalStatuses.Should().BeEmpty();
+            _pass1.statuses.Should().HaveCount(1);
+            f2.InternalStatuses.Should().BeEmpty();
+            var _pass2 = (Experimental.GroupBinder._Item)entity["pass2"];
+            _pass2.statuses.Should().HaveCount(1);
         }
     }
 }

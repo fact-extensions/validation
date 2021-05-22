@@ -110,6 +110,11 @@ namespace Fact.Extensions.Validation
             }
         }
 
+#if DEBUG
+        // For unit testing only
+        internal ICollection<Status> InternalStatuses => statuses;
+#endif
+
         // DEBT: Make this into an IEnumerable so that aggregator has an easier time of it
         readonly List<Status> statuses = new List<Status>();
 

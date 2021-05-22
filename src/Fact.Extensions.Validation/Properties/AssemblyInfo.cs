@@ -15,6 +15,8 @@ using System.Runtime.InteropServices;
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
 
+[assembly:InternalsVisibleTo("Fact.Extensions.Validation.xUnit")]
+
 #if NETSTANDARD1_6
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("fd29bdbf-df98-4f29-9aed-10a848d940e3")]
