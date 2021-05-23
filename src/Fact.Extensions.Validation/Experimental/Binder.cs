@@ -260,6 +260,8 @@ namespace Fact.Extensions.Validation.Experimental
 
 namespace Fact.Extensions.Validation
 {
+    using Experimental;
+
     public static class BinderExtensions
     {
         // DEBT: This stateful and non-stateful can't fully coexist and we'll have to choose one
@@ -268,6 +270,56 @@ namespace Fact.Extensions.Validation
         {
             binder.getter = () => value;
             binder.Evaluate();
+        }
+
+
+        public static FluentBinder<T> Assert<T>(this Binder<T> binder)
+        {
+            return new FluentBinder<T>(binder);
+        }
+
+        public static FluentBinder<T> IsTrue<T>(this FluentBinder<T> fluent, 
+            Func<T, bool> predicate, string description)
+        {
+            fluent.Binder.Validate += f =>
+            {
+                if(!predicate(f.Value))
+                    f.Error(description);
+            };
+            return fluent;
+        }
+
+
+        public static FluentBinder<T> LessThan<T>(this FluentBinder<T> fluent, T lessThanValue,
+            string description = "Must be less than {0}")
+            where T: IComparable<T>
+        {
+            fluent.IsTrue(v => v.CompareTo(lessThanValue) < 0, 
+                string.Format(description, lessThanValue));
+            return fluent;
+        }
+
+
+        public static FluentBinder<T> GreaterThan<T>(this FluentBinder<T> fluent, T greaterThanValue, 
+            string description = "Must be greater than {0}")
+            where T: IComparable<T>
+        {
+            fluent.IsTrue(v => v.CompareTo(greaterThanValue) > 0, 
+                string.Format(description, greaterThanValue));
+            return fluent;
+        }
+    }
+
+
+    public class FluentBinder<T>
+    {
+        readonly Binder<T> binder;
+
+        public Binder<T> Binder => binder;
+
+        public FluentBinder(Binder<T> binder)
+        {
+            this.binder = binder;
         }
     }
 }
