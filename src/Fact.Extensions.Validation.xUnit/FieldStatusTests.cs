@@ -115,5 +115,21 @@ namespace Fact.Extensions.Validation.xUnit
             var _pass2 = (Experimental.GroupBinder._Item)entity["pass2"];
             _pass2.statuses.Should().HaveCount(1);
         }
+
+        [Fact]
+        public void ConversionTest()
+        {
+            var f = new FieldStatus("field1", null);
+            var b = new Experimental.Binder<string>(f);
+
+            b.Convert += (f, value) =>
+            {
+                if (int.TryParse((string)value, out int result)) return result;
+
+                f.Error("Unable to convert to integer");
+
+                return value;
+            };
+        }
     }
 }

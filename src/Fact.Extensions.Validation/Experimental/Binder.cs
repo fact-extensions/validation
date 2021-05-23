@@ -219,7 +219,10 @@ namespace Fact.Extensions.Validation.Experimental
 
         public event Action<object> Finalize;
         public event Action<IField<T>> Validate;
-        public event Func<FieldStatus, object, object> Convert;
+
+        public delegate object ConvertDelegate(IField<T> field, object from);
+
+        public event ConvertDelegate Convert;
 
         public IField Evaluate()
         {
@@ -231,9 +234,13 @@ namespace Fact.Extensions.Validation.Experimental
             InternalStatuses.Clear();
 
             Validate?.Invoke(f);
+
+            converted = field.Value;
             // Easier to do with a ConvertContext to carry the obj around, or a manual list
             // of delegates which we can abort if things go wrong
-            //Convert?.Invoke(f);
+            foreach(var d in Convert.GetInvocationList().OfType<ConvertDelegate>())
+                converted = d(f, converted);
+
             //converted = value;
 
             return f;
