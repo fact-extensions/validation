@@ -235,13 +235,17 @@ namespace Fact.Extensions.Validation.Experimental
 
             Validate?.Invoke(f);
 
-            converted = field.Value;
-            // Easier to do with a ConvertContext to carry the obj around, or a manual list
-            // of delegates which we can abort if things go wrong
-            foreach(var d in Convert.GetInvocationList().OfType<ConvertDelegate>())
-                converted = d(f, converted);
+            if (Convert != null)
+            {
+                this.converted = null;
+                object converted = field.Value;
+                // Easier to do with a ConvertContext to carry the obj around, or a manual list
+                // of delegates which we can abort if things go wrong
+                foreach (var d in Convert.GetInvocationList().OfType<ConvertDelegate>())
+                    converted = d(f, converted);
 
-            //converted = value;
+                this.converted = converted;
+            }
 
             return f;
         }

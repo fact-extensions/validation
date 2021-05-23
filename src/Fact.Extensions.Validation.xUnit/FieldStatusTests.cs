@@ -121,6 +121,11 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var f = new FieldStatus("field1", null);
             var b = new Experimental.Binder<string>(f);
+            string val = "123";
+            object output;
+            b.getter = () => val;
+            b.Finalize += v => output = v;
+            
 
             b.Convert += (f, value) =>
             {
@@ -130,6 +135,14 @@ namespace Fact.Extensions.Validation.xUnit
 
                 return value;
             };
+
+            b.Evaluate("123");
+
+            f.Statuses.Should().BeEmpty();
+
+            b.Evaluate("xyz");
+
+            f.Statuses.Should().HaveCount(1);
         }
     }
 }
