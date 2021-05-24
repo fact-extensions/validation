@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,10 @@ namespace Fact.Extensions.Validation
             {
                 var c = new Experimental.Context();
                 binder.Evaluate(control.Text);
+
+                bool hasStatus = binder.Field.Statuses.Any();
+
+                control.BackColor = hasStatus ? Color.Red : Color.White;
             };
         }
     }

@@ -13,6 +13,14 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         public TestForm1()
         {
             InitializeComponent();
+
+            var f = new FieldStatus("field1", null);
+            var b = new Experimental.Binder<string>(f);
+
+            // TODO: Do integer conversion
+            b.Assert().IsTrue(x => x == "hi", "Must be 'hi'");
+
+            b.Bind(txtEntry1);
         }
     }
 }

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Fact.Extensions.Validation.WinForms\Fact.Extensions.Validation.WinForms.csproj" />
+    <ProjectReference Include="..\Fact.Extensions.Validation\Fact.Extensions.Validation.csproj" />
   </ItemGroup>
 
 </Project>

@@ -267,12 +267,20 @@ namespace Fact.Extensions.Validation.Experimental
             object value = getter();
             field.Value = value;
             var f = new ShimFieldBase<T>(this, InternalStatuses);
-            if (value == null && AbortOnNull) return f;
 
             Statuses.Clear();
             InternalStatuses.Clear();
 
-            if(Filter != null)
+            if (AbortOnNull)
+            {
+                if (value == null) return f;
+
+                // DEBT: type specificity not welcome here.  What about 'null' integers, etc?
+                if (value is string sValue && string.IsNullOrWhiteSpace(sValue))
+                    return f;
+            }
+
+            if (Filter != null)
             {
                 var context = new Context();
                 foreach (var d in Filter.GetInvocationList().OfType<FilterDelegate>())
