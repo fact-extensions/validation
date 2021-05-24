@@ -5,8 +5,15 @@ using Xunit;
 
 namespace Fact.Extensions.Validation.xUnit
 {
-    public class FieldStatusTests
+    public class FieldStatusTests : IClassFixture<Fixture>
     {
+        readonly IServiceProvider services;
+
+        public FieldStatusTests(Fixture fixture)
+        {
+            services = fixture.Services;
+        }
+
         [Fact]
         public void FieldStatusCollectionTest()
         {
