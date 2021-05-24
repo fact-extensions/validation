@@ -329,12 +329,15 @@ namespace Fact.Extensions.Validation
         }
 
         public static FluentBinder<T> IsTrue<T>(this FluentBinder<T> fluent, 
-            Func<T, bool> predicate, string description)
+            Func<T, bool> predicate, string description, bool abortlIfFalse = false)
         {
-            fluent.Binder.Validate += f =>
+            fluent.Binder.Filter += (f, c) =>
             {
-                if(!predicate(f.Value))
+                if (!predicate(f.Value))
+                {
                     f.Error(description);
+                    if (abortlIfFalse) c.Abort = true;
+                }
             };
             return fluent;
         }
@@ -356,6 +359,31 @@ namespace Fact.Extensions.Validation
         {
             fluent.IsTrue(v => v.CompareTo(greaterThanValue) > 0, 
                 string.Format(description, greaterThanValue));
+            return fluent;
+        }
+
+
+        public static FluentBinder<T> Required<T>(this FluentBinder<T> fluent)
+        {
+            fluent.Binder.AbortOnNull = false;
+            fluent.Binder.Filter += (f, c) =>
+            {
+                if (f.Value == null) f.Error("Field is required");
+            };
+            return fluent;
+        }
+
+
+        public static FluentBinder<string> Required(this FluentBinder<string> fluent, bool includeEmptyString = true)
+        {
+            fluent.Binder.AbortOnNull = false;
+            fluent.Binder.Filter += (f, c) =>
+            {
+                if (includeEmptyString)
+                    if (string.IsNullOrEmpty(f.Value)) f.Error("Field is required");
+                else
+                    if (f.Value == null) f.Error("Field is required");
+            };
             return fluent;
         }
     }

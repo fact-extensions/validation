@@ -155,6 +155,8 @@ namespace Fact.Extensions.Validation.xUnit
             b.Assert().IsTrue(x => x == "hi", "Must be 'hi'");
 
             b.Evaluate("howdy");
+
+            f.Statuses.Should().HaveCount(1);
         }
 
 
@@ -169,6 +171,22 @@ namespace Fact.Extensions.Validation.xUnit
                 GreaterThan(6);
 
             b.Evaluate(5);
+
+            f.Statuses.Should().HaveCount(1);
+        }
+
+
+        [Fact]
+        public void FluentTest3()
+        {
+            var f = new FieldStatus("field1", null);
+            var b = new Experimental.Binder<string>(f);
+
+            b.Assert().Required();
+
+            b.Evaluate(null);
+
+            f.Statuses.Should().HaveCount(1);
         }
     }
 }
