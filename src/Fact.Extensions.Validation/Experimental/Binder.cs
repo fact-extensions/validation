@@ -175,6 +175,33 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
+
+    public class Context
+    {
+        public bool Abort = false;
+
+        public enum Interaction
+        {
+            /// <summary>
+            /// For automated processes with no interaction at all
+            /// </summary>
+            None,
+            /// <summary>
+            /// For human real-time events, happening in the sub-second range.  Things like mouse clicks and
+            /// key presses.
+            /// </summary>
+            High,
+            /// <summary>
+            /// For things like overall field validation.  On the order of 1-10s expected interaction time
+            /// </summary>
+            Medium,
+            /// <summary>
+            /// For things like form submission.  On the order of 11s+ expected interaction time
+            /// </summary>
+            Low
+        }
+    }
+
     /// <summary>
     /// Binder is a very fancy getter and IField status maintainer
     /// </summary>
@@ -211,6 +238,12 @@ namespace Fact.Extensions.Validation.Experimental
             //field.AddIfNotPresent(this);
         }
 
+        /// <summary>
+        /// When true, aborts validation processing when a null is seen (more or less treats a value as optional)
+        /// When false, ignores null and proceeds forward passing null through onto validation chain
+        /// </summary>
+        public bool AbortOnNull = true;
+
         // EXPERIMENTAL
         public object Value => field.Value;
 
@@ -218,20 +251,37 @@ namespace Fact.Extensions.Validation.Experimental
         public object Converted => converted;
 
         public event Action<object> Finalize;
+        /// <summary>
+        /// EXPERIMENTAL - may want all Validate to operate this way
+        /// </summary>
+        public event FilterDelegate Filter;
         public event Action<IField<T>> Validate;
 
+        public delegate void FilterDelegate(IField<T> field, Context context);
         public delegate object ConvertDelegate(IField<T> field, object from);
 
         public event ConvertDelegate Convert;
 
         public IField Evaluate()
         {
-            field.Value = getter();
+            object value = getter();
+            field.Value = value;
             var f = new ShimFieldBase<T>(this, InternalStatuses);
+            if (value == null && AbortOnNull) return f;
 
-            //f.Clear();
             Statuses.Clear();
             InternalStatuses.Clear();
+
+            if(Filter != null)
+            {
+                var context = new Context();
+                foreach (var d in Filter.GetInvocationList().OfType<FilterDelegate>())
+                {
+                    d(f, context);
+
+                    if (context.Abort) return f;
+                }
+            }
 
             Validate?.Invoke(f);
 
