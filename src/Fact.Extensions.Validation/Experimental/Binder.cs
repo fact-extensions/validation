@@ -157,7 +157,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         Func<object> getter { get; }
 
-        //void Evaluate(object o);
+        IField Evaluate();
     }
 
     public class BinderBase : IBinder
@@ -173,6 +173,8 @@ namespace Fact.Extensions.Validation.Experimental
         {
             this.field = field;
         }
+
+        public virtual IField Evaluate() { throw new NotImplementedException(); }
     }
 
 
@@ -262,7 +264,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public event ConvertDelegate Convert;
 
-        public IField Evaluate()
+        public override IField Evaluate()
         {
             object value = getter();
             field.Value = value;

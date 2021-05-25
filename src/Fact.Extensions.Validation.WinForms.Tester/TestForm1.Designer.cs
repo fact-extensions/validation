@@ -31,6 +31,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         {
             this.btnOK = new System.Windows.Forms.Button();
             this.txtEntry1 = new System.Windows.Forms.TextBox();
+            this.txtEntry2 = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // btnOK
@@ -50,11 +51,19 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             this.txtEntry1.Size = new System.Drawing.Size(100, 23);
             this.txtEntry1.TabIndex = 1;
             // 
+            // txtEntry2
+            // 
+            this.txtEntry2.Location = new System.Drawing.Point(12, 41);
+            this.txtEntry2.Name = "txtEntry2";
+            this.txtEntry2.Size = new System.Drawing.Size(100, 23);
+            this.txtEntry2.TabIndex = 2;
+            // 
             // TestForm1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(471, 292);
+            this.Controls.Add(this.txtEntry2);
             this.Controls.Add(this.txtEntry1);
             this.Controls.Add(this.btnOK);
             this.Name = "TestForm1";
@@ -68,5 +77,6 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.TextBox txtEntry1;
+        private System.Windows.Forms.TextBox txtEntry2;
     }
 }
