@@ -125,6 +125,8 @@ namespace Fact.Extensions.Validation.Experimental
 
         public IField this[string name] => fields[name];
 
+        public IEnumerable<IField> Fields => fields.Values.Select(x => x.binder.Field);
+
         public event Action<GroupBinder, InputContext> Validate;
 
         public void Evaluate(InputContext context)

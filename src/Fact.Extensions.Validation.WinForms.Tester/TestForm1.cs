@@ -17,8 +17,11 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             InitializeComponent();
 
             var bm = new BinderManager(null);
+            var gb = new GroupBinder();
 
             Binder<string> b = bm.BindText<Control, string>(txtEntry1, "field1");
+
+            gb.Add(b);
 
             // TODO: Do integer conversion
             b.Assert().
@@ -29,7 +32,16 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
             b.Assert().IsTrue(x => x != "hi", "Cannot be 'hi'");
 
+            gb.Add(b);
+
+            gb.Validate += (_, c) =>
+            {
+                var f1 = gb["field1"];
+                var f2 = gb["field2"];
+            };
+
             bm.BindOkButton(btnOK);
+            bm.SetupTooltip(this);
             bm.Prep();
         }
     }

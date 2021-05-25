@@ -23,7 +23,11 @@ namespace Fact.Extensions.Validation.WinForms
             internal void DoInitialize() => Initialize?.Invoke();
         }
 
+        // 1:1 Field binders
         List<Item> binders = new List<Item>();
+
+        // Other binders which don't have a 1:1 field relationship
+        List<IBinder> _binders = new List<IBinder>();
 
         Button okButton;
 
@@ -40,9 +44,31 @@ namespace Fact.Extensions.Validation.WinForms
             okButton.Enabled = !hasStatus;
         }
 
+
+        void OnEvaluate(Item item, bool hasStatus)
+        {
+            EvaluateOkButton(hasStatus);
+            if(tooltip != null)
+            {
+                if(hasStatus)
+                {
+                    tooltip.SetToolTip(item.control, "Has Status");
+                }
+            }
+        }
+
         public void BindOkButton(Button control)
         {
             okButton = control;
+        }
+
+
+        ToolTip tooltip;
+
+        public void SetupTooltip(Form form)
+        {
+            // Does not work, since Container is null
+            //tooltip = new ToolTip(form.Container);
         }
 
 
@@ -70,6 +96,8 @@ namespace Fact.Extensions.Validation.WinForms
             Color modifiedAlertColor = Color.LightYellow;
             Color inputAlertColor = Color.Pink;
 
+            var item = new Item { binder = binder, control = control };
+
             control.TextChanged += (s, e) =>
             {
                 binder.Evaluate();
@@ -79,7 +107,7 @@ namespace Fact.Extensions.Validation.WinForms
                 modified = !initialText.Equals(control.Text);
                 touched = true;
 
-                EvaluateOkButton(hasStatus);
+                OnEvaluate(item, hasStatus);
 
                 control.BackColor = hasStatus ? 
                     (modified ? Color.Pink : modifiedAlertColor) : 
@@ -102,8 +130,6 @@ namespace Fact.Extensions.Validation.WinForms
 
                 control.BackColor = hasStatus ? Color.Red : Color.White;
             };
-
-            var item = new Item { binder = binder, control = control };
 
             item.Initialize += () =>
             {
