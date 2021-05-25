@@ -35,6 +35,8 @@ namespace Fact.Extensions.Validation.WinForms
             internal IBinder binder;
             internal event Action Initialize;
             internal Control control;
+            // DEBT: Pretty sure we can deduce this at will based on an initial vs current value
+            internal bool modified;
 
             internal void DoInitialize() => Initialize?.Invoke();
         }
@@ -141,7 +143,8 @@ namespace Fact.Extensions.Validation.WinForms
 
                 // TODO: Need to account for per-field modified/not modified
                 item.control.BackColor = hasStatus ?
-                    (initializing ? options.Color.InitialStatus : options.Color.UnfocusedStatus) : 
+                    (initializing || !item.modified ? 
+                        options.Color.InitialStatus : options.Color.UnfocusedStatus) : 
                     options.Color.ClearedStatus;
             }
         }
@@ -172,6 +175,7 @@ namespace Fact.Extensions.Validation.WinForms
                 bool hasStatus = binder.Field.Statuses.Any();
 
                 modified = !initialText.Equals(control.Text);
+                item.modified = modified;
                 touched = true;
 
                 OnEvaluate(item, hasStatus);
