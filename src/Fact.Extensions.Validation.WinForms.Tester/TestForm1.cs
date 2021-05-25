@@ -21,13 +21,16 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             Binder<string> b = bm.BindText<Control, string>(txtEntry1, "field1");
 
             // TODO: Do integer conversion
-            b.Assert().IsTrue(x => x == "hi", "Must be 'hi'");
+            b.Assert().
+                IsTrue(x => x == "hi", "Must be 'hi'").
+                Required();
 
             b = bm.BindText<Control, string>(txtEntry2, "field2");
 
             b.Assert().IsTrue(x => x != "hi", "Cannot be 'hi'");
 
             bm.BindOkButton(btnOK);
+            bm.Prep();
         }
     }
 }

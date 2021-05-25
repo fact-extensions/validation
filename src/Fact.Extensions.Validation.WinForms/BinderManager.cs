@@ -14,7 +14,16 @@ namespace Fact.Extensions.Validation.WinForms
     {
         public IServiceProvider Services { get; }
 
-        List<IBinder> binders = new List<IBinder>();
+        internal class Item
+        {
+            internal IBinder binder;
+            internal event Action Initialize;
+            internal Control control;
+
+            internal void DoInitialize() => Initialize?.Invoke();
+        }
+
+        List<Item> binders = new List<Item>();
 
         Button okButton;
 
@@ -26,7 +35,7 @@ namespace Fact.Extensions.Validation.WinForms
         void EvaluateOkButton(bool hasStatus)
         {
             if (!hasStatus)
-                hasStatus = binders.SelectMany(x => x.Field.Statuses).Any();
+                hasStatus = binders.SelectMany(x => x.binder.Field.Statuses).Any();
 
             okButton.Enabled = !hasStatus;
         }
@@ -37,12 +46,29 @@ namespace Fact.Extensions.Validation.WinForms
         }
 
 
+        /// <summary>
+        /// Call after all other binds and validation setup, but before moving on to other non validation code
+        /// </summary>
+        public void Prep()
+        {
+            foreach (Item item in binders)
+                item.DoInitialize();
+        }
+
+
         public Binder<T> BindText<TControl, T>(TControl control, string name)
             where TControl: Control
         {
             var field = new FieldStatus(name, control.Text);
             var binder = new Binder<T>(field, () => control.Text);
             //var c = new Experimental.Context();
+            string initialText = control.Text;
+            string lastText = control.Text;
+            bool touched = false;
+            bool modified = false;
+
+            Color modifiedAlertColor = Color.LightYellow;
+            Color inputAlertColor = Color.Pink;
 
             control.TextChanged += (s, e) =>
             {
@@ -50,18 +76,23 @@ namespace Fact.Extensions.Validation.WinForms
 
                 bool hasStatus = binder.Field.Statuses.Any();
 
+                modified = !initialText.Equals(control.Text);
+                touched = true;
+
                 EvaluateOkButton(hasStatus);
 
-                control.BackColor = hasStatus ? Color.Pink : Color.White;
+                control.BackColor = hasStatus ? 
+                    (modified ? Color.Pink : modifiedAlertColor) : 
+                    Color.White;
             };
 
             control.GotFocus += (s, e) =>
             {
                 bool hasStatus = binder.Field.Statuses.Any();
 
-                // TODO: Keep track of 'touched' and 'modified' and if so change to pink
-                // rather than yellow
-                control.BackColor = hasStatus ? Color.Yellow : Color.White;
+                control.BackColor = hasStatus ? 
+                    (modified ? Color.Pink : modifiedAlertColor) : 
+                    Color.White;
             };
 
 
@@ -72,7 +103,24 @@ namespace Fact.Extensions.Validation.WinForms
                 control.BackColor = hasStatus ? Color.Red : Color.White;
             };
 
-            binders.Add(binder);
+            var item = new Item { binder = binder, control = control };
+
+            item.Initialize += () =>
+            {
+                // DEBT: Consolidate this with other code
+                // Initial state
+                binder.Evaluate();
+
+                bool hasStatus = binder.Field.Statuses.Any();
+
+                // NOTE: Never 'modified' here yet, just keeping like this to make code
+                // consolidation easier
+                control.BackColor = hasStatus ?
+                    (modified ? Color.Pink : modifiedAlertColor) :
+                    Color.White;
+            };
+
+            binders.Add(item);
             return binder;
         }
     }
