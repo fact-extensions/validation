@@ -155,7 +155,7 @@ namespace Fact.Extensions.Validation.Experimental
 
     public interface IBinder
     {
-        FieldStatus Field { get; }
+        IField Field { get; }
 
         Func<object> getter { get; }
 
@@ -167,11 +167,11 @@ namespace Fact.Extensions.Validation.Experimental
         // DEBT:
         public Func<object> getter { get; set; }
 
-        protected readonly FieldStatus field;
+        protected readonly IField field;
 
-        public FieldStatus Field => field;
+        public IField Field => field;
 
-        public BinderBase(FieldStatus field)
+        public BinderBase(IField field)
         {
             this.field = field;
         }
@@ -229,9 +229,12 @@ namespace Fact.Extensions.Validation.Experimental
         public void Add(FieldStatus.Status status) =>
             Statuses.Add(status);
 
+        readonly new FieldStatus field;
+
         public Binder(FieldStatus field, Func<object> getter = null) : base(field)
         {
             this.getter = getter;
+            this.field = field;
             Attach();
         }
 

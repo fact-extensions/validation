@@ -79,6 +79,9 @@ namespace Fact.Extensions.Validation.WinForms
         {
             foreach (Item item in binders)
                 item.DoInitialize();
+
+            // DEBT: Force-feeding false not a long term solution here
+            EvaluateOkButton(false);
         }
 
 
