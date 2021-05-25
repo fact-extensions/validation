@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,10 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         [STAThread]
         static void Main()
         {
+            var sc = new ServiceCollection();
+            Startup.ConfigureServices(sc);
+            Startup.Configure(sc.BuildServiceProvider());
+
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

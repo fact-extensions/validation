@@ -8,19 +8,26 @@ using System.Windows.Forms;
 
 namespace Fact.Extensions.Validation.WinForms.Tester
 {
+    using Experimental;
+
     public partial class TestForm1 : Form
     {
         public TestForm1()
         {
             InitializeComponent();
 
-            var f = new FieldStatus("field1", null);
-            var b = new Experimental.Binder<string>(f);
+            var bm = new BinderManager(null);
+
+            Binder<string> b = bm.BindText<Control, string>(txtEntry1, "field1");
 
             // TODO: Do integer conversion
             b.Assert().IsTrue(x => x == "hi", "Must be 'hi'");
 
-            b.Bind(txtEntry1);
+            b = bm.BindText<Control, string>(txtEntry2, "field2");
+
+            b.Assert().IsTrue(x => x != "hi", "Cannot be 'hi'");
+
+            bm.BindOkButton(btnOK);
         }
     }
 }

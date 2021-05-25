@@ -25,6 +25,9 @@ namespace Fact.Extensions.Validation.WinForms
 
         void EvaluateOkButton(bool hasStatus)
         {
+            if (!hasStatus)
+                hasStatus = binders.SelectMany(x => x.Field.Statuses).Any();
+
             okButton.Enabled = !hasStatus;
         }
 
@@ -34,7 +37,7 @@ namespace Fact.Extensions.Validation.WinForms
         }
 
 
-        public void BindText<TControl, T>(TControl control, string name)
+        public Binder<T> BindText<TControl, T>(TControl control, string name)
             where TControl: Control
         {
             var field = new FieldStatus(name, control.Text);
@@ -46,6 +49,8 @@ namespace Fact.Extensions.Validation.WinForms
                 binder.Evaluate();
 
                 bool hasStatus = binder.Field.Statuses.Any();
+
+                EvaluateOkButton(hasStatus);
 
                 control.BackColor = hasStatus ? Color.Pink : Color.White;
             };
@@ -68,6 +73,7 @@ namespace Fact.Extensions.Validation.WinForms
             };
 
             binders.Add(binder);
+            return binder;
         }
     }
 }
