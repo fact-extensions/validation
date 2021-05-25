@@ -28,6 +28,7 @@ namespace Fact.Extensions.Validation.WinForms
 
         // Other binders which don't have a 1:1 field relationship
         List<IBinder> _binders = new List<IBinder>();
+        List<GroupBinder> groupBinders = new List<GroupBinder>();
 
         Button okButton;
 
@@ -82,6 +83,31 @@ namespace Fact.Extensions.Validation.WinForms
 
             // DEBT: Force-feeding false not a long term solution here
             EvaluateOkButton(false);
+        }
+
+
+        public void Add(GroupBinder binder)
+        {
+            groupBinders.Add(binder);
+        }
+
+
+        // EXPERIMENTAL - accounts for group binders
+        // Really though we'd prefer these to run during text changed too, depending on the
+        // still-unfinished 'interactivity measure'
+        public void Evaluate()
+        {
+            foreach(GroupBinder binder in groupBinders)
+            {
+                binder.Evaluate(null);
+            }
+
+            foreach(Item item in binders)
+            {
+                bool hasStatus = item.binder.Field.Statuses.Any();
+
+                item.control.BackColor = hasStatus ? Color.Red : Color.White;
+            }
         }
 
 

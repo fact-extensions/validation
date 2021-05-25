@@ -12,6 +12,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
     public partial class TestForm1 : Form
     {
+        readonly BinderManager binderManager;
+
         public TestForm1()
         {
             InitializeComponent();
@@ -19,9 +21,11 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             var bm = new BinderManager(null);
             var gb = new GroupBinder();
 
+            bm.Add(gb);
+
             Binder<string> b = bm.BindText<Control, string>(txtEntry1, "field1");
 
-            gb.Add(b);
+            gb.Add(b.Field);
 
             // TODO: Do integer conversion
             b.Assert().
@@ -30,19 +34,36 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
             b = bm.BindText<Control, string>(txtEntry2, "field2");
 
-            b.Assert().IsTrue(x => x != "hi", "Cannot be 'hi'");
+            b.Assert().IsTrue(x => x != "hi2", "Cannot be 'hi2'");
 
-            gb.Add(b);
+            gb.Add(b.Field);
 
             gb.Validate += (_, c) =>
             {
                 var f1 = gb["field1"];
                 var f2 = gb["field2"];
+
+                var f1value = (string)f1.Value;
+                var f2value = (string)f2.Value;
+
+                if(f1value.Equals(f2value))
+                {
+                    // FIX: These are not registering with the Binder<string> fields
+                    f1.Error("Cannot equal field2");
+                    f2.Error("Cannot equal field1");
+                }
             };
 
             bm.BindOkButton(btnOK);
             bm.SetupTooltip(this);
             bm.Prep();
+
+            binderManager = bm;
+        }
+
+        private void btnOK_Click(object sender, EventArgs e)
+        {
+            binderManager.Evaluate();
         }
     }
 }

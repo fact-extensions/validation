@@ -104,9 +104,10 @@ namespace Fact.Extensions.Validation.Experimental
 
         readonly Dictionary<string, _Item> fields = new Dictionary<string, _Item>();
 
-        public IBinder Add(FieldStatus field)
+        public IBinder Add(IField field)
         {
             var binder = new BinderBase(field);
+            binder.getter = () => field.Value;
             Add(binder);
             return binder;
         }
