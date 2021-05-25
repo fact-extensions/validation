@@ -150,12 +150,30 @@ namespace Fact.Extensions.Validation.WinForms
         }
 
 
+        internal Binder<T> InternalBind<T>(Item item, string name)
+        {
+            var field = new FieldStatus(name, item.control.Text);
+            var binder = new Binder<T>(field, () => item.control.Text);
+
+            // DEBT: Clumsy assignment
+            item.binder = binder;
+
+            binders.Add(item);
+
+            return binder;
+        }
+
+        /// <summary>
+        /// Occurs after interactive validation, whether it generated new status or not
+        /// </summary>
+        public event Action Validated;
+
         public Binder<T> BindText<TControl, T>(TControl control, string name)
             where TControl: Control
         {
-            var field = new FieldStatus(name, control.Text);
-            var binder = new Binder<T>(field, () => control.Text);
-            //var c = new Experimental.Context();
+            var item = new Item { control = control };
+
+            Binder<T> binder = InternalBind<T>(item, name);
             string initialText = control.Text;
             string lastText = control.Text;
             bool touched = false;
@@ -165,12 +183,12 @@ namespace Fact.Extensions.Validation.WinForms
             Color inputAlertColor = options.Color.FocusedStatus;
             Color clearColor = options.Color.ClearedStatus;
 
-            var item = new Item { binder = binder, control = control };
-
             control.TextChanged += (s, e) =>
             {
                 binder.Evaluate();
-                Evaluate(field);
+                Evaluate(binder.Field);
+
+                Validated?.Invoke();
 
                 bool hasStatus = binder.Field.Statuses.Any();
 
@@ -220,7 +238,6 @@ namespace Fact.Extensions.Validation.WinForms
                     clearColor;
             };
 
-            binders.Add(item);
             return binder;
         }
     }

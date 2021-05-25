@@ -139,6 +139,9 @@ namespace Fact.Extensions.Validation.Experimental
         /// </summary>
         public IEnumerable<IField> Fields => fields.Values.Select(x => x.binder.Field);
 
+        /// <summary>
+        /// TODO: Rename to Validating
+        /// </summary>
         public event Action<GroupBinder, InputContext> Validate;
 
         public void Evaluate(InputContext context)
@@ -277,6 +280,9 @@ namespace Fact.Extensions.Validation.Experimental
         /// EXPERIMENTAL - may want all Validate to operate this way
         /// </summary>
         public event FilterDelegate Filter;
+        /// <summary>
+        /// TODO: Rename to Validating
+        /// </summary>
         public event Action<IField<T>> Validate;
 
         public delegate void FilterDelegate(IField<T> field, Context context);

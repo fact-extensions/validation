@@ -59,7 +59,22 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             bm.SetupTooltip(this);
             bm.Prep();
 
+            bm.Validated += Bm_Validated;
+
             binderManager = bm;
+        }
+
+        private void Bm_Validated()
+        {
+            lstStatus.Items.Clear();
+            var statuses = binderManager.Fields.
+                Where(x => x.Statuses.Any()).
+                Select(x =>
+                {
+                    var statuses = string.Join(", ", x.Statuses.Select(y => y.ToString()));
+                    return $"{x.Name}: {statuses}";
+                }).ToArray();
+            lstStatus.Items.AddRange(statuses);
         }
 
         private void btnOK_Click(object sender, EventArgs e)
