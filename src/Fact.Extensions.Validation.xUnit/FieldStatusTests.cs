@@ -5,6 +5,8 @@ using Xunit;
 
 namespace Fact.Extensions.Validation.xUnit
 {
+    using Experimental;
+
     public class FieldStatusTests : IClassFixture<Fixture>
     {
         readonly IServiceProvider services;
@@ -122,6 +124,40 @@ namespace Fact.Extensions.Validation.xUnit
             var _pass2 = (Experimental.GroupBinder._Item)entity["pass2"];
             _pass2.statuses.Should().HaveCount(1);
         }
+
+
+        [Fact]
+        public void ConfirmPasswordTest3()
+        {
+            var entity = new GroupBinder();
+            var f1 = new FieldStatus("pass1", "password1");
+            var f2 = new FieldStatus("pass2", "password2");
+            BinderBase pass1 = entity.Add(f1);
+            BinderBase pass2 = entity.Add(f2);
+
+            entity.Validate += (b, context) =>
+            {
+                var _pass1 = b["pass1"];
+                var _pass2 = b["pass2"];
+
+                if (!object.Equals(_pass1.Value, _pass2.Value))
+                {
+                    _pass1.Error("mismatch");
+                    _pass2.Error("mismatch");
+                }
+            };
+            entity.Evaluate(null);
+
+            var _pass1 = (Experimental.GroupBinder._Item)entity["pass1"];
+            f1.Statuses.Should().HaveCount(1);
+            f1.InternalStatuses.Should().BeEmpty();
+            _pass1.statuses.Should().HaveCount(1);
+            f2.Statuses.Should().HaveCount(1);
+            f2.InternalStatuses.Should().BeEmpty();
+            var _pass2 = (Experimental.GroupBinder._Item)entity["pass2"];
+            _pass2.statuses.Should().HaveCount(1);
+        }
+
 
         [Fact]
         public void ConversionTest()

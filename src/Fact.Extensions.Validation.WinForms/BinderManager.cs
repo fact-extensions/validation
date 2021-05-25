@@ -12,6 +12,22 @@ namespace Fact.Extensions.Validation.WinForms
 
     public class BinderManager
     {
+        public class ColorOptions
+        {
+            public Color FocusedStatus { get; set; } = Color.Pink;
+            public Color InitialStatus { get; set; } = Color.LightYellow;
+            public Color UnfocusedStatus { get; set; } = Color.Red;
+            public Color ClearedStatus { get; set; } = Color.White;
+        }
+
+
+        public class Options
+        {
+            public ColorOptions Color = new ColorOptions();
+        }
+
+        Options options = new Options();
+
         public IServiceProvider Services { get; }
 
         internal class Item
@@ -31,6 +47,12 @@ namespace Fact.Extensions.Validation.WinForms
         List<GroupBinder> groupBinders = new List<GroupBinder>();
 
         Button okButton;
+
+        /// <summary>
+        /// A list of all tracked original/canonical fields
+        /// </summary>
+        public IEnumerable<IField> Fields =>
+            binders.Select(x => x.binder.Field);
 
         public BinderManager(IServiceProvider services)
         {
@@ -91,22 +113,36 @@ namespace Fact.Extensions.Validation.WinForms
             groupBinders.Add(binder);
         }
 
+        // DEBT: Need to heed still-unfinished 'interactivity measure', since we loosely
+        // expect group binders to take more processing time
+        IEnumerable<IField> GroupEvaluate()
+        {
+            foreach (GroupBinder binder in groupBinders)
+                binder.Evaluate(null);
+
+            // Return a deduped list of any fields which have an associated status
+            return groupBinders.SelectMany(x => x.Fields).
+                Distinct().
+                Where(x => x.Statuses.Any());
+        }
+
 
         // EXPERIMENTAL - accounts for group binders
-        // Really though we'd prefer these to run during text changed too, depending on the
-        // still-unfinished 'interactivity measure'
-        public void Evaluate()
+        // Exclude so that we don't mess with work done during TextChanged
+        public void Evaluate(IField exclude = null, bool initializing = false)
         {
-            foreach(GroupBinder binder in groupBinders)
-            {
-                binder.Evaluate(null);
-            }
+            GroupEvaluate();
 
             foreach(Item item in binders)
             {
+                if (exclude == item.binder.Field) continue;
+
                 bool hasStatus = item.binder.Field.Statuses.Any();
 
-                item.control.BackColor = hasStatus ? Color.Red : Color.White;
+                // TODO: Need to account for per-field modified/not modified
+                item.control.BackColor = hasStatus ?
+                    (initializing ? options.Color.InitialStatus : options.Color.UnfocusedStatus) : 
+                    options.Color.ClearedStatus;
             }
         }
 
@@ -122,14 +158,16 @@ namespace Fact.Extensions.Validation.WinForms
             bool touched = false;
             bool modified = false;
 
-            Color modifiedAlertColor = Color.LightYellow;
-            Color inputAlertColor = Color.Pink;
+            Color initialAlertColor = options.Color.InitialStatus;
+            Color inputAlertColor = options.Color.FocusedStatus;
+            Color clearColor = options.Color.ClearedStatus;
 
             var item = new Item { binder = binder, control = control };
 
             control.TextChanged += (s, e) =>
             {
                 binder.Evaluate();
+                Evaluate(field);
 
                 bool hasStatus = binder.Field.Statuses.Any();
 
@@ -139,8 +177,8 @@ namespace Fact.Extensions.Validation.WinForms
                 OnEvaluate(item, hasStatus);
 
                 control.BackColor = hasStatus ? 
-                    (modified ? Color.Pink : modifiedAlertColor) : 
-                    Color.White;
+                    (modified ? inputAlertColor : initialAlertColor) : 
+                    clearColor;
             };
 
             control.GotFocus += (s, e) =>
@@ -148,8 +186,8 @@ namespace Fact.Extensions.Validation.WinForms
                 bool hasStatus = binder.Field.Statuses.Any();
 
                 control.BackColor = hasStatus ? 
-                    (modified ? Color.Pink : modifiedAlertColor) : 
-                    Color.White;
+                    (modified ? inputAlertColor : initialAlertColor) :
+                    clearColor;
             };
 
 
@@ -157,7 +195,9 @@ namespace Fact.Extensions.Validation.WinForms
             {
                 bool hasStatus = binder.Field.Statuses.Any();
 
-                control.BackColor = hasStatus ? Color.Red : Color.White;
+                control.BackColor = hasStatus ? 
+                    options.Color.UnfocusedStatus : 
+                    clearColor;
             };
 
             item.Initialize += () =>
@@ -165,14 +205,15 @@ namespace Fact.Extensions.Validation.WinForms
                 // DEBT: Consolidate this with other code
                 // Initial state
                 binder.Evaluate();
+                Evaluate(initializing: true);
 
                 bool hasStatus = binder.Field.Statuses.Any();
 
                 // NOTE: Never 'modified' here yet, just keeping like this to make code
                 // consolidation easier
                 control.BackColor = hasStatus ?
-                    (modified ? Color.Pink : modifiedAlertColor) :
-                    Color.White;
+                    (modified ? inputAlertColor : initialAlertColor) :
+                    clearColor;
             };
 
             binders.Add(item);

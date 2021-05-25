@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
@@ -64,6 +65,12 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         private void btnOK_Click(object sender, EventArgs e)
         {
             binderManager.Evaluate();
+            if (!binderManager.Fields.SelectMany(f => f.Statuses).Any())
+                DialogResult = DialogResult.OK;
+            else
+            {
+                // TODO: Let them know...
+            }
         }
     }
 }

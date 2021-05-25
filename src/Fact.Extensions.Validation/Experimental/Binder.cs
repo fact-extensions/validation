@@ -104,7 +104,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         readonly Dictionary<string, _Item> fields = new Dictionary<string, _Item>();
 
-        public IBinder Add(IField field)
+        public BinderBase Add(IField field)
         {
             var binder = new BinderBase(field);
             binder.getter = () => field.Value;
@@ -115,6 +115,9 @@ namespace Fact.Extensions.Validation.Experimental
         public void Add(IBinder binder)
         {
             var item = new _Item(binder);
+            // DEBT: Can't be doing this cast all the time.  It's safe for the moment
+            var field = (FieldStatus)binder.Field;
+            field.Add(item.statuses);
             fields.Add(binder.Field.Name, item);
         }
 
@@ -124,8 +127,16 @@ namespace Fact.Extensions.Validation.Experimental
                 item.statuses.Clear();
         }
 
+        /// <summary>
+        /// Returns shimmed field
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public IField this[string name] => fields[name];
 
+        /// <summary>
+        /// List of original non-shimmed fields
+        /// </summary>
         public IEnumerable<IField> Fields => fields.Values.Select(x => x.binder.Field);
 
         public event Action<GroupBinder, InputContext> Validate;
@@ -156,6 +167,9 @@ namespace Fact.Extensions.Validation.Experimental
 
     public interface IBinder
     {
+        /// <summary>
+        /// Original 'canonical' field with aggregated/total status
+        /// </summary>
         IField Field { get; }
 
         Func<object> getter { get; }
