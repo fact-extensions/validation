@@ -33,6 +33,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             this.txtEntry1 = new System.Windows.Forms.TextBox();
             this.txtEntry2 = new System.Windows.Forms.TextBox();
             this.lstStatus = new System.Windows.Forms.ListBox();
+            this.txtEntry3 = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // btnOK
@@ -63,17 +64,25 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             // 
             this.lstStatus.FormattingEnabled = true;
             this.lstStatus.ItemHeight = 15;
-            this.lstStatus.Location = new System.Drawing.Point(12, 79);
+            this.lstStatus.Location = new System.Drawing.Point(12, 111);
             this.lstStatus.Name = "lstStatus";
             this.lstStatus.SelectionMode = System.Windows.Forms.SelectionMode.None;
             this.lstStatus.Size = new System.Drawing.Size(447, 94);
             this.lstStatus.TabIndex = 3;
+            // 
+            // txtEntry3
+            // 
+            this.txtEntry3.Location = new System.Drawing.Point(12, 70);
+            this.txtEntry3.Name = "txtEntry3";
+            this.txtEntry3.Size = new System.Drawing.Size(100, 23);
+            this.txtEntry3.TabIndex = 4;
             // 
             // TestForm1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(471, 292);
+            this.Controls.Add(this.txtEntry3);
             this.Controls.Add(this.lstStatus);
             this.Controls.Add(this.txtEntry2);
             this.Controls.Add(this.txtEntry1);
@@ -91,5 +100,6 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         private System.Windows.Forms.TextBox txtEntry1;
         private System.Windows.Forms.TextBox txtEntry2;
         private System.Windows.Forms.ListBox lstStatus;
+        private System.Windows.Forms.TextBox txtEntry3;
     }
 }

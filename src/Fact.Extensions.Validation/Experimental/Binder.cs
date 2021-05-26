@@ -178,6 +178,8 @@ namespace Fact.Extensions.Validation.Experimental
         Func<object> getter { get; }
 
         IField Evaluate();
+
+        void DoFinalize();
     }
 
     public class BinderBase : IBinder
@@ -195,6 +197,8 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
         public virtual IField Evaluate() { throw new NotImplementedException(); }
+
+        public virtual void DoFinalize() { throw new NotImplementedException(); }
     }
 
 
@@ -227,7 +231,7 @@ namespace Fact.Extensions.Validation.Experimental
     /// <summary>
     /// Binder is a very fancy getter and IField status maintainer
     /// </summary>
-    public class Binder<T> : BinderBase,
+    public class Binder<T, TFinal> : BinderBase,
         IBinder,
         IFieldStatusProvider2,
         IFieldStatusCollector2
@@ -275,7 +279,7 @@ namespace Fact.Extensions.Validation.Experimental
         // EXPERIMENTAL
         public object Converted => converted;
 
-        public event Action<object> Finalize;
+        public event Action<TFinal> Finalize;
         /// <summary>
         /// EXPERIMENTAL - may want all Validate to operate this way
         /// </summary>
@@ -332,13 +336,25 @@ namespace Fact.Extensions.Validation.Experimental
 
                 this.converted = converted;
             }
+            else
+                // DEBT: Naming is all wrong here
+                this.converted = field.Value;
 
             return f;
         }
 
-        public void DoFinalize()
+        public override void DoFinalize()
         {
-            Finalize?.Invoke(converted);
+            Finalize?.Invoke((TFinal)converted);
+        }
+    }
+
+    public class Binder<T> : Binder<T, T>
+    {
+        public Binder(FieldStatus field, Func<object> getter = null) : 
+            base(field, getter)
+        {
+
         }
     }
 }

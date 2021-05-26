@@ -150,6 +150,15 @@ namespace Fact.Extensions.Validation.WinForms
         }
 
 
+        public void DoFinalize()
+        {
+            foreach(Item item in binders)
+            {
+                item.binder.DoFinalize();
+            }
+        }
+
+
         internal Binder<T> InternalBind<T>(Item item, string name)
         {
             var field = new FieldStatus(name, item.control.Text);

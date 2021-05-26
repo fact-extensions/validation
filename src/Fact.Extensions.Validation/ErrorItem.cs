@@ -234,6 +234,19 @@ namespace Fact.Extensions.Validation
         }
     }
 
+
+    public class FieldStatus<T> : FieldStatus,
+        IField<T>
+    {
+        public FieldStatus() : base() { }
+
+        public FieldStatus(string name, object value) :
+            base(name, value)
+        { }
+
+        T IField<T>.Value => (T)base.Value;
+    }
+
     /// <summary>
     /// Error item with machine-discernable category and error code
     /// </summary>

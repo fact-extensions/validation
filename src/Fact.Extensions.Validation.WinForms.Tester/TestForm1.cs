@@ -15,6 +15,15 @@ namespace Fact.Extensions.Validation.WinForms.Tester
     {
         readonly BinderManager binderManager;
 
+        public class Entity
+        {
+            public string Field1 { get; set; }
+            public string Field2 { get; set; }
+            public int Field3 { get; set; }
+        }
+
+        Entity entity = new Entity();
+
         public TestForm1()
         {
             InitializeComponent();
@@ -26,6 +35,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
             Binder<string> b = bm.BindText<Control, string>(txtEntry1, "field1");
 
+            b.Finalize += v => entity.Field1 = v;
+
             gb.Add(b.Field);
 
             // TODO: Do integer conversion
@@ -34,6 +45,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
                 Required();
 
             b = bm.BindText<Control, string>(txtEntry2, "field2");
+
+            b.Finalize += v => entity.Field2 = v;
 
             b.Assert().IsTrue(x => x != "hi2", "Cannot be 'hi2'");
 
@@ -54,6 +67,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
                     f2.Error("Cannot equal field1");
                 }
             };
+
+            //b = bm.BindText<Control, int>(txtEntry1, "field3");
 
             bm.BindOkButton(btnOK);
             bm.SetupTooltip(this);
@@ -81,7 +96,10 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         {
             binderManager.Evaluate();
             if (!binderManager.Fields.SelectMany(f => f.Statuses).Any())
+            {
+                binderManager.DoFinalize();
                 DialogResult = DialogResult.OK;
+            }
             else
             {
                 // TODO: Let them know...
