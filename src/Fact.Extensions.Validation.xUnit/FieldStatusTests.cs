@@ -130,8 +130,8 @@ namespace Fact.Extensions.Validation.xUnit
         public void ConfirmPasswordTest3()
         {
             var entity = new GroupBinder();
-            var f1 = new FieldStatus("pass1", "password1");
-            var f2 = new FieldStatus("pass2", "password2");
+            var f1 = new FieldStatus<string>("pass1", "password1");
+            var f2 = new FieldStatus<string>("pass2", "password2");
             BinderBase pass1 = entity.Add(f1);
             BinderBase pass2 = entity.Add(f2);
 
@@ -148,13 +148,13 @@ namespace Fact.Extensions.Validation.xUnit
             };
             entity.Evaluate(null);
 
-            var _pass1 = (Experimental.GroupBinder._Item)entity["pass1"];
+            var _pass1 = (GroupBinder._Item)entity["pass1"];
             f1.Statuses.Should().HaveCount(1);
             f1.InternalStatuses.Should().BeEmpty();
             _pass1.statuses.Should().HaveCount(1);
             f2.Statuses.Should().HaveCount(1);
             f2.InternalStatuses.Should().BeEmpty();
-            var _pass2 = (Experimental.GroupBinder._Item)entity["pass2"];
+            var _pass2 = (GroupBinder._Item)entity["pass2"];
             _pass2.statuses.Should().HaveCount(1);
         }
 
@@ -162,8 +162,8 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public void ConversionTest()
         {
-            var f = new FieldStatus("field1", null);
-            var b = new Experimental.Binder<string>(f);
+            var f = new FieldStatus<string>("field1", null);
+            var b = new Binder<string>(f);
             string val = "123";
             object output;
             b.getter = () => val;
@@ -192,8 +192,8 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public void FluentTest1()
         {
-            var f = new FieldStatus("field1", null);
-            var b = new Experimental.Binder<string>(f);
+            var f = new FieldStatus<string>("field1", null);
+            var b = new Binder<string>(f);
 
             b.Assert().IsTrue(x => x == "hi", "Must be 'hi'");
 
@@ -206,8 +206,8 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public void FluentTest2()
         {
-            var f = new FieldStatus("field1", null);
-            var b = new Experimental.Binder<int>(f);
+            var f = new FieldStatus<int>("field1", default(int));
+            var b = new Binder<int>(f);
 
             b.Assert().
                 LessThan(10).
@@ -222,8 +222,8 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public void FluentTest3()
         {
-            var f = new FieldStatus("field1", null);
-            var b = new Experimental.Binder<string>(f);
+            var f = new FieldStatus<string>("field1", null);
+            var b = new Binder<string>(f);
 
             b.Assert().Required();
 

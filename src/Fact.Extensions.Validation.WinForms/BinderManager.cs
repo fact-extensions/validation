@@ -161,7 +161,7 @@ namespace Fact.Extensions.Validation.WinForms
 
         internal Binder<T> InternalBindText<T>(Item item, string name)
         {
-            var field = new FieldStatus(name, item.control.Text);
+            var field = new FieldStatus<T>(name, item.control.Text);
             var binder = new Binder<T>(field, () => item.control.Text);
 
             // DEBT: Clumsy assignment

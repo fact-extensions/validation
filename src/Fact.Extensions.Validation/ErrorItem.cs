@@ -240,7 +240,7 @@ namespace Fact.Extensions.Validation
     {
         public FieldStatus() : base() { }
 
-        public FieldStatus(string name, object value) :
+        public FieldStatus(string name, T value) :
             base(name, value)
         { }
 
