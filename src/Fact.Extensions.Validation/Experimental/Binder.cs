@@ -57,9 +57,9 @@ namespace Fact.Extensions.Validation.Experimental
         public void Add(FieldStatus.Status status) =>
             statuses.Add(status);
 
-        internal readonly IBinder binder;
+        internal readonly IBinderBase binder;
 
-        internal ShimFieldBase(IBinder binder, ICollection<FieldStatus.Status> statuses)
+        internal ShimFieldBase(IBinderBase binder, ICollection<FieldStatus.Status> statuses)
         {
             this.statuses = statuses;
             this.binder = binder;
@@ -75,7 +75,7 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public new T Value => (T)base.Value;
 
-        internal ShimFieldBase(IBinder binder, ICollection<FieldStatus.Status> statuses) :
+        internal ShimFieldBase(IBinderBase binder, ICollection<FieldStatus.Status> statuses) :
             base(binder, statuses)
         { 
         }
@@ -96,7 +96,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// </summary>
         internal class _Item : ShimFieldBase
         {
-            internal _Item(IBinder binder) : 
+            internal _Item(IBinderBase binder) : 
                 base(binder, new List<FieldStatus.Status>())
             {
             }
@@ -112,7 +112,7 @@ namespace Fact.Extensions.Validation.Experimental
             return binder;
         }
 
-        public void Add(IBinder binder)
+        public void Add(IBinderBase binder)
         {
             var item = new _Item(binder);
             // DEBT: Can't be doing this cast all the time.  It's safe for the moment
@@ -168,7 +168,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
-    public interface IBinder
+    public interface IBinderBase
     {
         /// <summary>
         /// Original 'canonical' field with aggregated/total status
@@ -178,11 +178,32 @@ namespace Fact.Extensions.Validation.Experimental
         Func<object> getter { get; }
 
         IField Evaluate();
-
-        void DoFinalize();
     }
 
-    public class BinderBase : IBinder
+
+    public interface IBinder : IBinderBase
+    {
+        void DoFinalize();
+
+        // DEBT: May not want this here
+        bool AbortOnNull { get; set; }
+    }
+
+
+    public interface IBinder<T> : IBinder
+    {
+        event FilterDelegate<T> Filter;
+        event Action<IField<T>> Validate;
+    }
+
+
+    public interface IBinder<T, TFinal> : IBinder<T>
+    {
+        event Action<TFinal> Finalize;
+    }
+
+
+    public class BinderBase : IBinderBase
     {
         // DEBT:
         public Func<object> getter { get; set; }
@@ -228,14 +249,24 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
+    public delegate void FilterDelegate<T>(IField<T> field, Context context);
+
     /// <summary>
     /// Binder is a very fancy getter and IField status maintainer
     /// </summary>
+    /// <typeparam name="T">Initial type, in field.Value</typeparam>
+    /// <typeparam name="TFinal">Final type, after conversions and commit</typeparam>
     public class Binder<T, TFinal> : BinderBase,
-        IBinder,
+        IBinder<T, TFinal>,
         IFieldStatusProvider2,
         IFieldStatusCollector2
     {
+        /// <summary>
+        /// When true, aborts validation processing when a null is seen (more or less treats a value as optional)
+        /// When false, ignores null and proceeds forward passing null through onto validation chain
+        /// </summary>
+        public bool AbortOnNull { get; set; } = true;
+
         object converted;
 
         // For exporting status
@@ -267,12 +298,6 @@ namespace Fact.Extensions.Validation.Experimental
             //field.AddIfNotPresent(this);
         }
 
-        /// <summary>
-        /// When true, aborts validation processing when a null is seen (more or less treats a value as optional)
-        /// When false, ignores null and proceeds forward passing null through onto validation chain
-        /// </summary>
-        public bool AbortOnNull = true;
-
         // EXPERIMENTAL
         public object Value => field.Value;
 
@@ -283,13 +308,12 @@ namespace Fact.Extensions.Validation.Experimental
         /// <summary>
         /// EXPERIMENTAL - may want all Validate to operate this way
         /// </summary>
-        public event FilterDelegate Filter;
+        public event FilterDelegate<T> Filter;
         /// <summary>
         /// TODO: Rename to Validating
         /// </summary>
         public event Action<IField<T>> Validate;
 
-        public delegate void FilterDelegate(IField<T> field, Context context);
         public delegate object ConvertDelegate(IField<T> field, object from);
 
         public event ConvertDelegate Convert;
@@ -315,7 +339,7 @@ namespace Fact.Extensions.Validation.Experimental
             if (Filter != null)
             {
                 var context = new Context();
-                foreach (var d in Filter.GetInvocationList().OfType<FilterDelegate>())
+                foreach (var d in Filter.GetInvocationList().OfType<FilterDelegate<T>>())
                 {
                     d(f, context);
 
@@ -443,13 +467,11 @@ namespace Fact.Extensions.Validation
 
     public class FluentBinder<T>
     {
-        readonly Binder<T> binder;
+        public IBinder<T> Binder { get; }
 
-        public Binder<T> Binder => binder;
-
-        public FluentBinder(Binder<T> binder)
+        public FluentBinder(IBinder<T> binder)
         {
-            this.binder = binder;
+            Binder = binder;
         }
     }
 }

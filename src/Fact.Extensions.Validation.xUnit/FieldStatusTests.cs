@@ -27,7 +27,7 @@ namespace Fact.Extensions.Validation.xUnit
         public void BinderTest()
         {
             var f = new FieldStatus("field1", null);
-            var b = new Experimental.Binder<int>(f);
+            var b = new Binder<int>(f);
 
             b.Validate += f =>
             {
@@ -46,12 +46,12 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public void ConfirmPasswordTest1()
         {
-            var entity = new Experimental.GroupBinder();
+            var entity = new GroupBinder();
             var f1 = new FieldStatus("pass1", null);
             var f2 = new FieldStatus("pass2", null);
-            var pass1 = new Experimental.Binder<string>(f1);
+            var pass1 = new Binder<string>(f1);
             entity.Add(pass1);
-            var pass2 = new Experimental.Binder<string>(f2);
+            var pass2 = new Binder<string>(f2);
             entity.Add(pass2);
             var validator = new Action<IField>(f =>
             {
@@ -88,15 +88,15 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public void ConfirmPasswordTest2()
         {
-            var entity = new Experimental.GroupBinder();
+            var entity = new GroupBinder();
             var f1 = new FieldStatus("pass1", null);
             var f2 = new FieldStatus("pass2", null);
-            var pass1 = new Experimental.Binder<string>(f1);
+            var pass1 = new Binder<string>(f1);
             entity.Add(pass1);
-            var pass2 = new Experimental.Binder<string>(f2);
+            var pass2 = new Binder<string>(f2);
             entity.Add(pass2);
             // Looks like we may not need context anymore...
-            var inputContext = new Experimental.InputContext()
+            var inputContext = new InputContext()
             {
                 FieldName = "pass1"
             };
@@ -117,11 +117,11 @@ namespace Fact.Extensions.Validation.xUnit
             };
             entity.Evaluate(inputContext);
 
-            var _pass1 = (Experimental.GroupBinder._Item)entity["pass1"];
+            var _pass1 = (GroupBinder._Item)entity["pass1"];
             f1.InternalStatuses.Should().BeEmpty();
             _pass1.statuses.Should().HaveCount(1);
             f2.InternalStatuses.Should().BeEmpty();
-            var _pass2 = (Experimental.GroupBinder._Item)entity["pass2"];
+            var _pass2 = (GroupBinder._Item)entity["pass2"];
             _pass2.statuses.Should().HaveCount(1);
         }
 

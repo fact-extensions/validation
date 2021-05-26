@@ -159,7 +159,7 @@ namespace Fact.Extensions.Validation.WinForms
         }
 
 
-        internal Binder<T> InternalBind<T>(Item item, string name)
+        internal Binder<T> InternalBindText<T>(Item item, string name)
         {
             var field = new FieldStatus(name, item.control.Text);
             var binder = new Binder<T>(field, () => item.control.Text);
@@ -182,7 +182,7 @@ namespace Fact.Extensions.Validation.WinForms
         {
             var item = new Item { control = control };
 
-            Binder<T> binder = InternalBind<T>(item, name);
+            Binder<T> binder = InternalBindText<T>(item, name);
             string initialText = control.Text;
             string lastText = control.Text;
             bool touched = false;
