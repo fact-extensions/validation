@@ -10,34 +10,6 @@ namespace Fact.Extensions.Validation.WinForms
 {
     using Fact.Extensions.Validation.Experimental;
 
-    public class BinderManagerBase<TSource>
-    {
-        // 1:1 Field binders
-        protected List<Item> binders = new List<Item>();
-
-        public class Item
-        {
-            internal IBinder binder;
-            internal event Action Initialize;
-            internal TSource control;
-            // DEBT: Pretty sure we can deduce this at will based on an initial vs current value
-            internal bool modified;
-
-            internal void DoInitialize() => Initialize?.Invoke();
-        }
-
-        public class Item<T> : Item
-        {
-            internal Tracker<T> tracked;
-        }
-
-        /// <summary>
-        /// A list of all tracked original/canonical fields
-        /// </summary>
-        public IEnumerable<IField> Fields =>
-            binders.Select(x => x.binder.Field);
-    }
-
     public class BinderManagerBase : BinderManagerBase<Control>
     {
         public class ColorOptions
@@ -202,7 +174,8 @@ namespace Fact.Extensions.Validation.WinForms
         public Binder<T> BindText<TControl, T>(TControl control, string name)
             where TControl: Control
         {
-            var item = new Item { control = control };
+            // DEBT: Clumsy and eventually problematic initialization
+            var item = new Item(null, control);
 
             Binder<T> binder = InternalBindText<T>(item, name);
             string initialText = control.Text;

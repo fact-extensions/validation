@@ -31,21 +31,11 @@ namespace Fact.Extensions.Validation.WinForms
         {
             binder.getter = () => getter(control);
             binder.getter2 = () => getter(control);
-            item = new Item<T>()
-            {
-                binder = binder,
-                control = control,
-                tracked = new Tracker<T>(getter(control))
-            };
+            item = new Item<T>(binder, control, getter(control));
 
             binders.Add(item);
 
             Item<T> item2 = item;
-
-            item2.tracked.Updated += (v, c) =>
-            {
-                item2.modified = item2.tracked.IsModified;
-            };
 
             control.GotFocus += (s, e) => styleManager.FocusGained(item2);
             control.LostFocus += (s, e) => styleManager.FocusLost(item2);
@@ -101,7 +91,7 @@ namespace Fact.Extensions.Validation.WinForms
             bool hasStatus = item.binder.Field.Statuses.Any();
 
             item.control.BackColor = hasStatus ?
-                (item.modified ? colorOptions.FocusedStatus : colorOptions.InitialStatus) :
+                (item.IsModified ? colorOptions.FocusedStatus : colorOptions.InitialStatus) :
                 colorOptions.ClearedStatus;
         }
 
@@ -121,7 +111,7 @@ namespace Fact.Extensions.Validation.WinForms
             bool hasStatus = item.binder.Field.Statuses.Any();
 
             item.control.BackColor = hasStatus ?
-                (item.modified ? colorOptions.FocusedStatus : colorOptions.InitialStatus) :
+                (item.IsModified ? colorOptions.FocusedStatus : colorOptions.InitialStatus) :
                 colorOptions.ClearedStatus;
         }
     }
