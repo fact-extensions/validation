@@ -11,6 +11,10 @@ namespace Fact.Extensions.Validation
 
         public DateTimeOffset CreatedAt { get; protected set; }
         public DateTimeOffset TouchedAt { get; protected set; }
+        // DEBT: Updating event fires every time (really is a Touching/Touched event)
+        // But UpdatedAt only is set when a value not equal to old one is specified.
+        // Consider changing this to 'ChangedAt' (would use 'ModifiedAt' but modified has a
+        // special meaning for us)
         public DateTimeOffset UpdatedAt { get; protected set; }
     }
 
