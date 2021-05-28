@@ -15,6 +15,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
     {
         readonly BinderManager2 binderManager;
 
+        public IServiceProvider Services { get; set; }
+
         public TestForm2()
         {
             InitializeComponent();
@@ -28,6 +30,11 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
             binderManager.Validated += BinderManager_Validated;
             binderManager.Validated += BinderManager_Validated1;
+        }
+
+        public TestForm2(IServiceProvider services) : this()
+        {
+            Services = services;
         }
 
         private void BinderManager_Validated1()

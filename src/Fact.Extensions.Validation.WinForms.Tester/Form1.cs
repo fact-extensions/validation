@@ -12,6 +12,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 {
     public partial class Form1 : Form
     {
+        public IServiceProvider Services { get; set; }
+
         public Form1()
         {
             InitializeComponent();
@@ -25,7 +27,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
         private void btnTestForm2_Click(object sender, EventArgs e)
         {
-            var form = new TestForm2();
+            var form = new TestForm2(Services);
             form.ShowDialog();
         }
     }

@@ -17,12 +17,13 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         {
             var sc = new ServiceCollection();
             Startup.ConfigureServices(sc);
-            Startup.Configure(sc.BuildServiceProvider());
+            IServiceProvider services = sc.BuildServiceProvider();
+            Startup.Configure(services);
 
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new Form1() { Services = services });
         }
     }
 }
