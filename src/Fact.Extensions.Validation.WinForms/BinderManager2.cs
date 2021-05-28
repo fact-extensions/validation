@@ -26,12 +26,15 @@ namespace Fact.Extensions.Validation.WinForms
         }
 
 
-        public FluentBinder2<T> Add<TControl, T>(Binder2<T> binder, TControl control, Func<TControl, T> getter, out Item<T> item)
+        public FluentBinder2<T> Add<TControl, T>(Binder2<T> binder, TControl control, 
+            //Func<TControl, T> getter, 
+            Tracker<T> tracker,
+            out Item<T> item)
             where TControl: Control
         {
-            binder.getter = () => getter(control);
-            binder.getter2 = () => getter(control);
-            item = new Item<T>(binder, control, getter(control));
+            //binder.getter = () => getter(control);
+            //binder.getter2 = () => getter(control);
+            item = new Item<T>(binder, control, tracker);
 
             binders.Add(item);
 
@@ -47,12 +50,10 @@ namespace Fact.Extensions.Validation.WinForms
         }
 
 
-        public FluentBinder2<string> AddText(Binder2<string> binder, Control control)
+        public FluentBinder2<string> AddText(Binder2<string> binder, Control control, Tracker<string> tracker)
         {
-            var fb = Add(binder, control, c => c.Text, out Item<string> item);
-            Color initialAlertColor = options.Color.InitialStatus;
-            Color inputAlertColor = options.Color.FocusedStatus;
-            Color clearColor = options.Color.ClearedStatus;
+            //var fb = Add(binder, control, c => c.Text, out Item<string> item);
+            var fb = Add(binder, control, tracker, out Item<string> item);
 
             control.TextChanged += async (s, e) =>
             {
@@ -72,7 +73,12 @@ namespace Fact.Extensions.Validation.WinForms
         public FluentBinder2<string> BindText(Control control)
         {
             var f = new FieldStatus<string>(control.Name, null);
-            return AddText(new Binder2<string>(f), control);
+            var tracker = new Tracker<string>(control.Text);
+            var binder = new Binder2<string>(f);
+            binder.getter = () => tracker.Value;
+            binder.getter2 = () => tracker.Value;
+
+            return AddText(binder, control, tracker);
         }
     }
 

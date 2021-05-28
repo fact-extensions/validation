@@ -38,9 +38,15 @@ namespace Fact.Extensions.Validation
             public override bool IsModified => tracked.IsModified;
 
             public Item(IBinder2<T> binder, TSource source, T initialValue) :
-                base(binder, source)
+                this(binder, source, new Tracker<T>(initialValue))
             {
                 tracked = new Tracker<T>(initialValue);
+            }
+
+            public Item(IBinder2<T> binder, TSource source, Tracker<T> tracker) :
+                base(binder, source)
+            {
+                tracked = tracker;
             }
         }
 
