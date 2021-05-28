@@ -10,7 +10,24 @@ namespace Fact.Extensions.Validation.WinForms
 {
     using Fact.Extensions.Validation.Experimental;
 
-    public class BinderManagerBase
+    public class BinderManagerBase<TSource>
+    {
+        // 1:1 Field binders
+        protected List<Item> binders = new List<Item>();
+
+        public class Item
+        {
+            internal IBinder binder;
+            internal event Action Initialize;
+            internal TSource control;
+            // DEBT: Pretty sure we can deduce this at will based on an initial vs current value
+            internal bool modified;
+
+            internal void DoInitialize() => Initialize?.Invoke();
+        }
+    }
+
+    public class BinderManagerBase : BinderManagerBase<Control>
     {
         public class ColorOptions
         {
@@ -36,26 +53,10 @@ namespace Fact.Extensions.Validation.WinForms
 
         public IServiceProvider Services { get; }
 
-        public class Item
-        {
-            internal IBinder binder;
-            internal event Action Initialize;
-            internal Control control;
-            // DEBT: Pretty sure we can deduce this at will based on an initial vs current value
-            internal bool modified;
-
-            internal void DoInitialize() => Initialize?.Invoke();
-        }
-
-
         public class Item<T> : Item
         {
             internal T initialValue;
         }
-
-        // 1:1 Field binders
-        protected List<Item> binders = new List<Item>();
-
 
         public BinderManagerBase(IServiceProvider services)
         {
