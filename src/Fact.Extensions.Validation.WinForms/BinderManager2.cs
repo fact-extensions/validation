@@ -17,6 +17,8 @@ namespace Fact.Extensions.Validation.WinForms
         /// </summary>
         public event Action Validated;
 
+        readonly StyleManager styleManager = new StyleManager();
+
 
         public BinderManager2(IServiceProvider services) : base(services)
         {
@@ -33,31 +35,20 @@ namespace Fact.Extensions.Validation.WinForms
             {
                 binder = binder,
                 control = control,
-                initialValue = getter(control)
+                tracked = new Tracker<T>(getter(control))
             };
 
             binders.Add(item);
 
             Item<T> item2 = item;
 
-            control.GotFocus += (s, e) =>
+            item2.tracked.Updated += (v, c) =>
             {
-                bool hasStatus = binder.Field.Statuses.Any();
-
-                control.BackColor = hasStatus ?
-                    (item2.modified ? options.Color.FocusedStatus : options.Color.InitialStatus) :
-                    options.Color.ClearedStatus;
+                item2.modified = item2.tracked.IsModified;
             };
 
-
-            control.LostFocus += (s, e) =>
-            {
-                bool hasStatus = binder.Field.Statuses.Any();
-
-                control.BackColor = hasStatus ?
-                    options.Color.UnfocusedStatus :
-                    options.Color.ClearedStatus;
-            };
+            control.GotFocus += (s, e) => styleManager.FocusGained(item2);
+            control.LostFocus += (s, e) => styleManager.FocusLost(item2);
 
 
             // DEBT: "initial value" needs more work, but coming along
@@ -69,27 +60,20 @@ namespace Fact.Extensions.Validation.WinForms
         public FluentBinder2<string> AddText(Binder2<string> binder, Control control)
         {
             var fb = Add(binder, control, c => c.Text, out Item<string> item);
-            bool touched = false;
             Color initialAlertColor = options.Color.InitialStatus;
             Color inputAlertColor = options.Color.FocusedStatus;
             Color clearColor = options.Color.ClearedStatus;
 
             control.TextChanged += async (s, e) =>
             {
+                item.tracked.Value = control.Text;
                 await binder.Process();
 
                 Validated?.Invoke();
 
-                bool hasStatus = binder.Field.Statuses.Any();
-
-                item.modified = !item.initialValue.Equals(control.Text);
-                touched = true;
+                styleManager.ContentChanged(item);
 
                 //OnEvaluate(item, hasStatus);
-
-                control.BackColor = hasStatus ?
-                    (item.modified ? inputAlertColor : initialAlertColor) :
-                    clearColor;
             };
             return fb;
         }
@@ -99,6 +83,46 @@ namespace Fact.Extensions.Validation.WinForms
         {
             var f = new FieldStatus<string>(control.Name, null);
             return AddText(new Binder2<string>(f), control);
+        }
+    }
+
+
+    public interface IStyleManager
+    {
+
+    }
+
+    public class StyleManager : IStyleManager
+    {
+        BinderManagerBase.ColorOptions colorOptions = new BinderManagerBase.ColorOptions();
+
+        public void ContentChanged(BinderManagerBase.Item item)
+        {
+            bool hasStatus = item.binder.Field.Statuses.Any();
+
+            item.control.BackColor = hasStatus ?
+                (item.modified ? colorOptions.FocusedStatus : colorOptions.InitialStatus) :
+                colorOptions.ClearedStatus;
+        }
+
+
+        public void FocusLost(BinderManagerBase.Item item)
+        {
+            bool hasStatus = item.binder.Field.Statuses.Any();
+
+            item.control.BackColor = hasStatus ?
+                colorOptions.UnfocusedStatus :
+                colorOptions.ClearedStatus;
+        }
+
+
+        public void FocusGained(BinderManagerBase.Item item)
+        {
+            bool hasStatus = item.binder.Field.Statuses.Any();
+
+            item.control.BackColor = hasStatus ?
+                (item.modified ? colorOptions.FocusedStatus : colorOptions.InitialStatus) :
+                colorOptions.ClearedStatus;
         }
     }
 }

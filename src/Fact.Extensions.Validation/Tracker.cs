@@ -11,7 +11,7 @@ namespace Fact.Extensions.Validation
 
         public DateTimeOffset CreatedAt { get; protected set; }
         public DateTimeOffset TouchedAt { get; protected set; }
-        public DateTimeOffset ModifiedAt { get; protected set; }
+        public DateTimeOffset UpdatedAt { get; protected set; }
     }
 
 
@@ -34,7 +34,7 @@ namespace Fact.Extensions.Validation
                 now = DateTimeOffset.Now;
             CreatedAt = now;
             TouchedAt = now;
-            ModifiedAt = now;
+            UpdatedAt = now;
             this.equals = equals ?? DefaultEquals;
             if(historyDepth > 0)
             {
@@ -83,7 +83,7 @@ namespace Fact.Extensions.Validation
 
             Updating?.Invoke(this.value, value, context);
             if (!equals(this.value, value))
-                ModifiedAt = now;
+                UpdatedAt = now;
             this.value = value;
             TouchedAt = now;
             if (history != null)
@@ -92,6 +92,9 @@ namespace Fact.Extensions.Validation
         }
 
 
+        /// <summary>
+        /// Indicates whether value has been modified since we started tracking it
+        /// </summary>
         public bool IsModified => !equals(InitialValue, value);
 
         public bool IsTouched => TouchedAt > CreatedAt;

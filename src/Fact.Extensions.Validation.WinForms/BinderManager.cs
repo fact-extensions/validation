@@ -25,6 +25,17 @@ namespace Fact.Extensions.Validation.WinForms
 
             internal void DoInitialize() => Initialize?.Invoke();
         }
+
+        public class Item<T> : Item
+        {
+            internal Tracker<T> tracked;
+        }
+
+        /// <summary>
+        /// A list of all tracked original/canonical fields
+        /// </summary>
+        public IEnumerable<IField> Fields =>
+            binders.Select(x => x.binder.Field);
     }
 
     public class BinderManagerBase : BinderManagerBase<Control>
@@ -53,22 +64,10 @@ namespace Fact.Extensions.Validation.WinForms
 
         public IServiceProvider Services { get; }
 
-        public class Item<T> : Item
-        {
-            internal T initialValue;
-        }
-
         public BinderManagerBase(IServiceProvider services)
         {
             Services = services;
         }
-
-        /// <summary>
-        /// A list of all tracked original/canonical fields
-        /// </summary>
-        public IEnumerable<IField> Fields =>
-            binders.Select(x => x.binder.Field);
-
     }
 
     public class BinderManager : BinderManagerBase
