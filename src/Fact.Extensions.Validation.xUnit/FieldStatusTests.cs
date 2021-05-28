@@ -163,20 +163,19 @@ namespace Fact.Extensions.Validation.xUnit
         public void ConversionTest()
         {
             var f = new FieldStatus<string>("field1", null);
-            var b = new Binder<string>(f);
+            var b = new Binder<string, int>(f);
             string val = "123";
             object output;
             b.getter = () => val;
             b.Finalize += v => output = v;
             
 
-            b.Convert += (f, value) =>
+            b.Convert += (f, cea) =>
             {
-                if (int.TryParse((string)value, out int result)) return result;
-
-                f.Error("Unable to convert to integer");
-
-                return value;
+                if (int.TryParse(f.Value, out int result))
+                    cea.Value = result;
+                else
+                    f.Error("Unable to convert to integer");
             };
 
             b.Evaluate("123");
@@ -227,7 +226,9 @@ namespace Fact.Extensions.Validation.xUnit
 
             b.Assert().Required();
 
-            b.Evaluate(null);
+            // DEBT: string cast needed so compiler can figure out which extension to use
+            // clearly not ideal
+            b.Evaluate((string)null);
 
             f.Statuses.Should().HaveCount(1);
         }

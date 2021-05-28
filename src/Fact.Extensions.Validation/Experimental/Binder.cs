@@ -249,6 +249,24 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
+    public class ConvertEventArgs<T> : Context
+    {
+        T v;
+        bool isSet;
+
+        public bool IsSet => isSet;
+        
+        public T Value
+        {
+            get => v;
+            set
+            {
+                v = value;
+                isSet = true;
+            }
+        }
+    }
+
     public delegate void FilterDelegate<T>(IField<T> field, Context context);
 
     /// <summary>
@@ -314,7 +332,11 @@ namespace Fact.Extensions.Validation.Experimental
         /// </summary>
         public event Action<IField<T>> Validate;
 
-        public delegate object ConvertDelegate(IField<T> field, object from);
+        /// <summary>
+        /// Can only convert from T to TFinal
+        /// If multiple conversions are needed, one must chain multiple binders
+        /// </summary>
+        public delegate void ConvertDelegate(IField<T> field, ConvertEventArgs<TFinal> eventArgs);
 
         public event ConvertDelegate Convert;
 
@@ -351,14 +373,23 @@ namespace Fact.Extensions.Validation.Experimental
 
             if (Convert != null)
             {
-                this.converted = null;
-                object converted = field.Value;
+                converted = null;
+                var cea = new ConvertEventArgs<TFinal>();
                 // Easier to do with a ConvertContext to carry the obj around, or a manual list
                 // of delegates which we can abort if things go wrong
                 foreach (var d in Convert.GetInvocationList().OfType<ConvertDelegate>())
-                    converted = d(f, converted);
+                {
+                    if (cea.IsSet) break;
+                    d(f, cea);
+                }
 
-                this.converted = converted;
+                if(cea.IsSet)
+                    converted = cea.Value;
+                if (typeof(T) == typeof(TFinal))
+                    converted = f.Value;
+                
+                // If convert chain reaches here without converting, it's the chain's responsibility
+                // to report errors along the way via f.Error etc
             }
             else
                 // DEBT: Naming is all wrong here
@@ -392,7 +423,7 @@ namespace Fact.Extensions.Validation
     {
         // DEBT: This stateful and non-stateful can't fully coexist and we'll have to choose one
         // or the other eventually
-        public static void Evaluate<T>(this Experimental.Binder<T> binder, T value)
+        public static void Evaluate<T>(this BinderBase binder, T value)
         {
             binder.getter = () => value;
             binder.Evaluate();
