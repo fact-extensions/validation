@@ -232,5 +232,53 @@ namespace Fact.Extensions.Validation.xUnit
 
             f.Statuses.Should().HaveCount(1);
         }
+
+
+        [Fact]
+        public void ConversionTest2()
+        {
+            var field = new FieldStatus<string>("field1", "123");
+            var ctx = new ConvertEventArgs<int>();
+
+            // Supposed to be for convenience, but just makes things more complicated
+            field.TryConvert((v, ctx) =>
+            {
+                if (int.TryParse(v, out var temp))
+                {
+                    ctx.Value = temp;
+                    return true;
+                }
+
+                return false;
+            }, ctx, "Cannot convert to integer");
+        }
+        
+        [Fact]
+        public void ConversionTest3()
+        {
+            var f = new FieldStatus<string>("field1", null);
+            var b = new Binder<string, int>(f);
+            string val = "123";
+            object output;
+            b.getter = () => val;
+            b.Finalize += v => output = v;
+            
+
+            b.Convert += (f, cea) =>
+            {
+                if (int.TryParse(f.Value, out int result))
+                    cea.Value = result;
+                else
+                    f.Error("Unable to convert to integer");
+            };
+
+            b.Evaluate("123");
+
+            f.Statuses.Should().BeEmpty();
+
+            b.Evaluate("xyz");
+
+            f.Statuses.Should().HaveCount(1);
+        }
     }
 }

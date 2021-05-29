@@ -249,7 +249,14 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
-    public class ConvertEventArgs<T> : Context
+
+    public interface IConvertValue<T>
+    {
+        T Value { set; }
+    }
+
+    public class ConvertEventArgs<T> : Context,
+        IConvertValue<T>
     {
         T v;
         bool isSet;
@@ -390,6 +397,9 @@ namespace Fact.Extensions.Validation.Experimental
                 
                 // If convert chain reaches here without converting, it's the chain's responsibility
                 // to report errors along the way via f.Error etc
+                // Multi-type conversion not supported directly in one binder.  Either:
+                // - chain together multiple binders
+                // - store output somewhere other than cea.Value (you're on your own, but won't break validator)
             }
             else
                 // DEBT: Naming is all wrong here
@@ -492,6 +502,20 @@ namespace Fact.Extensions.Validation
                     if (f.Value == null) f.Error("Field is required");
             };
             return fluent;
+        }
+
+        public static void TryConvert<T, TFinal>(this IField<T> field,
+            Func<T, IConvertValue<TFinal>, bool> converter, IConvertValue<TFinal> ctx, string err)
+        {
+            if(!converter(field.Value, ctx))
+                field.Error(err);
+        }
+
+
+        public static void TryConvert<T, TFinal>(this Binder<T, TFinal> binder,
+            Func<T, TFinal> converter)
+        {
+            
         }
     }
 
