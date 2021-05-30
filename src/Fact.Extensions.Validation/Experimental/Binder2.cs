@@ -60,15 +60,15 @@ namespace Fact.Extensions.Validation.Experimental
         public static FluentBinder2<TTo> Convert<T, TTo>(this FluentBinder2<T> fb, 
             tryConvertDelegate<IField<T>, TTo> converter)
         {
+            var fb2 = new FluentBinder2<TTo>(fb.Binder, default(TTo));
             fb.Binder.Processing += (field, context) =>
             {
                 if (converter(fb.Field, out TTo converted))
                 {
                     context.Value = converted;
+                    fb2.test1 = converted;
                 }
             };
-            // FIX: Need to yank out context.Value from binder and make it available for next shim'd field
-            var fb2 = new FluentBinder2<TTo>(fb.Binder, default(TTo));
             return fb2;
         }
     }
@@ -76,20 +76,23 @@ namespace Fact.Extensions.Validation.Experimental
     public class ShimFieldBase2<T> : ShimFieldBase,
         IField<T>
     {
-        readonly T value;    // TODO: Maybe make this acquired direct from FluentBinder2
-        public override object Value => value;
+        readonly Func<T> getter;    // TODO: Maybe make this acquired direct from FluentBinder2
+        public override object Value => getter();
 
-        T IField<T>.Value => value;
+        T IField<T>.Value => getter();
 
-        internal ShimFieldBase2(IBinderBase binder, ICollection<FieldStatus.Status> statuses, T value) :
+        internal ShimFieldBase2(IBinderBase binder, ICollection<FieldStatus.Status> statuses, 
+            Func<T> getter) :
             base(binder, statuses)
         {
-            this.value = value;
+            this.getter = getter;
         }
     }
 
     public class FluentBinder2<T>
     {
+        internal T test1;
+        
         readonly Binder2 binder;
 
         public Binder2 Binder => binder;
@@ -99,8 +102,9 @@ namespace Fact.Extensions.Validation.Experimental
 
         public FluentBinder2(Binder2 binder, T value)
         {
+            test1 = value;
             this.binder = binder;
-            Field = new ShimFieldBase2<T>(binder, statuses, value);
+            Field = new ShimFieldBase2<T>(binder, statuses, () => test1);
         }
     }
 }

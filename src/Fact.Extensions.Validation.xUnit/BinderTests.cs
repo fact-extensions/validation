@@ -15,6 +15,7 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var f = new FieldStatus("field1", "123");
             var b = new Binder2(f);
+            b.getter = () => f.Value;
 
             var fb = b.As<string>();
 
@@ -26,6 +27,8 @@ namespace Fact.Extensions.Validation.xUnit
             });
 
             fbInt.IsTrue(f => f == 123, "Must be 123");
+
+            b.Process();
         }
     }
 }
