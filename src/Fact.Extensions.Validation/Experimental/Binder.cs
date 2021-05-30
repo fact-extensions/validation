@@ -48,7 +48,7 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public string Name { get; }
 
-        public object Value => binder.getter();
+        public virtual object Value => binder.getter();
 
         readonly internal ICollection<FieldStatus.Status> statuses;
 

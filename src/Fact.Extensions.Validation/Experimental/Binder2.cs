@@ -40,10 +40,22 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public static FluentBinder2<T> As<T>(this Binder2 binder)
         {
-            return new FluentBinder2<T>(binder);
+            return new FluentBinder2<T>(binder, (T)binder.getter());
         }
 
         public delegate bool tryConvertDelegate<TFrom, TTo>(TFrom from, out TTo to);
+
+        public static FluentBinder2<T> IsTrue<T>(this FluentBinder2<T> fb, Func<T, bool> predicate, 
+            string messageIfFalse, FieldStatus.Code level = FieldStatus.Code.Error)
+        {
+            fb.Binder.Processing += (field, context) =>
+            {
+                IField<T> f = fb.Field;
+                if(!predicate(f.Value))
+                    fb.Field.Add(level, messageIfFalse);
+            };
+            return fb;
+        }
 
         public static FluentBinder2<TTo> Convert<T, TTo>(this FluentBinder2<T> fb, 
             tryConvertDelegate<IField<T>, TTo> converter)
@@ -55,8 +67,24 @@ namespace Fact.Extensions.Validation.Experimental
                     context.Value = converted;
                 }
             };
-            var fb2 = new FluentBinder2<TTo>(fb.Binder);
+            // FIX: Need to yank out context.Value from binder and make it available for next shim'd field
+            var fb2 = new FluentBinder2<TTo>(fb.Binder, default(TTo));
             return fb2;
+        }
+    }
+    
+    public class ShimFieldBase2<T> : ShimFieldBase,
+        IField<T>
+    {
+        readonly T value;    // TODO: Maybe make this acquired direct from FluentBinder2
+        public override object Value => value;
+
+        T IField<T>.Value => value;
+
+        internal ShimFieldBase2(IBinderBase binder, ICollection<FieldStatus.Status> statuses, T value) :
+            base(binder, statuses)
+        {
+            this.value = value;
         }
     }
 
@@ -65,14 +93,14 @@ namespace Fact.Extensions.Validation.Experimental
         readonly Binder2 binder;
 
         public Binder2 Binder => binder;
-        public ShimFieldBase<T> Field { get; }
+        public ShimFieldBase2<T> Field { get; }
 
         readonly List<FieldStatus.Status> statuses = new List<FieldStatus.Status>();
 
-        public FluentBinder2(Binder2 binder)
+        public FluentBinder2(Binder2 binder, T value)
         {
             this.binder = binder;
-            Field = new ShimFieldBase<T>(binder, statuses);
+            Field = new ShimFieldBase2<T>(binder, statuses, value);
         }
     }
 }
