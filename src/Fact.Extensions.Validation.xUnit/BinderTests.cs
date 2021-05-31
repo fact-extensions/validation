@@ -144,7 +144,7 @@ namespace Fact.Extensions.Validation.xUnit
             var tcs = new TaskCompletionSource<int>();
             var gotHere = new HashSet<int>();
 
-            b.ProcessingAsync += async (field, context) =>
+            b.Processing += (field, context) =>
             {
                 gotHere.Add(0);
                 tcs.SetResult(0);
@@ -167,7 +167,6 @@ namespace Fact.Extensions.Validation.xUnit
             {
                 gotHere.Add(3);
                 throw new XunitException("Should never reach here");
-                //return new ValueTask();
             };
             
             Task t2 = tcs.Task.ContinueWith(t => cts.CancelAfter(TimeSpan.FromSeconds(0.5)),
