@@ -95,18 +95,22 @@ namespace Fact.Extensions.Validation.Experimental
         public delegate bool tryConvertDelegate<TFrom, TTo>(TFrom from, out TTo to);
 
         public static FluentBinder2<T> IsTrue<T>(this FluentBinder2<T> fb, Func<T, bool> predicate, 
-            string messageIfFalse, FieldStatus.Code level = FieldStatus.Code.Error)
+            Func<FieldStatus.Status> getIsFalseStatus)
         {
             fb.Binder.ProcessingAsync += (field, context) =>
             {
                 IField<T> f = fb.Field;
                 if(!predicate(f.Value))
-                    fb.Field.Add(level, messageIfFalse);
+                    f.Add(getIsFalseStatus());
 
                 return new ValueTask();
             };
             return fb;
         }
+
+        public static FluentBinder2<T> IsTrue<T>(this FluentBinder2<T> fb, Func<T, bool> predicate,
+            string messageIfFalse, FieldStatus.Code level = FieldStatus.Code.Error) =>
+            fb.IsTrue(predicate, () => new FieldStatus.Status(level, messageIfFalse));
 
         public static FluentBinder2<T> IsTrueAsync<T>(this FluentBinder2<T> fb, Func<T, ValueTask<bool>> predicate, 
             string messageIfFalse, FieldStatus.Code level = FieldStatus.Code.Error, bool sequential = true)
@@ -116,7 +120,7 @@ namespace Fact.Extensions.Validation.Experimental
                 IField<T> f = fb.Field;
                 context.Sequential = sequential;
                 if(!await predicate(f.Value))
-                    fb.Field.Add(level, messageIfFalse);
+                    f.Add(level, messageIfFalse);
             };
             return fb;
         }
@@ -125,7 +129,10 @@ namespace Fact.Extensions.Validation.Experimental
             where T : IComparable
         {
             return fb.IsTrue(v => v.CompareTo(value) < 0,
-                $"Must be less than {value}");
+                () => 
+                    new FieldStatus.ScalarStatus(
+                        FieldStatus.Code.Error, "Must be less than {0}",
+                        FieldStatus.ComparisonCode.LessThan, value));
         }
 
         

@@ -78,9 +78,9 @@ namespace Fact.Extensions.Validation
 
         public class Status
         {
-            public Code Level { get; set; }
+            public Code Level { get; }
 
-            public string Description { get; set; }
+            public string Description { get; }
 
             public Status() { }
 
@@ -113,6 +113,25 @@ namespace Fact.Extensions.Validation
             public ConflictStatus(IField conflictingWith) : base(Code.Conflict)
             {
                 this.conflictingWith = conflictingWith;
+            }
+        }
+
+
+        public class ScalarStatus : Status
+        {
+            ComparisonCode Code { get; }
+            readonly object comparedTo;
+
+            public ScalarStatus(Code _code, string description, ComparisonCode code, object comparedTo) :
+                base(_code, string.Format(description, comparedTo))
+            {
+                Code = code;
+                this.comparedTo = comparedTo;
+            }
+            
+            public ScalarStatus(Code code, string description, object comparedTo) : 
+                this(code, description, ComparisonCode.Unspecified, comparedTo)
+            {
             }
         }
 
@@ -161,7 +180,7 @@ namespace Fact.Extensions.Validation
         public void Clear() => statuses.Clear();
 
         public void Add(Code code, string description) =>
-            statuses.Add(new Status() { Level = code, Description = description });
+            statuses.Add(new Status(code, description));
 
         public void Add(Status status) =>
             statuses.Add(status);
@@ -223,6 +242,7 @@ namespace Fact.Extensions.Validation
         /// </summary>
         public enum ComparisonCode : short
         {
+            Unspecified = -1,
             GreaterThan = 0,
             GreaterThanOrEqualTo,
             LessThan,
