@@ -12,6 +12,12 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public object Value { get; set; }
         
+        /// <summary>
+        /// When true, signals Binder.Process that particular processor is completely
+        /// awaited before next processor runs.  When false, particular process is
+        /// treated fully asynchronously and the next processor begins evaluation in
+        /// parallel.  Defaults to true 
+        /// </summary>
         public bool Sequential { get; set; }
         
         public CancellationToken CancellationToken { get; set; }
@@ -87,10 +93,25 @@ namespace Fact.Extensions.Validation.Experimental
         public static FluentBinder2<T> IsTrue<T>(this FluentBinder2<T> fb, Func<T, bool> predicate, 
             string messageIfFalse, FieldStatus.Code level = FieldStatus.Code.Error)
         {
-            fb.Binder.Processing += (field, context) =>
+            fb.Binder.ProcessingAsync += (field, context) =>
             {
                 IField<T> f = fb.Field;
                 if(!predicate(f.Value))
+                    fb.Field.Add(level, messageIfFalse);
+
+                return new ValueTask();
+            };
+            return fb;
+        }
+
+        public static FluentBinder2<T> IsTrueAsync<T>(this FluentBinder2<T> fb, Func<T, ValueTask<bool>> predicate, 
+            string messageIfFalse, FieldStatus.Code level = FieldStatus.Code.Error, bool sequential = true)
+        {
+            fb.Binder.ProcessingAsync += async (field, context) =>
+            {
+                IField<T> f = fb.Field;
+                context.Sequential = sequential;
+                if(!await predicate(f.Value))
                     fb.Field.Add(level, messageIfFalse);
             };
             return fb;
@@ -100,13 +121,15 @@ namespace Fact.Extensions.Validation.Experimental
             tryConvertDelegate<IField<T>, TTo> converter)
         {
             var fb2 = new FluentBinder2<TTo>(fb.Binder, default(TTo));
-            fb.Binder.Processing += (field, context) =>
+            fb.Binder.ProcessingAsync += (field, context) =>
             {
                 if (converter(fb.Field, out TTo converted))
                 {
                     context.Value = converted;
                     fb2.test1 = converted;
                 }
+
+                return new ValueTask();
             };
             return fb2;
         }
