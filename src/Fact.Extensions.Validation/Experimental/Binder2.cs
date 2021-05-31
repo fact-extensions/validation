@@ -112,6 +112,12 @@ namespace Fact.Extensions.Validation.Experimental
             string messageIfFalse, FieldStatus.Code level = FieldStatus.Code.Error) =>
             fb.IsTrue(predicate, () => new FieldStatus.Status(level, messageIfFalse));
 
+        public static FluentBinder2<T> IsTrueScalar<T>(this FluentBinder2<T> fb, Func<T, bool> predicate,
+            FieldStatus.ComparisonCode code, T compareTo, string messageIfFalse = null,
+            FieldStatus.Code level = FieldStatus.Code.Error) =>
+            fb.IsTrue(predicate, () => 
+                new FieldStatus.ScalarStatus(level, messageIfFalse, code, compareTo));
+        
         public static FluentBinder2<T> IsTrueAsync<T>(this FluentBinder2<T> fb, Func<T, ValueTask<bool>> predicate, 
             string messageIfFalse, FieldStatus.Code level = FieldStatus.Code.Error, bool sequential = true)
         {
@@ -125,22 +131,20 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
-        public static FluentBinder2<T> LessThan<T>(this FluentBinder2<T> fb, T value)
+        public static FluentBinder2<T> LessThan<T>(this FluentBinder2<T> fb, T value,
+            string errorDescription = null)
             where T : IComparable
         {
-            return fb.IsTrue(v => v.CompareTo(value) < 0,
-                () => 
-                    new FieldStatus.ScalarStatus(
-                        FieldStatus.Code.Error, "Must be less than {0}",
-                        FieldStatus.ComparisonCode.LessThan, value));
+            return fb.IsTrueScalar(v => v.CompareTo(value) < 0,
+                FieldStatus.ComparisonCode.LessThan, value, errorDescription);
         }
 
         
         public static FluentBinder2<T> GreaterThan<T>(this FluentBinder2<T> fb, T value)
             where T : IComparable
         {
-            return fb.IsTrue(v => v.CompareTo(value) > 0,
-                $"Must be greater than {value}");
+            return fb.IsTrueScalar(v => v.CompareTo(value) > 0,
+                FieldStatus.ComparisonCode.GreaterThan, value);
         }
 
         public static FluentBinder2<TTo> Convert<T, TTo>(this FluentBinder2<T> fb, 

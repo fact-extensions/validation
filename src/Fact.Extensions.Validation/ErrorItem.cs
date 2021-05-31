@@ -122,8 +122,24 @@ namespace Fact.Extensions.Validation
             ComparisonCode Code { get; }
             readonly object comparedTo;
 
+            // DEBT: Really should come from a factory somewhere
+            static string GetDescription(ComparisonCode code)
+            {
+                switch (code)
+                {
+                    case ComparisonCode.GreaterThan:
+                        return "Must be greater than {0}";
+                    
+                    case ComparisonCode.LessThan:
+                        return "Must be less than {0}";
+                    
+                    default:
+                        throw new IndexOutOfRangeException("Unhandled code");
+                }
+            }
+
             public ScalarStatus(Code _code, string description, ComparisonCode code, object comparedTo) :
-                base(_code, string.Format(description, comparedTo))
+                base(_code, string.Format(description ?? GetDescription(code), comparedTo))
             {
                 Code = code;
                 this.comparedTo = comparedTo;
