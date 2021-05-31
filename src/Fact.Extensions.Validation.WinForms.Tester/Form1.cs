@@ -22,5 +22,11 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             var form = new TestForm1();
             form.ShowDialog();
         }
+
+        private void btnTestForm2_Click(object sender, EventArgs e)
+        {
+            var form = new TestForm2();
+            form.ShowDialog();
+        }
     }
 }

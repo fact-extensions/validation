@@ -10,7 +10,7 @@ namespace Fact.Extensions.Validation.WinForms
 {
     using Fact.Extensions.Validation.Experimental;
 
-    public class BinderManager
+    public class BinderManagerBase
     {
         public class ColorOptions
         {
@@ -26,11 +26,11 @@ namespace Fact.Extensions.Validation.WinForms
             public ColorOptions Color = new ColorOptions();
         }
 
-        Options options = new Options();
+        protected Options options = new Options();
 
         public IServiceProvider Services { get; }
 
-        internal class Item
+        public class Item
         {
             internal IBinder binder;
             internal event Action Initialize;
@@ -42,8 +42,17 @@ namespace Fact.Extensions.Validation.WinForms
         }
 
         // 1:1 Field binders
-        List<Item> binders = new List<Item>();
+        protected List<Item> binders = new List<Item>();
 
+
+        public BinderManagerBase(IServiceProvider services)
+        {
+            Services = services;
+        }
+    }
+
+    public class BinderManager : BinderManagerBase
+    {
         // Other binders which don't have a 1:1 field relationship
         List<IBinder> _binders = new List<IBinder>();
         List<GroupBinder> groupBinders = new List<GroupBinder>();
@@ -56,9 +65,8 @@ namespace Fact.Extensions.Validation.WinForms
         public IEnumerable<IField> Fields =>
             binders.Select(x => x.binder.Field);
 
-        public BinderManager(IServiceProvider services)
+        public BinderManager(IServiceProvider services) : base(services)
         {
-            Services = services;
         }
 
         void EvaluateOkButton(bool hasStatus)

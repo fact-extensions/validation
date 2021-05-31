@@ -31,8 +31,10 @@ namespace Fact.Extensions.Validation.Experimental
     /// <summary>
     /// Boilerplate for less-typed filter-only style binder
     /// </summary>
-    public class Binder2 : BinderBase
+    public class Binder2 : BinderBase, IBinder
     {
+        public bool AbortOnNull { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public Binder2(IField field) : base(field)
         {
         }

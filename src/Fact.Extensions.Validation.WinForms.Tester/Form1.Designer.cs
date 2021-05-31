@@ -30,6 +30,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         private void InitializeComponent()
         {
             this.btnTestForm1 = new System.Windows.Forms.Button();
+            this.btnTestForm2 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnTestForm1
@@ -42,11 +43,22 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             this.btnTestForm1.UseVisualStyleBackColor = true;
             this.btnTestForm1.Click += new System.EventHandler(this.btnTestForm1_Click);
             // 
+            // btnTestForm2
+            // 
+            this.btnTestForm2.Location = new System.Drawing.Point(12, 41);
+            this.btnTestForm2.Name = "btnTestForm2";
+            this.btnTestForm2.Size = new System.Drawing.Size(75, 25);
+            this.btnTestForm2.TabIndex = 1;
+            this.btnTestForm2.Text = "TestForm2";
+            this.btnTestForm2.UseVisualStyleBackColor = true;
+            this.btnTestForm2.Click += new System.EventHandler(this.btnTestForm2_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.btnTestForm2);
             this.Controls.Add(this.btnTestForm1);
             this.Name = "Form1";
             this.Text = "Form1";
@@ -57,6 +69,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         #endregion
 
         private System.Windows.Forms.Button btnTestForm1;
+        private System.Windows.Forms.Button btnTestForm2;
     }
 }
 
