@@ -20,7 +20,12 @@ namespace Fact.Extensions.Validation.Experimental
         /// </summary>
         public bool Sequential { get; set; }
         
-        public CancellationToken CancellationToken { get; set; }
+        public CancellationToken CancellationToken { get; }
+
+        public Context2(CancellationToken cancellationToken)
+        {
+            CancellationToken = cancellationToken;
+        }
     }
     
     /// <summary>
@@ -57,8 +62,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public async Task Process(CancellationToken ct = default)
         {
-            var context = new Context2();
-            context.CancellationToken = ct;
+            var context = new Context2(ct);
             // NOTE: Odd that following line doesn't compile now.
             // Fortunately our scenario that's OK
             //Processing?.Invoke(field, context);
@@ -80,7 +84,7 @@ namespace Fact.Extensions.Validation.Experimental
             // guidance from
             // https://stackoverflow.com/questions/27238232/how-can-i-cancel-task-whenall
             var tcs = new TaskCompletionSource<bool>(ct);
-            Task.WhenAny(Task.WhenAll(nonsequential), tcs.Task);
+            await Task.WhenAny(Task.WhenAll(nonsequential), tcs.Task);
         }
     }
 

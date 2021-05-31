@@ -1,7 +1,11 @@
 using FluentAssertions;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
+using Xunit.Sdk;
 
 
 namespace Fact.Extensions.Validation.xUnit
@@ -128,6 +132,53 @@ namespace Fact.Extensions.Validation.xUnit
 
             _value.Should().Be((string) f.Value);
             value.Should().Be(0);
+        }
+
+        [Fact]
+        public async Task AwaitedProcessor()
+        {
+            var f = new FieldStatus("field1", "123a");
+            var b = new Binder2(f);
+            b.getter = () => f.Value;
+            var cts = new CancellationTokenSource();
+            var tcs = new TaskCompletionSource<int>();
+            var gotHere = new HashSet<int>();
+
+            b.ProcessingAsync += async (field, context) =>
+            {
+                gotHere.Add(0);
+                tcs.SetResult(0);
+            };
+            
+            b.ProcessingAsync += async (field, context) =>
+            {
+                gotHere.Add(1);
+                context.Sequential = false;
+                await Task.Delay(5000, context.CancellationToken);
+            };
+            
+            b.ProcessingAsync += async (field, context) =>
+            {
+                gotHere.Add(2);
+                await Task.Delay(5000, context.CancellationToken);
+            };
+
+            b.ProcessingAsync += (field, context) =>
+            {
+                gotHere.Add(3);
+                throw new XunitException("Should never reach here");
+                //return new ValueTask();
+            };
+            
+            Task t2 = tcs.Task.ContinueWith(t => cts.CancelAfter(TimeSpan.FromSeconds(0.5)),
+                cts.Token);
+
+            var oce = await Assert.ThrowsAsync<TaskCanceledException>(async delegate
+            {
+                await b.Process(cts.Token);
+            });
+
+            gotHere.Should().HaveCount(3);
         }
     }
 }
