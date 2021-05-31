@@ -19,14 +19,10 @@ namespace Fact.Extensions.Validation.xUnit
 
             var fb = b.As<string>();
 
-            var fbInt = fb.Convert((IField<string> f, out int to) =>
-            {
-                if (int.TryParse(f.Value, out to)) return true;
-                f.Error("Cannot convert to integer");
-                return false;
-            });
+            var fbInt = fb.Convert((string v, out int to) =>
+                int.TryParse(v, out to),"Cannot convert to integer");
 
-            fbInt.IsTrue(f => f == 123, "Must be 123");
+            fbInt.IsTrue(v => v == 123, "Must be 123");
 
             b.Process();
 
@@ -88,6 +84,25 @@ namespace Fact.Extensions.Validation.xUnit
             var statuses = f.Statuses.ToArray();
             statuses.Should().HaveCount(2);
             statuses[1].Description.Should().Be("Must be less than 122");
+        }
+
+
+        [Fact]
+        public void Convert2()
+        {
+            var f = new FieldStatus("field1", "123a");
+            var b = new Binder2(f);
+            b.getter = () => f.Value;
+
+            var fb = b.As<string>();
+
+            var fb2 = fb.Convert<int>();
+
+            b.Process();
+            
+            var statuses = f.Statuses.ToArray();
+            statuses.Should().HaveCount(1);
+            //statuses[1].Description.Should().Be("Must be less than 122");
         }
     }
 }

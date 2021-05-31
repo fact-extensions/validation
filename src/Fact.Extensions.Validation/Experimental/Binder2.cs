@@ -148,7 +148,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
         public static FluentBinder2<TTo> Convert<T, TTo>(this FluentBinder2<T> fb, 
-            tryConvertDelegate<IField<T>, TTo> converter)
+            tryConvertDelegate<IField<T>, TTo> converter, string cannotConvert = null)
         {
             var fb2 = new FluentBinder2<TTo>(fb.Binder, default(TTo));
             fb.Binder.ProcessingAsync += (field, context) =>
@@ -159,23 +159,46 @@ namespace Fact.Extensions.Validation.Experimental
                     fb2.test1 = converted;
                 }
                 else
+                {
                     context.Abort = true;
+                    if(cannotConvert != null)
+                        fb.Field.Error(FieldStatus.ComparisonCode.Unspecified, typeof(TTo), cannotConvert);
+                }
 
                 return new ValueTask();
             };
             return fb2;
         }
 
+        public static FluentBinder2<TTo> Convert<T, TTo>(this FluentBinder2<T> fb,
+            tryConvertDelegate<T, TTo> converter, string cannotConvert)
+        {
+            return fb.Convert<T, TTo>((IField<T> field, out TTo converted) =>
+                converter(field.Value, out converted), cannotConvert);
+        }
+        
+
         public static FluentBinder2<TTo> Convert<TTo>(this IFluentBinder2 fb)
         {
             var fb2 = new FluentBinder2<TTo>(fb.Binder, default(TTo));
             fb.Binder.ProcessingAsync += (field, context) =>
             {
-                var converted = (TTo)
-                    System.Convert.ChangeType(fb.Field.Value, typeof(TTo));
+                IField f = fb.Field;
+                Type t = typeof(TTo);
+                
+                try
+                {
+                    var converted = (TTo)
+                        System.Convert.ChangeType(f.Value, t);
 
-                context.Value = converted;
-                fb2.test1 = converted;
+                    context.Value = converted;
+                    fb2.test1 = converted;
+                }
+                catch (FormatException)
+                {
+                    // DEBT: Get a candidate factory to grab descriptions from a comparisoncode + scalar
+                    f.Error(FieldStatus.ComparisonCode.Unspecified, t, "Unable to convert to type {0}");
+                }
 
                 return new ValueTask();
             };

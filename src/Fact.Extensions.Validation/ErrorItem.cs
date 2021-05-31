@@ -138,15 +138,15 @@ namespace Fact.Extensions.Validation
                 }
             }
 
-            public ScalarStatus(Code _code, string description, ComparisonCode code, object comparedTo) :
-                base(_code, string.Format(description ?? GetDescription(code), comparedTo))
+            public ScalarStatus(Code _code, string description, ComparisonCode code, object scalar) :
+                base(_code, string.Format(description ?? GetDescription(code), scalar))
             {
                 Code = code;
-                this.comparedTo = comparedTo;
+                this.comparedTo = scalar;
             }
             
-            public ScalarStatus(Code code, string description, object comparedTo) : 
-                this(code, description, ComparisonCode.Unspecified, comparedTo)
+            public ScalarStatus(Code code, string description, object scalar) : 
+                this(code, description, ComparisonCode.Unspecified, scalar)
             {
             }
         }
@@ -398,5 +398,10 @@ namespace Fact.Extensions.Validation
 
         public static void Error(this IField field, string description) =>
             field.Add(FieldStatus.Code.Error, description);
+
+        public static void Error(this IField field, FieldStatus.ComparisonCode code,
+            object value, string description = null) =>
+            field.Add(new FieldStatus.ScalarStatus(FieldStatus.Code.Error,
+                description, FieldStatus.ComparisonCode.Unspecified, value));
     }
 }
