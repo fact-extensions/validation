@@ -225,6 +225,11 @@ namespace Fact.Extensions.Validation.Experimental
 
     public class Context
     {
+        /// <summary>
+        /// When true, evaluation context proceeds normally (implicitly all the way until the end)
+        /// When false, evaluation halts completely (catestrophic failure)
+        /// Defaults to true
+        /// </summary>
         public bool Abort = false;
 
         public enum Interaction

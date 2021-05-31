@@ -70,13 +70,17 @@ namespace Fact.Extensions.Validation.Experimental
             {
                 context.Sequential = true;
                 ValueTask task = d(field, context);
+                if (context.Abort) return;
                 if (context.Sequential)
                     await task;
                 else
                     nonsequential.AddLast(task.AsTask());
             }
 
-            Task.WhenAll(nonsequential);
+            // guidance from
+            // https://stackoverflow.com/questions/27238232/how-can-i-cancel-task-whenall
+            var tcs = new TaskCompletionSource<bool>(ct);
+            Task.WhenAny(Task.WhenAll(nonsequential), tcs.Task);
         }
     }
 
@@ -143,6 +147,8 @@ namespace Fact.Extensions.Validation.Experimental
                     context.Value = converted;
                     fb2.test1 = converted;
                 }
+                else
+                    context.Abort = true;
 
                 return new ValueTask();
             };
