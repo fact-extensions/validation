@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 
@@ -9,7 +10,11 @@ namespace Fact.Extensions.Validation.Experimental
 {
     public class Context2 : Context
     {
-        public object Value { get; set; }    
+        public object Value { get; set; }
+        
+        public bool Sequential { get; set; }
+        
+        public CancellationToken CancellationToken { get; set; }
     }
     
     /// <summary>
@@ -24,14 +29,46 @@ namespace Fact.Extensions.Validation.Experimental
         public delegate void ProcessingDelegate(IField f, Context2 context);
         public delegate Task ProcessingDelegateAsync(IField f, Context2 context);
 
-        public event ProcessingDelegate Processing;
+        public event ProcessingDelegate Processing
+        {
+            remove
+            {
+                throw new NotSupportedException("Must use ProcessingAsync propery");
+            }
+            add
+            {
+                ProcessingAsync +=
+                    (field1, context) =>
+                    {
+                        value(field1, context);
+                        return Task.CompletedTask;
+                    };
+            }
+        }
         public event ProcessingDelegateAsync ProcessingAsync;
 
-        public Task Process()
+        public async Task Process(CancellationToken ct = default)
         {
             var context = new Context2();
-            Processing?.Invoke(field, context);
-            return Task.CompletedTask;
+            context.CancellationToken = ct;
+            // NOTE: Odd that following line doesn't compile now.
+            // Fortunately our scenario that's OK
+            //Processing?.Invoke(field, context);
+            var delegates = ProcessingAsync.GetInvocationList();
+
+            var nonsequential = new LinkedList<Task>();
+
+            foreach (ProcessingDelegateAsync d in delegates)
+            {
+                context.Sequential = true;
+                Task task = d(field, context);
+                if (context.Sequential)
+                    await task;
+                else
+                    nonsequential.AddLast(task);
+            }
+
+            Task.WhenAll(nonsequential);
         }
     }
 
