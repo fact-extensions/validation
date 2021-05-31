@@ -104,5 +104,30 @@ namespace Fact.Extensions.Validation.xUnit
             statuses.Should().HaveCount(1);
             //statuses[1].Description.Should().Be("Must be less than 122");
         }
+        
+        [Fact]
+        public void Emit1()
+        {
+            var f = new FieldStatus("field1", "123a");
+            var b = new Binder2(f);
+            b.getter = () => f.Value;
+            int value = 0;
+            string _value = null;
+
+            var fb = b.As<string>();
+
+            fb.Emit(v => _value = v);
+
+            var fb2 = fb.Convert<int>().Emit(v => value = v);
+
+            b.Process();
+            
+            var statuses = f.Statuses.ToArray();
+            statuses.Should().HaveCount(1);
+            //statuses[1].Description.Should().Be("Must be less than 122");
+
+            _value.Should().Be((string) f.Value);
+            value.Should().Be(0);
+        }
     }
 }

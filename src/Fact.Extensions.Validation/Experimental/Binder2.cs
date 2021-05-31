@@ -198,11 +198,32 @@ namespace Fact.Extensions.Validation.Experimental
                 {
                     // DEBT: Get a candidate factory to grab descriptions from a comparisoncode + scalar
                     f.Error(FieldStatus.ComparisonCode.Unspecified, t, "Unable to convert to type {0}");
+                    context.Abort = true;
                 }
 
                 return new ValueTask();
             };
             return fb2;
+        }
+
+        static bool FilterStatus(FieldStatus.Status s)
+            => s.Level != FieldStatus.Code.OK;
+
+        public static FluentBinder2<T> Emit<T>(this FluentBinder2<T> fb, Action<T> emitter, 
+            Func<FieldStatus.Status, bool> whenStatus = null, bool bypassFilter = false)
+        {
+            if (whenStatus == null) whenStatus = FilterStatus;
+            
+            fb.Binder.ProcessingAsync += (field, context) =>
+            {
+                IField<T> f = fb.Field;
+                
+                if(bypassFilter || !field.Statuses.Any(whenStatus))
+                    emitter(f.Value);
+
+                return new ValueTask();
+            };
+            return fb;
         }
     }
     
