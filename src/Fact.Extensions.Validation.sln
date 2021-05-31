@@ -18,39 +18,48 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fact.Extensions.Validation"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fact.Extensions.Validation.xUnit", "Fact.Extensions.Validation.xUnit\Fact.Extensions.Validation.xUnit.csproj", "{E69D3301-E007-4562-9F94-53422411B5E5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fact.Extensions.Validation.WinForms", "Fact.Extensions.Validation.WinForms\Fact.Extensions.Validation.WinForms.csproj", "{9EB20443-0179-44F4-A38D-828C97E3B0FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fact.Extensions.Validation.WinForms", "Fact.Extensions.Validation.WinForms\Fact.Extensions.Validation.WinForms.csproj", "{9EB20443-0179-44F4-A38D-828C97E3B0FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fact.Extensions.Validation.WinForms.Tester", "Fact.Extensions.Validation.WinForms.Tester\Fact.Extensions.Validation.WinForms.Tester.csproj", "{14EEE453-8DCF-4D38-97C6-E8002ED94372}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fact.Extensions.Validation.WinForms.Tester", "Fact.Extensions.Validation.WinForms.Tester\Fact.Extensions.Validation.WinForms.Tester.csproj", "{14EEE453-8DCF-4D38-97C6-E8002ED94372}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|macOS = Debug|macOS
 		Release|Any CPU = Release|Any CPU
+		Release|macOS = Release|macOS
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{FD29BDBF-DF98-4F29-9AED-10A848D940E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FD29BDBF-DF98-4F29-9AED-10A848D940E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FD29BDBF-DF98-4F29-9AED-10A848D940E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FD29BDBF-DF98-4F29-9AED-10A848D940E3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FD29BDBF-DF98-4F29-9AED-10A848D940E3}.Debug|macOS.ActiveCfg = Debug|macOS
 		{FD29BDBF-DF98-4F29-9AED-10A848D940E3}.Debug|macOS.Build.0 = Debug|macOS
+		{FD29BDBF-DF98-4F29-9AED-10A848D940E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD29BDBF-DF98-4F29-9AED-10A848D940E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD29BDBF-DF98-4F29-9AED-10A848D940E3}.Release|macOS.ActiveCfg = Release|macOS
+		{FD29BDBF-DF98-4F29-9AED-10A848D940E3}.Release|macOS.Build.0 = Release|macOS
 		{E69D3301-E007-4562-9F94-53422411B5E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E69D3301-E007-4562-9F94-53422411B5E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E69D3301-E007-4562-9F94-53422411B5E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E69D3301-E007-4562-9F94-53422411B5E5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E69D3301-E007-4562-9F94-53422411B5E5}.Debug|macOS.ActiveCfg = Debug|macOS
 		{E69D3301-E007-4562-9F94-53422411B5E5}.Debug|macOS.Build.0 = Debug|macOS
+		{E69D3301-E007-4562-9F94-53422411B5E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E69D3301-E007-4562-9F94-53422411B5E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E69D3301-E007-4562-9F94-53422411B5E5}.Release|macOS.ActiveCfg = Release|macOS
+		{E69D3301-E007-4562-9F94-53422411B5E5}.Release|macOS.Build.0 = Release|macOS
 		{9EB20443-0179-44F4-A38D-828C97E3B0FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9EB20443-0179-44F4-A38D-828C97E3B0FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EB20443-0179-44F4-A38D-828C97E3B0FC}.Debug|macOS.ActiveCfg = Debug|macOS
 		{9EB20443-0179-44F4-A38D-828C97E3B0FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EB20443-0179-44F4-A38D-828C97E3B0FC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9EB20443-0179-44F4-A38D-828C97E3B0FC}.Debug|macOS.ActiveCfg = Debug|macOS
+		{9EB20443-0179-44F4-A38D-828C97E3B0FC}.Release|macOS.ActiveCfg = Release|macOS
+		{9EB20443-0179-44F4-A38D-828C97E3B0FC}.Release|macOS.Build.0 = Release|macOS
 		{14EEE453-8DCF-4D38-97C6-E8002ED94372}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{14EEE453-8DCF-4D38-97C6-E8002ED94372}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14EEE453-8DCF-4D38-97C6-E8002ED94372}.Debug|macOS.ActiveCfg = Debug|macOS
 		{14EEE453-8DCF-4D38-97C6-E8002ED94372}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14EEE453-8DCF-4D38-97C6-E8002ED94372}.Release|Any CPU.Build.0 = Release|Any CPU
-		{14EEE453-8DCF-4D38-97C6-E8002ED94372}.Debug|macOS.ActiveCfg = Debug|macOS
+		{14EEE453-8DCF-4D38-97C6-E8002ED94372}.Release|macOS.ActiveCfg = Release|macOS
+		{14EEE453-8DCF-4D38-97C6-E8002ED94372}.Release|macOS.Build.0 = Release|macOS
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
