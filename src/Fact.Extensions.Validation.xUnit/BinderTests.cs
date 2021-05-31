@@ -36,5 +36,52 @@ namespace Fact.Extensions.Validation.xUnit
 
             f.Statuses.Should().HaveCount(1);
         }
+
+        [Fact]
+        public void Convert1()
+        {
+            var f = new FieldStatus("field1", "123");
+            var b = new Binder2(f);
+            b.getter = () => f.Value;
+
+            var fb = b.As<string>();
+
+            var fb2 = fb.Convert<int>();
+
+            fb2.Field.Value.Should().NotBe(123);
+
+            // DEBT
+            //fb2.Field.Value.Should().BeOfType<int>();
+
+            b.Process();
+            
+            fb2.Field.Value.Should().Be(123);
+        }
+        
+        [Fact]
+        public void Compare1()
+        {
+            var f = new FieldStatus("field1", "123");
+            var b = new Binder2(f);
+            b.getter = () => f.Value;
+
+            var fb = b.As<string>();
+
+            var fb2 = fb.Convert<int>();
+                
+            fb2.GreaterThan(100);
+
+            b.Process();
+
+            f.Statuses.Should().BeEmpty();
+
+            fb2.GreaterThan(124);
+
+            b.Process();
+
+            f.Statuses.Should().HaveCount(1);
+
+            //fb2.LessThan(122);
+        }
     }
 }

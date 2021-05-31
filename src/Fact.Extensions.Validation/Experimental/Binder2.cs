@@ -117,6 +117,21 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
+        public static FluentBinder2<T> LessThan<T>(this FluentBinder2<T> fb, T value)
+            where T : IComparable
+        {
+            return fb.IsTrue(v => v.CompareTo(value) < 0,
+                $"Must be less than {value}");
+        }
+
+        
+        public static FluentBinder2<T> GreaterThan<T>(this FluentBinder2<T> fb, T value)
+            where T : IComparable
+        {
+            return fb.IsTrue(v => v.CompareTo(value) > 0,
+                $"Must be greater than {value}");
+        }
+
         public static FluentBinder2<TTo> Convert<T, TTo>(this FluentBinder2<T> fb, 
             tryConvertDelegate<IField<T>, TTo> converter)
         {
@@ -128,6 +143,22 @@ namespace Fact.Extensions.Validation.Experimental
                     context.Value = converted;
                     fb2.test1 = converted;
                 }
+
+                return new ValueTask();
+            };
+            return fb2;
+        }
+
+        public static FluentBinder2<TTo> Convert<TTo>(this IFluentBinder2 fb)
+        {
+            var fb2 = new FluentBinder2<TTo>(fb.Binder, default(TTo));
+            fb.Binder.ProcessingAsync += (field, context) =>
+            {
+                var converted = (TTo)
+                    System.Convert.ChangeType(fb.Field.Value, typeof(TTo));
+
+                context.Value = converted;
+                fb2.test1 = converted;
 
                 return new ValueTask();
             };
@@ -151,7 +182,14 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
-    public class FluentBinder2<T>
+    public interface IFluentBinder2
+    {
+        Binder2 Binder { get; }
+        
+        IField Field { get; }
+    }
+
+    public class FluentBinder2<T> : IFluentBinder2
     {
         internal T test1;
         
@@ -159,6 +197,8 @@ namespace Fact.Extensions.Validation.Experimental
 
         public Binder2 Binder => binder;
         public ShimFieldBase2<T> Field { get; }
+
+        IField IFluentBinder2.Field => Field;
 
         readonly List<FieldStatus.Status> statuses = new List<FieldStatus.Status>();
 
