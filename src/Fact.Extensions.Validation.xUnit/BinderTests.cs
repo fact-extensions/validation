@@ -29,6 +29,12 @@ namespace Fact.Extensions.Validation.xUnit
             fbInt.IsTrue(f => f == 123, "Must be 123");
 
             b.Process();
+
+            fbInt.IsTrue(v => v == 124, "Must be 124");
+
+            b.Process();
+
+            f.Statuses.Should().HaveCount(1);
         }
     }
 }

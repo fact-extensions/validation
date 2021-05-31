@@ -27,7 +27,9 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
         public delegate void ProcessingDelegate(IField f, Context2 context);
-        public delegate Task ProcessingDelegateAsync(IField f, Context2 context);
+        // ValueTask guidance here:
+        // https://devblogs.microsoft.com/dotnet/understanding-the-whys-whats-and-whens-of-valuetask/
+        public delegate ValueTask ProcessingDelegateAsync(IField f, Context2 context);
 
         public event ProcessingDelegate Processing
         {
@@ -41,7 +43,7 @@ namespace Fact.Extensions.Validation.Experimental
                     (field1, context) =>
                     {
                         value(field1, context);
-                        return Task.CompletedTask;
+                        return new ValueTask();
                     };
             }
         }
@@ -61,11 +63,11 @@ namespace Fact.Extensions.Validation.Experimental
             foreach (ProcessingDelegateAsync d in delegates)
             {
                 context.Sequential = true;
-                Task task = d(field, context);
+                ValueTask task = d(field, context);
                 if (context.Sequential)
                     await task;
                 else
-                    nonsequential.AddLast(task);
+                    nonsequential.AddLast(task.AsTask());
             }
 
             Task.WhenAll(nonsequential);
@@ -142,6 +144,10 @@ namespace Fact.Extensions.Validation.Experimental
             test1 = value;
             this.binder = binder;
             Field = new ShimFieldBase2<T>(binder, statuses, () => test1);
+            
+            // DEBT
+            var f = (FieldStatus) binder.Field;
+            f.Add(statuses);
         }
     }
 }
