@@ -81,7 +81,11 @@ namespace Fact.Extensions.Validation.xUnit
 
             f.Statuses.Should().HaveCount(1);
 
-            //fb2.LessThan(122);
+            fb2.LessThan(122);
+
+            b.Process();
+            
+            f.Statuses.Should().HaveCount(2);
         }
     }
 }

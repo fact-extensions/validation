@@ -206,6 +206,13 @@ namespace Fact.Extensions.Validation.Experimental
         {
             test1 = value;
             this.binder = binder;
+            // This event handler is more or less a re-initializer for subsequent
+            // process/validation calls
+            binder.ProcessingAsync += (field, context) =>
+            {
+                statuses.Clear();
+                return new ValueTask();
+            };
             Field = new ShimFieldBase2<T>(binder, statuses, () => test1);
             
             // DEBT
