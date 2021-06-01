@@ -25,5 +25,9 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             fm.Convert<int>().
                 GreaterThan(20);
         }
+
+        private void btnOK_Click(object sender, EventArgs e)
+        {
+        }
     }
 }

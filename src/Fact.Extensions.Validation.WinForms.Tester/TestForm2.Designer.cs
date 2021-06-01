@@ -31,6 +31,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         {
             this.btnOK = new System.Windows.Forms.Button();
             this.txtEntry1 = new System.Windows.Forms.TextBox();
+            this.lstStatus = new System.Windows.Forms.ListBox();
             this.SuspendLayout();
             // 
             // btnOK
@@ -41,6 +42,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             this.btnOK.TabIndex = 0;
             this.btnOK.Text = "OK";
             this.btnOK.UseVisualStyleBackColor = true;
+            this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
             // txtEntry1
             // 
@@ -49,11 +51,21 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             this.txtEntry1.Size = new System.Drawing.Size(100, 23);
             this.txtEntry1.TabIndex = 1;
             // 
+            // lstStatus
+            // 
+            this.lstStatus.FormattingEnabled = true;
+            this.lstStatus.ItemHeight = 15;
+            this.lstStatus.Location = new System.Drawing.Point(12, 220);
+            this.lstStatus.Name = "lstStatus";
+            this.lstStatus.Size = new System.Drawing.Size(776, 94);
+            this.lstStatus.TabIndex = 2;
+            // 
             // TestForm2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.lstStatus);
             this.Controls.Add(this.txtEntry1);
             this.Controls.Add(this.btnOK);
             this.Name = "TestForm2";
@@ -67,5 +79,6 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.TextBox txtEntry1;
+        private System.Windows.Forms.ListBox lstStatus;
     }
 }

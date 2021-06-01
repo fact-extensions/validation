@@ -269,7 +269,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         readonly List<FieldStatus.Status> statuses = new List<FieldStatus.Status>();
 
-        public FluentBinder2(Binder2 binder, T value)
+        public FluentBinder2(Binder2 binder, T value, bool initial = false)
         {
             test1 = value;
             this.binder = binder;
@@ -280,7 +280,12 @@ namespace Fact.Extensions.Validation.Experimental
                 statuses.Clear();
                 return new ValueTask();
             };
-            Field = new ShimFieldBase2<T>(binder, statuses, () => test1);
+
+            if (initial)
+                // DEBT: Needs refiniement
+                Field = new ShimFieldBase2<T>(binder, statuses, () => (T)binder.getter());
+            else
+                Field = new ShimFieldBase2<T>(binder, statuses, () => test1);
             
             // DEBT
             var f = (FieldStatus) binder.Field;

@@ -49,6 +49,13 @@ namespace Fact.Extensions.Validation.WinForms
         {
             Services = services;
         }
+
+        /// <summary>
+        /// A list of all tracked original/canonical fields
+        /// </summary>
+        public IEnumerable<IField> Fields =>
+            binders.Select(x => x.binder.Field);
+
     }
 
     public class BinderManager : BinderManagerBase
@@ -58,12 +65,6 @@ namespace Fact.Extensions.Validation.WinForms
         List<GroupBinder> groupBinders = new List<GroupBinder>();
 
         Button okButton;
-
-        /// <summary>
-        /// A list of all tracked original/canonical fields
-        /// </summary>
-        public IEnumerable<IField> Fields =>
-            binders.Select(x => x.binder.Field);
 
         public BinderManager(IServiceProvider services) : base(services)
         {
