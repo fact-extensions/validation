@@ -27,8 +27,8 @@ namespace Fact.Extensions.Validation.WinForms
                 binder = binder,
                 control = control
             };
-            // FIX: This is not even close to a good way to set up "initial value"
-            var fb = new FluentBinder2<T>(binder, getter(control), true);
+            // DEBT: "initial value" needs more work, but coming along
+            var fb = new FluentBinder2<T>(binder, true);
             return fb;
         }
 

@@ -44,7 +44,7 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public class ShimFieldBase : IField
+    public abstract class ShimFieldBase : IField
     {
         public string Name { get; }
 
@@ -181,6 +181,12 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+    public interface IBinderBase<T> : IBinderBase
+    {
+        new Func<T> getter { get; }
+    }
+
+
     public interface IBinder : IBinderBase
     {
         void DoFinalize();
@@ -203,10 +209,10 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public class BinderBase : IBinderBase
+    public class BinderBase<T>
     {
         // DEBT:
-        public Func<object> getter { get; set; }
+        public Func<T> getter { get; set; }
 
         protected readonly IField field;
 
@@ -220,6 +226,16 @@ namespace Fact.Extensions.Validation.Experimental
         public virtual IField Evaluate() { throw new NotImplementedException(); }
 
         public virtual void DoFinalize() { throw new NotImplementedException(); }
+    }
+
+
+    public class BinderBase : BinderBase<object>,
+        IBinderBase
+    {
+        public BinderBase(IField field) : base(field)
+        {
+
+        }
     }
 
 

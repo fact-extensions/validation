@@ -27,22 +27,41 @@ namespace Fact.Extensions.Validation.Experimental
             CancellationToken = cancellationToken;
         }
     }
-    
+
+    public delegate void ProcessingDelegate(IField f, Context2 context);
+    // ValueTask guidance here:
+    // https://devblogs.microsoft.com/dotnet/understanding-the-whys-whats-and-whens-of-valuetask/
+    public delegate ValueTask ProcessingDelegateAsync(IField f, Context2 context);
+
+
+
+    public interface IBinder2 : IBinder
+    {
+        event ProcessingDelegateAsync ProcessingAsync;
+    }
+
+
+    public interface IBinder2<T> : IBinder2,
+        IBinderBase<T>
+    {
+
+    }
+
     /// <summary>
     /// Boilerplate for less-typed filter-only style binder
     /// </summary>
-    public class Binder2 : BinderBase, IBinder
+    public class Binder2<T> : BinderBase, 
+        IBinder2<T>
     {
         public bool AbortOnNull { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public Func<T> getter2;
+
+        Func<T> IBinderBase<T>.getter => getter2;
 
         public Binder2(IField field) : base(field)
         {
         }
-
-        public delegate void ProcessingDelegate(IField f, Context2 context);
-        // ValueTask guidance here:
-        // https://devblogs.microsoft.com/dotnet/understanding-the-whys-whats-and-whens-of-valuetask/
-        public delegate ValueTask ProcessingDelegateAsync(IField f, Context2 context);
 
         public event ProcessingDelegate Processing
         {
@@ -91,11 +110,20 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+    public class Binder2 : Binder2<object>
+    {
+        public Binder2(IField field) : base(field)
+        {
+
+        }
+    }
+
+
     public static class Binder2Extensions
     {
         public static FluentBinder2<T> As<T>(this Binder2 binder)
         {
-            return new FluentBinder2<T>(binder, (T)binder.getter());
+            return new FluentBinder2<T>(binder, true);
         }
 
         public delegate bool tryConvertDelegate<TFrom, TTo>(TFrom from, out TTo to);
@@ -156,7 +184,7 @@ namespace Fact.Extensions.Validation.Experimental
         public static FluentBinder2<TTo> Convert<T, TTo>(this FluentBinder2<T> fb, 
             tryConvertDelegate<IField<T>, TTo> converter, string cannotConvert = null)
         {
-            var fb2 = new FluentBinder2<TTo>(fb.Binder, default(TTo));
+            var fb2 = new FluentBinder2<TTo>(fb.Binder, false);
             fb.Binder.ProcessingAsync += (field, context) =>
             {
                 if (converter(fb.Field, out TTo converted))
@@ -186,7 +214,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public static FluentBinder2<TTo> Convert<TTo>(this IFluentBinder2 fb)
         {
-            var fb2 = new FluentBinder2<TTo>(fb.Binder, default(TTo));
+            var fb2 = new FluentBinder2<TTo>(fb.Binder, false);
             fb.Binder.ProcessingAsync += (field, context) =>
             {
                 IField f = fb.Field;
@@ -251,7 +279,7 @@ namespace Fact.Extensions.Validation.Experimental
 
     public interface IFluentBinder2
     {
-        Binder2 Binder { get; }
+        IBinder2 Binder { get; }
         
         IField Field { get; }
     }
@@ -260,19 +288,17 @@ namespace Fact.Extensions.Validation.Experimental
     {
         internal T test1;
         
-        readonly Binder2 binder;
+        readonly IBinder2 binder;
 
-        public Binder2 Binder => binder;
+        public IBinder2 Binder => binder;
         public ShimFieldBase2<T> Field { get; }
 
         IField IFluentBinder2.Field => Field;
 
         readonly List<FieldStatus.Status> statuses = new List<FieldStatus.Status>();
 
-        public FluentBinder2(Binder2 binder, T value, bool initial = false)
+        void Initialize()
         {
-            test1 = value;
-            this.binder = binder;
             // This event handler is more or less a re-initializer for subsequent
             // process/validation calls
             binder.ProcessingAsync += (field, context) =>
@@ -281,15 +307,36 @@ namespace Fact.Extensions.Validation.Experimental
                 return new ValueTask();
             };
 
+            // DEBT
+            var f = (FieldStatus)binder.Field;
+            f.Add(statuses);
+        }
+
+        public FluentBinder2(IBinder2 binder, bool initial)
+        {
+            this.binder = binder;
+
             if (initial)
                 // DEBT: Needs refiniement
                 Field = new ShimFieldBase2<T>(binder, statuses, () => (T)binder.getter());
             else
                 Field = new ShimFieldBase2<T>(binder, statuses, () => test1);
-            
-            // DEBT
-            var f = (FieldStatus) binder.Field;
-            f.Add(statuses);
+
+            Initialize();
+        }
+
+
+        public FluentBinder2(IBinder2<T> binder, bool initial = true)
+        {
+            this.binder = binder;
+
+            if (initial)
+                // DEBT: Needs refiniement
+                Field = new ShimFieldBase2<T>(binder, statuses, binder.getter);
+            else
+                Field = new ShimFieldBase2<T>(binder, statuses, () => test1);
+
+            Initialize();
         }
     }
 }
