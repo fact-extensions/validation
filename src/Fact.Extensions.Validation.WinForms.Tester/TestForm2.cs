@@ -27,6 +27,14 @@ namespace Fact.Extensions.Validation.WinForms.Tester
                 GreaterThan(20);
 
             binderManager.Validated += BinderManager_Validated;
+            binderManager.Validated += BinderManager_Validated1;
+        }
+
+        private void BinderManager_Validated1()
+        {
+            var hasStatus = binderManager.Fields.SelectMany(x => x.Statuses).Any();
+
+            btnOK.Enabled = !hasStatus;
         }
 
         private void BinderManager_Validated()
@@ -44,6 +52,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
         private void btnOK_Click(object sender, EventArgs e)
         {
+            DialogResult = DialogResult.OK;
         }
     }
 }

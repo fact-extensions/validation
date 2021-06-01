@@ -88,6 +88,8 @@ namespace Fact.Extensions.Validation.Experimental
         public async Task Process(CancellationToken ct = default)
         {
             var context = new Context2(ct);
+            context.Value = getter();
+
             // NOTE: Odd that following line doesn't compile now.
             // Fortunately our scenario that's OK
             //Processing?.Invoke(field, context);
@@ -120,6 +122,12 @@ namespace Fact.Extensions.Validation.Experimental
         {
 
         }
+    }
+
+
+    public class Optional<T>
+    {
+        public T Value { get; set; }
     }
 
 
@@ -174,6 +182,17 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
+        public static FluentBinder2<T> Required<T>(this FluentBinder2<T> fb)
+        {
+            fb.Binder.ProcessingAsync += (field, context) =>
+            {
+                if (fb.Field.Value == null)
+                    fb.Field.Error("Value required");
+                return new ValueTask();
+            };
+            return fb;
+        }
+
         public static FluentBinder2<T> LessThan<T>(this FluentBinder2<T> fb, T value,
             string errorDescription = null)
             where T : IComparable
@@ -191,12 +210,17 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
         public static FluentBinder2<TTo> Convert<T, TTo>(this FluentBinder2<T> fb, 
-            tryConvertDelegate<IField<T>, TTo> converter, string cannotConvert = null)
+            tryConvertDelegate<IField<T>, TTo> converter, string cannotConvert = null, Optional<TTo> defaultValue = null)
         {
             var fb2 = new FluentBinder2<TTo>(fb.Binder, false);
             fb.Binder.ProcessingAsync += (field, context) =>
             {
-                if (converter(fb.Field, out TTo converted))
+                if(defaultValue != null && context.Value == null)
+                {
+                    context.Value = defaultValue.Value;
+                    fb2.test1 = defaultValue.Value;
+                }
+                else if (converter(fb.Field, out TTo converted))
                 {
                     context.Value = converted;
                     fb2.test1 = converted;
@@ -214,20 +238,27 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
         public static FluentBinder2<TTo> Convert<T, TTo>(this FluentBinder2<T> fb,
-            tryConvertDelegate<T, TTo> converter, string cannotConvert)
+            tryConvertDelegate<T, TTo> converter, string cannotConvert, Optional<TTo> defaultValue = null)
         {
             return fb.Convert<T, TTo>((IField<T> field, out TTo converted) =>
-                converter(field.Value, out converted), cannotConvert);
+                converter(field.Value, out converted), cannotConvert, defaultValue);
         }
         
 
-        public static FluentBinder2<TTo> Convert<TTo>(this IFluentBinder2 fb)
+        public static FluentBinder2<TTo> Convert<TTo>(this IFluentBinder2 fb, Optional<TTo> defaultValue = null)
         {
             var fb2 = new FluentBinder2<TTo>(fb.Binder, false);
             fb.Binder.ProcessingAsync += (field, context) =>
             {
                 IField f = fb.Field;
                 Type t = typeof(TTo);
+
+                if(f.Value == null && defaultValue != null)
+                {
+                    context.Value = defaultValue.Value;
+                    fb2.test1 = defaultValue.Value;
+                    return new ValueTask();
+                }    
                 
                 try
                 {
