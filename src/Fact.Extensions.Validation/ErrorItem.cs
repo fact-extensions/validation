@@ -7,11 +7,16 @@ namespace Fact.Extensions.Validation
 {
     public interface IEntity { }
 
-    public interface IField : 
+    public interface IFieldBase : 
         IFieldStatusProvider2,
         IFieldStatusCollector2
     {
+        // DEBT: Use Fact.Collections version of this
         string Name { get; }
+    }
+
+    public interface IField : IFieldBase
+    {
         object Value { get; }
     }
 
@@ -280,7 +285,7 @@ namespace Fact.Extensions.Validation
             base(name, value)
         { }
 
-        T IField<T>.Value => (T)base.Value;
+        public new T Value => (T)base.Value;
     }
 
     /// <summary>
@@ -396,10 +401,10 @@ namespace Fact.Extensions.Validation
         }
 
 
-        public static void Error(this IField field, string description) =>
+        public static void Error(this IFieldBase field, string description) =>
             field.Add(FieldStatus.Code.Error, description);
 
-        public static void Error(this IField field, FieldStatus.ComparisonCode code,
+        public static void Error(this IFieldBase field, FieldStatus.ComparisonCode code,
             object value, string description = null) =>
             field.Add(new FieldStatus.ScalarStatus(FieldStatus.Code.Error,
                 description, FieldStatus.ComparisonCode.Unspecified, value));

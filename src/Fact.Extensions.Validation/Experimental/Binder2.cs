@@ -63,6 +63,10 @@ namespace Fact.Extensions.Validation.Experimental
         {
         }
 
+        public Binder2(IField<T> field) : base(field)
+        {
+        }
+
         public event ProcessingDelegate Processing
         {
             remove
@@ -121,7 +125,12 @@ namespace Fact.Extensions.Validation.Experimental
 
     public static class Binder2Extensions
     {
-        public static FluentBinder2<T> As<T>(this Binder2 binder)
+        public static FluentBinder2<T> As<T>(this IBinder2 binder)
+        {
+            return new FluentBinder2<T>(binder, true);
+        }
+
+        public static FluentBinder2<T> As<T>(this IBinder2<T> binder)
         {
             return new FluentBinder2<T>(binder, true);
         }

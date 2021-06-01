@@ -17,11 +17,11 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public void Test1()
         {
-            var f = new FieldStatus("field1", "123");
-            var b = new Binder2(f);
-            b.getter = () => f.Value;
+            var f = new FieldStatus<string>("field1", "123");
+            var b = new Binder2<string>(f);
+            b.getter = b.getter2 = () => f.Value;
 
-            var fb = b.As<string>();
+            var fb = b.As();
 
             var fbInt = fb.Convert((string v, out int to) =>
                 int.TryParse(v, out to),"Cannot convert to integer");
@@ -40,11 +40,12 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public void Convert1()
         {
-            var f = new FieldStatus("field1", "123");
-            var b = new Binder2(f);
+            var f = new FieldStatus<string>("field1", "123");
+            var b = new Binder2<string>(f);
             b.getter = () => f.Value;
+            b.getter2 = () => f.Value;
 
-            var fb = b.As<string>();
+            var fb = b.As();
 
             var fb2 = fb.Convert<int>();
 
@@ -61,11 +62,11 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public void Compare1()
         {
-            var f = new FieldStatus("field1", "123");
-            var b = new Binder2(f);
-            b.getter = () => f.Value;
+            var f = new FieldStatus<string>("field1", "123");
+            var b = new Binder2<string>(f);
+            b.getter = b.getter2 = () => f.Value;
 
-            var fb = b.As<string>();
+            var fb = b.As();
 
             var fb2 = fb.Convert<int>();
                 
@@ -94,11 +95,11 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public void Convert2()
         {
-            var f = new FieldStatus("field1", "123a");
-            var b = new Binder2(f);
-            b.getter = () => f.Value;
+            var f = new FieldStatus<string>("field1", "123a");
+            var b = new Binder2<string>(f);
+            b.getter = b.getter2 = () => f.Value;
 
-            var fb = b.As<string>();
+            var fb = b.As();
 
             var fb2 = fb.Convert<int>();
 
