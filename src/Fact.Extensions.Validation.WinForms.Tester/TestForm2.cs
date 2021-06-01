@@ -9,6 +9,7 @@ using System.Windows.Forms;
 namespace Fact.Extensions.Validation.WinForms.Tester
 {
     using Fact.Extensions.Validation.Experimental;
+    using System.Linq;
 
     public partial class TestForm2 : Form
     {
@@ -24,6 +25,21 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
             fm.Convert<int>().
                 GreaterThan(20);
+
+            binderManager.Validated += BinderManager_Validated;
+        }
+
+        private void BinderManager_Validated()
+        {
+            lstStatus.Items.Clear();
+            var statuses = binderManager.Fields.
+                Where(x => x.Statuses.Any()).
+                Select(x =>
+                {
+                    var statuses = string.Join(", ", x.Statuses.Select(y => y.ToString()));
+                    return $"{x.Name}: {statuses}";
+                }).ToArray();
+            lstStatus.Items.AddRange(statuses);
         }
 
         private void btnOK_Click(object sender, EventArgs e)

@@ -12,51 +12,83 @@ namespace Fact.Extensions.Validation.WinForms
 {
     public class BinderManager2 : BinderManagerBase
     {
+        /// <summary>
+        /// Occurs after interactive validation, whether it generated new status or not
+        /// </summary>
+        public event Action Validated;
+
+
         public BinderManager2(IServiceProvider services) : base(services)
         {
 
         }
 
 
-        public FluentBinder2<T> Add<TControl, T>(Binder2 binder, TControl control, Func<TControl, T> getter, out Item item)
+        public FluentBinder2<T> Add<TControl, T>(Binder2<T> binder, TControl control, Func<TControl, T> getter, out Item<T> item)
             where TControl: Control
         {
             binder.getter = () => getter(control);
-            item = new Item()
+            binder.getter2 = () => getter(control);
+            item = new Item<T>()
             {
                 binder = binder,
-                control = control
+                control = control,
+                initialValue = getter(control)
             };
+
+            binders.Add(item);
+
+            Item<T> item2 = item;
+
+            control.GotFocus += (s, e) =>
+            {
+                bool hasStatus = binder.Field.Statuses.Any();
+
+                control.BackColor = hasStatus ?
+                    (item2.modified ? options.Color.FocusedStatus : options.Color.InitialStatus) :
+                    options.Color.ClearedStatus;
+            };
+
+
+            control.LostFocus += (s, e) =>
+            {
+                bool hasStatus = binder.Field.Statuses.Any();
+
+                control.BackColor = hasStatus ?
+                    options.Color.UnfocusedStatus :
+                    options.Color.ClearedStatus;
+            };
+
+
             // DEBT: "initial value" needs more work, but coming along
             var fb = new FluentBinder2<T>(binder, true);
             return fb;
         }
 
 
-        public FluentBinder2<string> AddText(Binder2 binder, Control control)
+        public FluentBinder2<string> AddText(Binder2<string> binder, Control control)
         {
-            var fb = Add(binder, control, c => c.Text, out Item item);
-            bool modified = false;
+            var fb = Add(binder, control, c => c.Text, out Item<string> item);
             bool touched = false;
-            string initialText = control.Text;
             Color initialAlertColor = options.Color.InitialStatus;
             Color inputAlertColor = options.Color.FocusedStatus;
             Color clearColor = options.Color.ClearedStatus;
 
-            control.TextChanged += (s, e) =>
+            control.TextChanged += async (s, e) =>
             {
-                binder.Process().Wait();
+                await binder.Process();
+
+                Validated?.Invoke();
 
                 bool hasStatus = binder.Field.Statuses.Any();
 
-                modified = !initialText.Equals(control.Text);
-                item.modified = modified;
+                item.modified = !item.initialValue.Equals(control.Text);
                 touched = true;
 
                 //OnEvaluate(item, hasStatus);
 
                 control.BackColor = hasStatus ?
-                    (modified ? inputAlertColor : initialAlertColor) :
+                    (item.modified ? inputAlertColor : initialAlertColor) :
                     clearColor;
             };
             return fb;
@@ -65,8 +97,8 @@ namespace Fact.Extensions.Validation.WinForms
 
         public FluentBinder2<string> BindText(Control control)
         {
-            var f = new FieldStatus(control.Name, null);
-            return AddText(new Binder2(f), control);
+            var f = new FieldStatus<string>(control.Name, null);
+            return AddText(new Binder2<string>(f), control);
         }
     }
 }
