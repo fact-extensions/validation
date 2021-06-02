@@ -26,6 +26,14 @@ namespace Fact.Extensions.Validation
 
     public interface IFieldStatusExternalCollector
     {
+        /// <summary>
+        /// Bring in external status tracker
+        /// </summary>
+        /// <param name="statuses"></param>
+        /// <remarks>
+        /// Remember, this brings in a reference to the enumerable, meaning changes to
+        /// provided enumeration are reflected in this field itself
+        /// </remarks>
         void Add(IEnumerable<Status> statuses);
     }
 

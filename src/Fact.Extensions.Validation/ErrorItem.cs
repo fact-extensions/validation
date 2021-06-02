@@ -16,19 +16,19 @@ namespace Fact.Extensions.Validation
     {
         //public FieldStatus() { }
         public FieldStatus(FieldStatus copyFrom) :
-            this(copyFrom.Name, copyFrom.value, copyFrom.Statuses)
+            this(copyFrom.Name, copyFrom.value)
         {
+            if (copyFrom.statuses != null)
+                statuses.AddRange(copyFrom.statuses);
         }
 
-        public FieldStatus(string name, object value, IEnumerable<Status> statuses = null) :
+        public FieldStatus(string name, object value) :
             base(name)
         {
             this.value = value;
-            if(statuses != null)
-                this.statuses.AddRange(statuses);
         }
 
-        private object value;
+        object value;
 
         /// <summary>
         /// Original value presented to engine at beginning of validation/conversion chain
@@ -50,32 +50,17 @@ namespace Fact.Extensions.Validation
         // DEBT: Make this into an IEnumerable so that aggregator has an easier time of it
         readonly List<Status> statuses = new List<Status>();
 
-        // EXPERIMENTAL - primarily for 'Conflict' registrations
-        List<IFieldStatusProvider2> ExternalStatuses = new List<IFieldStatusProvider2>();
-
         List<IEnumerable<Status>> externalStatuses2 = new List<IEnumerable<Status>>();
 
-        public void AddIfNotPresent(IFieldStatusProvider2 external)
-        {
-            if(!ExternalStatuses.Contains(external))
-                ExternalStatuses.Add(external);
-        }
-
-
-        // EXPERIMENTAL
         public void Add(IEnumerable<Status> external)
         {
             externalStatuses2.Add(external);
         }
 
-        // EXPERIMENTAL - probably not use -- cross field validation better done at a top level
         public IEnumerable<Status> Statuses
         {
             get
             {
-                foreach (Status status in ExternalStatuses.SelectMany(x => x.Statuses))
-                    yield return status;
-
                 foreach (Status status in statuses)
                     yield return status;
 
@@ -85,9 +70,6 @@ namespace Fact.Extensions.Validation
         }
 
         public void Clear() => statuses.Clear();
-
-        public void Add(Status.Code code, string description) =>
-            statuses.Add(new Status(code, description));
 
         public void Add(Status status) =>
             statuses.Add(status);
@@ -236,7 +218,7 @@ namespace Fact.Extensions.Validation
             base(name, value)
         {
             Prefix = prefix;
-            Add(level, description);
+            this.Add(level, description);
         }
 
         public ExtendedFieldStatus(string prefix, string parameter, string description, object value, int index, Status.Code level) :
@@ -244,7 +226,7 @@ namespace Fact.Extensions.Validation
         {
             Prefix = prefix;
             Index = index;
-            Add(level, description);
+            this.Add(level, description);
         }
 
         public override string ToString()
