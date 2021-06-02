@@ -285,7 +285,11 @@ namespace Fact.Extensions.Validation
             base(name, value)
         { }
 
-        public new T Value => (T)base.Value;
+        public new T Value
+        {
+            get => (T)base.Value;
+            set => base.Value = value;
+        }
     }
 
     /// <summary>
