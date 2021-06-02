@@ -208,17 +208,13 @@ namespace Fact.Extensions.Validation.Experimental
         event Action<TFinal> Finalize;
     }
 
-
-    public class BinderBase<T>
+    public class BinderBaseBase
     {
-        // DEBT:
-        public Func<T> getter { get; set; }
-
         protected readonly IField field;
 
         public IField Field => field;
 
-        public BinderBase(IField field)
+        public BinderBaseBase(IField field)
         {
             this.field = field;
         }
@@ -226,6 +222,15 @@ namespace Fact.Extensions.Validation.Experimental
         public virtual IField Evaluate() { throw new NotImplementedException(); }
 
         public virtual void DoFinalize() { throw new NotImplementedException(); }
+    }
+
+
+    public class BinderBase<T> : BinderBaseBase
+    {
+        // DEBT:
+        public Func<T> getter { get; set; }
+
+        public BinderBase(IField field) : base(field) { }
     }
 
 

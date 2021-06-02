@@ -19,7 +19,6 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var f = new FieldStatus<string>("field1", "123");
             var b = new Binder2<string>(f);
-            b.getter = b.getter2 = () => f.Value;
 
             var fb = b.As();
 
@@ -42,8 +41,6 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var f = new FieldStatus<string>("field1", "123");
             var b = new Binder2<string>(f);
-            b.getter = () => f.Value;
-            b.getter2 = () => f.Value;
 
             var fb = b.As();
 
@@ -64,7 +61,6 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var f = new FieldStatus<string>("field1", "123");
             var b = new Binder2<string>(f);
-            b.getter = b.getter2 = () => f.Value;
 
             var fb = b.As();
 
@@ -97,7 +93,6 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var f = new FieldStatus<string>("field1", "123a");
             var b = new Binder2<string>(f);
-            b.getter = b.getter2 = () => f.Value;
 
             var fb = b.As();
 
@@ -115,7 +110,7 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var f = new FieldStatus("field1", "123a");
             var b = new Binder2(f);
-            b.getter = () => f.Value;
+            b.getter2 = () => f.Value;
             int value = 0;
             string _value = null;
 
@@ -140,7 +135,7 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var f = new FieldStatus("field1", "123a");
             var b = new Binder2(f);
-            b.getter = () => f.Value;
+            b.getter2 = () => f.Value;
             var cts = new CancellationTokenSource();
             var tcs = new TaskCompletionSource<int>();
             var gotHere = new HashSet<int>();

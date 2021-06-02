@@ -74,9 +74,7 @@ namespace Fact.Extensions.Validation.WinForms
         {
             var f = new FieldStatus<string>(control.Name, null);
             var tracker = new Tracker<string>(control.Text);
-            var binder = new Binder2<string>(f);
-            binder.getter = () => tracker.Value;
-            binder.getter2 = () => tracker.Value;
+            var binder = new Binder2<string>(f, () => tracker.Value);
 
             return AddText(binder, control, tracker);
         }

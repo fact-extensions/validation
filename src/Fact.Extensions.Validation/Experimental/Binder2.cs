@@ -50,7 +50,7 @@ namespace Fact.Extensions.Validation.Experimental
     /// <summary>
     /// Boilerplate for less-typed filter-only style binder
     /// </summary>
-    public class Binder2<T> : BinderBase, 
+    public class Binder2<T> : BinderBaseBase, 
         IBinder2<T>
     {
         public bool AbortOnNull { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
@@ -59,12 +59,17 @@ namespace Fact.Extensions.Validation.Experimental
 
         Func<T> IBinderBase<T>.getter => getter2;
 
+        public Func<object> getter => () => getter2();
+
         public Binder2(IField field) : base(field)
         {
         }
 
-        public Binder2(IField<T> field) : base(field)
+        public Binder2(IField<T> field, Func<T> getter = null) : base(field)
         {
+            if (getter == null)
+                getter = () => field.Value;
+            this.getter2 = getter;
         }
 
         public event ProcessingDelegate Processing
