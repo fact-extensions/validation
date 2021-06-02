@@ -14,29 +14,29 @@ namespace Fact.Extensions.Validation
         /// Gather an status to be (probably) reviewed at a later time
         /// </summary>
         /// <param name="item"></param>
-        void Append(string fieldName, FieldStatus.Status status);
+        void Append(string fieldName, Status status);
     }
 
 
     public interface IFieldStatusCollector2
     {
-        void Add(FieldStatus.Status status);
+        void Add(Status status);
     }
 
 
     public static class IFieldStatusProviderExtensions
     {
-        public static void Add(this IFieldStatusCollector2 field, FieldStatus.Code code, string description) =>
-            field.Add(new FieldStatus.Status(code, description));
+        public static void Add(this IFieldStatusCollector2 field, Status.Code code, string description) =>
+            field.Add(new Status(code, description));
 
         public static void Error(this IFieldStatusCollector2 field, string description) =>
-            field.Add(FieldStatus.Code.Error, description);
+            field.Add(Status.Code.Error, description);
     }
 
 
     public static class IFieldStatusCollectorExtensions
     {
         public static void Error(this IFieldStatusCollector fsc, string field, string description) =>
-            fsc.Append(field, new FieldStatus.Status(FieldStatus.Code.Error, description));
+            fsc.Append(field, new Status(Status.Code.Error, description));
     }
 }

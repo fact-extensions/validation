@@ -39,7 +39,7 @@ namespace Fact.Extensions.Validation.xUnit
             b.Evaluate(1);
 
             f.Statuses.Should().HaveCount(1).And.
-                Subject.First().Level.Should().Be(FieldStatus.Code.Error);
+                Subject.First().Level.Should().Be(Status.Code.Error);
         }
 
 
@@ -69,7 +69,7 @@ namespace Fact.Extensions.Validation.xUnit
                     // Don't bother adding to it then.  However, really, we want a kind of
                     // "hollow" field ready to go
                     //otherBinder.Field?.AddIfNotPresent(binder);
-                    binder.Add(FieldStatus.Code.Conflict, "Test conflict");
+                    binder.Add(Status.Code.Conflict, "Test conflict");
                 }
             });
 

@@ -7,26 +7,6 @@ namespace Fact.Extensions.Validation
 {
     public interface IEntity { }
 
-    public interface IFieldBase : 
-        IFieldStatusProvider2,
-        IFieldStatusCollector2
-    {
-        // DEBT: Use Fact.Collections version of this
-        string Name { get; }
-    }
-
-    public interface IField : IFieldBase
-    {
-        object Value { get; }
-    }
-
-
-    public interface IField<T> : IField
-    {
-        new T Value { get; }
-    }
-
-
     // TODO: Consider interacting with IDataErrorInfo interface, as per MS standard
     public class FieldStatus : IComparable<FieldStatus>,
         IField
@@ -60,101 +40,7 @@ namespace Fact.Extensions.Validation
 
         public string Name => name;
 
-        // the time is coming where ErrorItem is going to become StatusItem...
-        public enum Code
-        {
-            NoChange = -2,      // Specialized error code representing no error state change since last the client issued a request
-            Exception = -1,     // Exceptions should be very, very rare - indication of a non-user instigated error
-            OK = 0,             // Generally unused, since we assume
-            Error = 1,
-            Warning = 2,
-            Informational = 3,
-            Conflict = 4,       // This field is in conflict with another
-            Update = 10,        // Update is a special case status and not an error.  Notifies UI to update given
-                                // field with Value
 
-            // these experimental statuses need some refinement.  Statuses like these might get muddy since they may sometimes represent a
-            // particular state (adjective) while others represent a state change (verb).  Seems things should be forced into an adjective state, even
-            // if it is only for a brief few seconds as the user types something
-            Disable = 100,      // experimental: UI specific (but not technology specific) status code for disabling input to a field
-            Highlight = 101,    // experimental: UI specific (but not technology specific) status code for highlighting an input field
-            Focus = 102         // experimental: UI specific (but not technology specific) status code for focusing input to a field
-        }
-
-        public class Status
-        {
-            public Code Level { get; }
-
-            public string Description { get; }
-
-            public Status() { }
-
-            public Status(Code level, string description = null)
-            {
-                Level = level;
-                Description = description;
-            }
-
-            public override int GetHashCode() =>
-                (Description ?? "").GetHashCode();
-
-            public override string ToString() =>
-                $"[{Level}: {Description}]";
-
-            public string ToString(object value) =>
-                Description + " / original value = " + value;
-
-            public string ToString(string name, object value)
-            {
-                return "[" + Level.ToString()[0] + ":" + name + "]: " + ToString(value);
-            }
-        }
-
-
-        public class ConflictStatus : Status
-        {
-            readonly IField conflictingWith;
-
-            public ConflictStatus(IField conflictingWith) : base(Code.Conflict)
-            {
-                this.conflictingWith = conflictingWith;
-            }
-        }
-
-
-        public class ScalarStatus : Status
-        {
-            ComparisonCode Code { get; }
-            readonly object comparedTo;
-
-            // DEBT: Really should come from a factory somewhere
-            static string GetDescription(ComparisonCode code)
-            {
-                switch (code)
-                {
-                    case ComparisonCode.GreaterThan:
-                        return "Must be greater than {0}";
-                    
-                    case ComparisonCode.LessThan:
-                        return "Must be less than {0}";
-                    
-                    default:
-                        throw new IndexOutOfRangeException("Unhandled code");
-                }
-            }
-
-            public ScalarStatus(Code _code, string description, ComparisonCode code, object scalar) :
-                base(_code, string.Format(description ?? GetDescription(code), scalar))
-            {
-                Code = code;
-                this.comparedTo = scalar;
-            }
-            
-            public ScalarStatus(Code code, string description, object scalar) : 
-                this(code, description, ComparisonCode.Unspecified, scalar)
-            {
-            }
-        }
 
 #if DEBUG
         // For unit testing only
@@ -200,7 +86,7 @@ namespace Fact.Extensions.Validation
 
         public void Clear() => statuses.Clear();
 
-        public void Add(Code code, string description) =>
+        public void Add(Status.Code code, string description) =>
             statuses.Add(new Status(code, description));
 
         public void Add(Status status) =>
@@ -346,14 +232,14 @@ namespace Fact.Extensions.Validation
             Index = index;
         }
 
-        public ExtendedFieldStatus(string prefix, string name, string description, object value, Code level = Code.Error) :
+        public ExtendedFieldStatus(string prefix, string name, string description, object value, Status.Code level = Status.Code.Error) :
             base(name, value)
         {
             Prefix = prefix;
             Add(level, description);
         }
 
-        public ExtendedFieldStatus(string prefix, string parameter, string description, object value, int index, Code level) :
+        public ExtendedFieldStatus(string prefix, string parameter, string description, object value, int index, Status.Code level) :
             base(parameter, value)
         {
             Prefix = prefix;
@@ -401,16 +287,16 @@ namespace Fact.Extensions.Validation
         public static IEnumerable<FieldStatus> OnlyErrors(this IEnumerable<FieldStatus> errors)
         {
             return errors.Where(x => 
-                x.Statuses.Any(y => y.Level == FieldStatus.Code.Error || y.Level == FieldStatus.Code.Exception));
+                x.Statuses.Any(y => y.Level == Status.Code.Error || y.Level == Status.Code.Exception));
         }
 
 
         public static void Error(this IFieldBase field, string description) =>
-            field.Add(FieldStatus.Code.Error, description);
+            field.Add(Status.Code.Error, description);
 
         public static void Error(this IFieldBase field, FieldStatus.ComparisonCode code,
             object value, string description = null) =>
-            field.Add(new FieldStatus.ScalarStatus(FieldStatus.Code.Error,
+            field.Add(new ScalarStatus(Status.Code.Error,
                 description, FieldStatus.ComparisonCode.Unspecified, value));
     }
 }

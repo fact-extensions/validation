@@ -25,6 +25,6 @@ namespace Fact.Extensions.Validation
     /// </summary>
     public interface IFieldStatusProvider2
     {
-        IEnumerable<FieldStatus.Status> Statuses { get; }
+        IEnumerable<Status> Statuses { get; }
     }
 }

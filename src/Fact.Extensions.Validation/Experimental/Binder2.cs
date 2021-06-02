@@ -151,7 +151,7 @@ namespace Fact.Extensions.Validation.Experimental
         public delegate bool tryConvertDelegate<TFrom, TTo>(TFrom from, out TTo to);
 
         public static FluentBinder2<T> IsTrue<T>(this FluentBinder2<T> fb, Func<T, bool> predicate, 
-            Func<FieldStatus.Status> getIsFalseStatus)
+            Func<Status> getIsFalseStatus)
         {
             fb.Binder.ProcessingAsync += (field, context) =>
             {
@@ -165,17 +165,17 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
         public static FluentBinder2<T> IsTrue<T>(this FluentBinder2<T> fb, Func<T, bool> predicate,
-            string messageIfFalse, FieldStatus.Code level = FieldStatus.Code.Error) =>
-            fb.IsTrue(predicate, () => new FieldStatus.Status(level, messageIfFalse));
+            string messageIfFalse, Status.Code level = Status.Code.Error) =>
+            fb.IsTrue(predicate, () => new Status(level, messageIfFalse));
 
         public static FluentBinder2<T> IsTrueScalar<T>(this FluentBinder2<T> fb, Func<T, bool> predicate,
             FieldStatus.ComparisonCode code, T compareTo, string messageIfFalse = null,
-            FieldStatus.Code level = FieldStatus.Code.Error) =>
+            Status.Code level = Status.Code.Error) =>
             fb.IsTrue(predicate, () => 
-                new FieldStatus.ScalarStatus(level, messageIfFalse, code, compareTo));
+                new ScalarStatus(level, messageIfFalse, code, compareTo));
         
         public static FluentBinder2<T> IsTrueAsync<T>(this FluentBinder2<T> fb, Func<T, ValueTask<bool>> predicate, 
-            string messageIfFalse, FieldStatus.Code level = FieldStatus.Code.Error, bool sequential = true)
+            string messageIfFalse, Status.Code level = Status.Code.Error, bool sequential = true)
         {
             fb.Binder.ProcessingAsync += async (field, context) =>
             {
@@ -285,11 +285,11 @@ namespace Fact.Extensions.Validation.Experimental
             return fb2;
         }
 
-        static bool FilterStatus(FieldStatus.Status s)
-            => s.Level != FieldStatus.Code.OK;
+        static bool FilterStatus(Status s)
+            => s.Level != Status.Code.OK;
 
         public static FluentBinder2<T> Emit<T>(this FluentBinder2<T> fb, Action<T> emitter, 
-            Func<FieldStatus.Status, bool> whenStatus = null, bool bypassFilter = false)
+            Func<Status, bool> whenStatus = null, bool bypassFilter = false)
         {
             if (whenStatus == null) whenStatus = FilterStatus;
             
@@ -314,7 +314,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         T IField<T>.Value => getter();
 
-        internal ShimFieldBase2(IBinderBase binder, ICollection<FieldStatus.Status> statuses, 
+        internal ShimFieldBase2(IBinderBase binder, ICollection<Status> statuses, 
             Func<T> getter) :
             base(binder, statuses)
         {
@@ -340,7 +340,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         IField IFluentBinder2.Field => Field;
 
-        readonly List<FieldStatus.Status> statuses = new List<FieldStatus.Status>();
+        readonly List<Status> statuses = new List<Status>();
 
         void Initialize()
         {

@@ -14,7 +14,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public bool IsValid => !fields.OnlyErrors().Any();
 
-        public void Append(string name, FieldStatus.Status item)
+        public void Append(string name, Status item)
         {
             FieldStatus field = fields.FirstOrDefault(x => x.Name == name);
             if(field == null)
@@ -50,16 +50,16 @@ namespace Fact.Extensions.Validation.Experimental
 
         public virtual object Value => binder.getter();
 
-        readonly internal ICollection<FieldStatus.Status> statuses;
+        readonly internal ICollection<Status> statuses;
 
-        public IEnumerable<FieldStatus.Status> Statuses => binder.Field.Statuses;
+        public IEnumerable<Status> Statuses => binder.Field.Statuses;
 
-        public void Add(FieldStatus.Status status) =>
+        public void Add(Status status) =>
             statuses.Add(status);
 
         internal readonly IBinderBase binder;
 
-        internal ShimFieldBase(IBinderBase binder, ICollection<FieldStatus.Status> statuses)
+        internal ShimFieldBase(IBinderBase binder, ICollection<Status> statuses)
         {
             this.statuses = statuses;
             this.binder = binder;
@@ -75,7 +75,7 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public new T Value => (T)base.Value;
 
-        internal ShimFieldBase(IBinderBase binder, ICollection<FieldStatus.Status> statuses) :
+        internal ShimFieldBase(IBinderBase binder, ICollection<Status> statuses) :
             base(binder, statuses)
         { 
         }
@@ -97,7 +97,7 @@ namespace Fact.Extensions.Validation.Experimental
         internal class _Item : ShimFieldBase
         {
             internal _Item(IBinderBase binder) : 
-                base(binder, new List<FieldStatus.Status>())
+                base(binder, new List<Status>())
             {
             }
         }
@@ -162,7 +162,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
         // Recommended to use shims instead
-        public void Append(string fieldName, FieldStatus.Status status)
+        public void Append(string fieldName, Status status)
         {
             fields[fieldName].Add(status);
         }
@@ -321,16 +321,16 @@ namespace Fact.Extensions.Validation.Experimental
         object converted;
 
         // For exporting status
-        List<FieldStatus.Status> Statuses = new List<FieldStatus.Status>();
+        List<Status> Statuses = new List<Status>();
 
         /// <summary>
         /// Statuses tracked by this binder 1:1 with this tracked field
         /// </summary>
-        List<FieldStatus.Status> InternalStatuses = new List<FieldStatus.Status>();
+        List<Status> InternalStatuses = new List<Status>();
 
-        IEnumerable<FieldStatus.Status> IFieldStatusProvider2.Statuses => Statuses;
+        IEnumerable<Status> IFieldStatusProvider2.Statuses => Statuses;
 
-        public void Add(FieldStatus.Status status) =>
+        public void Add(Status status) =>
             Statuses.Add(status);
 
         readonly new FieldStatus field;
