@@ -8,25 +8,27 @@ namespace Fact.Extensions.Validation
     public interface IEntity { }
 
     // TODO: Consider interacting with IDataErrorInfo interface, as per MS standard
-    public class FieldStatus : IComparable<FieldStatus>,
-        IField
+    public class FieldStatus : 
+        FieldBase,
+        IComparable<FieldStatus>,
+        IField,
+        IFieldStatusExternalCollector
     {
-        public FieldStatus() { }
+        //public FieldStatus() { }
         public FieldStatus(FieldStatus copyFrom) :
-            this(copyFrom.name, copyFrom.value, copyFrom.Statuses)
+            this(copyFrom.Name, copyFrom.value, copyFrom.Statuses)
         {
         }
 
-        public FieldStatus(string name, object value, IEnumerable<Status> statuses = null)
+        public FieldStatus(string name, object value, IEnumerable<Status> statuses = null) :
+            base(name)
         {
-            this.name = name;
             this.value = value;
             if(statuses != null)
                 this.statuses.AddRange(statuses);
         }
 
         private object value;
-        private string name;
 
         /// <summary>
         /// Original value presented to engine at beginning of validation/conversion chain
@@ -37,8 +39,6 @@ namespace Fact.Extensions.Validation
             internal set => this.value = value;
         }
 
-
-        public string Name => name;
 
 
 
@@ -165,7 +165,7 @@ namespace Fact.Extensions.Validation
     public class FieldStatus<T> : FieldStatus,
         IField<T>
     {
-        public FieldStatus() : base() { }
+        //public FieldStatus() : base() { }
 
         public FieldStatus(string name, T value) :
             base(name, value)
@@ -216,7 +216,7 @@ namespace Fact.Extensions.Validation
         /// </remarks>
         public int Index { get; set; }
 
-        public ExtendedFieldStatus() { }
+        //public ExtendedFieldStatus() { }
         public ExtendedFieldStatus(FieldStatus copyFrom) : base(copyFrom) { }
 
         /// <summary>
@@ -289,14 +289,5 @@ namespace Fact.Extensions.Validation
             return errors.Where(x => 
                 x.Statuses.Any(y => y.Level == Status.Code.Error || y.Level == Status.Code.Exception));
         }
-
-
-        public static void Error(this IFieldBase field, string description) =>
-            field.Add(Status.Code.Error, description);
-
-        public static void Error(this IFieldBase field, FieldStatus.ComparisonCode code,
-            object value, string description = null) =>
-            field.Add(new ScalarStatus(Status.Code.Error,
-                description, FieldStatus.ComparisonCode.Unspecified, value));
     }
 }

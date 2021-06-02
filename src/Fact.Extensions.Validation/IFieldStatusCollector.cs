@@ -24,13 +24,14 @@ namespace Fact.Extensions.Validation
     }
 
 
+    public interface IFieldStatusExternalCollector
+    {
+        void Add(IEnumerable<Status> statuses);
+    }
+
+
     public static class IFieldStatusProviderExtensions
     {
-        public static void Add(this IFieldStatusCollector2 field, Status.Code code, string description) =>
-            field.Add(new Status(code, description));
-
-        public static void Error(this IFieldStatusCollector2 field, string description) =>
-            field.Add(Status.Code.Error, description);
     }
 
 
@@ -38,5 +39,16 @@ namespace Fact.Extensions.Validation
     {
         public static void Error(this IFieldStatusCollector fsc, string field, string description) =>
             fsc.Append(field, new Status(Status.Code.Error, description));
+
+        public static void Error(this IFieldStatusCollector2 field, FieldStatus.ComparisonCode code,
+            object value, string description = null) =>
+            field.Add(new ScalarStatus(Status.Code.Error,
+                description, FieldStatus.ComparisonCode.Unspecified, value));
+
+        public static void Add(this IFieldStatusCollector2 field, Status.Code code, string description) =>
+            field.Add(new Status(code, description));
+
+        public static void Error(this IFieldStatusCollector2 field, string description) =>
+            field.Add(Status.Code.Error, description);
     }
 }

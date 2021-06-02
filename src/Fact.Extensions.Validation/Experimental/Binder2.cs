@@ -353,7 +353,7 @@ namespace Fact.Extensions.Validation.Experimental
             };
 
             // DEBT
-            var f = (FieldStatus)binder.Field;
+            var f = (IFieldStatusExternalCollector)binder.Field;
             f.Add(statuses);
         }
 

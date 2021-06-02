@@ -4,15 +4,15 @@ using System.Text;
 
 namespace Fact.Extensions.Validation
 {
-    public interface IFieldBase :
-        IFieldStatusProvider2,
-        IFieldStatusCollector2
+    public interface IFieldBase
     {
         // DEBT: Use Fact.Collections version of this
         string Name { get; }
     }
 
-    public interface IField : IFieldBase
+    public interface IField : IFieldBase,
+        IFieldStatusCollector2,
+        IFieldStatusProvider2
     {
         object Value { get; }
     }
@@ -24,4 +24,16 @@ namespace Fact.Extensions.Validation
     }
 
 
+    public class FieldBase : IFieldBase
+    {
+        readonly string name;
+
+        public string Name => name;
+
+
+        public FieldBase(string name)
+        {
+            this.name = name;
+        }
+    }
 }

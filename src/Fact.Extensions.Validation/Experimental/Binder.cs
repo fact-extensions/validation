@@ -6,11 +6,11 @@ using System.Text;
 namespace Fact.Extensions.Validation.Experimental
 {
     public class FieldStatusCollection :
-        IFieldStatusCollector, IFieldStatusProvider
+        IFieldStatusCollector, IFieldStatusProvider2
     {
         List<FieldStatus> fields = new List<FieldStatus>();
 
-        public IEnumerable<FieldStatus> Statuses => fields;
+        public IEnumerable<Status> Statuses => fields.SelectMany(x => x.Statuses);
 
         public bool IsValid => !fields.OnlyErrors().Any();
 
@@ -27,14 +27,14 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public class FieldStatusAggregator : IFieldStatusProvider
+    public class FieldStatusAggregator2 : IFieldStatusProvider2
     {
-        List<IFieldStatusProvider> providers = new List<IFieldStatusProvider>();
+        List<IFieldStatusProvider2> providers = new List<IFieldStatusProvider2>();
 
-        public IEnumerable<FieldStatus> Statuses => 
+        public IEnumerable<Status> Statuses => 
             providers.SelectMany(x => x.Statuses);
 
-        public bool IsValid => providers.All(x => x.IsValid);
+        //public bool IsValid => providers.All(x => x.IsValid);
     }
 
 
