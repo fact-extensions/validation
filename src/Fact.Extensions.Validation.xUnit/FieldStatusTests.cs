@@ -164,6 +164,37 @@ namespace Fact.Extensions.Validation.xUnit
         }
 
 
+        //[Fact]
+        // FIX: Doesn't work yet because underlying shimmed group fields (_Item) isn't strongly
+        // typed yet
+        public void ConfirmPasswordTest4()
+        {
+            var binder = new GroupBinder();
+            var f1 = new FieldStatus<string>("pass1", "password1");
+            var f2 = new FieldStatus<string>("pass2", "password2");
+            BinderBase pass1 = binder.Add(f1);
+            BinderBase pass2 = binder.Add(f2);
+
+            binder.DoValidate<string, string>("pass1", "pass2", (c, _pass1, _pass2) =>
+            {
+                if (!object.Equals(_pass1.Value, _pass2.Value))
+                {
+                    _pass1.Error("mismatch");
+                    _pass2.Error("mismatch");
+                }
+            });
+            binder.Evaluate(null);
+
+            var _pass1 = (GroupBinder._Item)binder["pass1"];
+            f1.Statuses.Should().HaveCount(1);
+            f1.InternalStatuses.Should().BeEmpty();
+            _pass1.statuses.Should().HaveCount(1);
+            f2.Statuses.Should().HaveCount(1);
+            f2.InternalStatuses.Should().BeEmpty();
+            var _pass2 = (GroupBinder._Item)binder["pass2"];
+            _pass2.statuses.Should().HaveCount(1);
+        }
+
         [Fact]
         public void ConversionTest()
         {

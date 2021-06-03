@@ -95,7 +95,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// the EntityBinder too
         /// Also serves as a 1:1 holder for the underlying field binder
         /// </summary>
-        internal class _Item : ShimFieldBase
+        internal class _Item<T> : ShimFieldBase<T>
         {
             internal _Item(IBinderBase binder) : 
                 base(binder, new List<Status>())
@@ -103,8 +103,17 @@ namespace Fact.Extensions.Validation.Experimental
             }
         }
 
-        readonly Dictionary<string, _Item> fields = new Dictionary<string, _Item>();
+        internal class _Item : ShimFieldBase
+        {
+            internal _Item(IBinderBase binder) :
+                base(binder, new List<Status>())
+            {
+            }
+        }
 
+        readonly Dictionary<string, ShimFieldBase> fields = new Dictionary<string, ShimFieldBase>();
+
+        [Obsolete("Use typed T version instead")]
         public BinderBase Add(IField field)
         {
             var binder = new BinderBase(field);
@@ -113,6 +122,7 @@ namespace Fact.Extensions.Validation.Experimental
             return binder;
         }
 
+        [Obsolete("Use typed T version instead")]
         public void Add(IBinderBase binder)
         {
             var item = new _Item(binder);
@@ -121,6 +131,25 @@ namespace Fact.Extensions.Validation.Experimental
             field.Add(item.statuses);
             fields.Add(binder.Field.Name, item);
         }
+
+        // FIX: Doesn't work yet because BinderBase doesn't convert to Binder
+        /*
+        public BinderBase<T> Add<T>(IField<T> field)
+        {
+            var binder = new BinderBase<T>(field);
+            binder.getter = () => field.Value;
+            Add(binder);
+            return binder;
+        }
+
+        public void Add<T>(BinderBase<T> binder)
+        {
+            var item = new _Item<T>(binder);
+            // DEBT: Can't be doing this cast all the time.  It's safe for the moment
+            var field = (IFieldStatusExternalCollector)binder.Field;
+            field.Add(item.statuses);
+            fields.Add(binder.Field.Name, item);
+        } */
 
         public void Clear()
         {
@@ -556,6 +585,33 @@ namespace Fact.Extensions.Validation
             Func<T, TFinal> converter)
         {
             
+        }
+    }
+
+
+    public static class GroupBinderExtensions
+    {
+        public static void DoValidate<T>(this GroupBinder binder, string fieldName1, Action<Context2, IField<T>> handler)
+        {
+            binder.Validate += (gb, ctx) =>
+            {
+                var field1 = (IField<T>)gb[fieldName1];
+                handler(ctx, field1);
+                return new ValueTask();
+            };
+        }
+
+
+        public static void DoValidate<T1, T2>(this GroupBinder binder, string fieldName1, string fieldName2,
+            Action<Context2, IField<T1>, IField<T2>> handler)
+        {
+            binder.Validate += (gb, ctx) =>
+            {
+                var field1 = (IField<T1>)gb[fieldName1];
+                var field2 = (IField<T2>)gb[fieldName2];
+                handler(ctx, field1, field2);
+                return new ValueTask();
+            };
         }
     }
 
