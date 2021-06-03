@@ -10,6 +10,7 @@ using System.Windows.Forms;
 namespace Fact.Extensions.Validation.WinForms.Tester
 {
     using Experimental;
+    using System.Threading.Tasks;
 
     public partial class TestForm1 : Form
     {
@@ -66,6 +67,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
                     f1.Error("Cannot equal field2");
                     f2.Error("Cannot equal field1");
                 }
+
+                return new ValueTask();
             };
 
             //b = bm.BindText<Control, int>(txtEntry1, "field3");

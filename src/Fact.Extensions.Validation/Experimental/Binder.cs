@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation.Experimental
 {
@@ -116,7 +117,7 @@ namespace Fact.Extensions.Validation.Experimental
         {
             var item = new _Item(binder);
             // DEBT: Can't be doing this cast all the time.  It's safe for the moment
-            var field = (FieldStatus)binder.Field;
+            var field = (IFieldStatusExternalCollector)binder.Field;
             field.Add(item.statuses);
             fields.Add(binder.Field.Name, item);
         }
@@ -142,10 +143,13 @@ namespace Fact.Extensions.Validation.Experimental
         /// <summary>
         /// TODO: Rename to Validating
         /// </summary>
-        public event Action<GroupBinder, InputContext> Validate;
+        public event Func<GroupBinder, Context2, ValueTask> Validate;
 
-        public void Evaluate(InputContext context)
+        public Task Evaluate(InputContext context, System.Threading.CancellationToken cancellationToken = default)
         {
+            var ctx = new Context2(cancellationToken);
+            ctx.InputContext = context;
+
             Clear();
 
             foreach(_Item item in fields.Values)
@@ -158,7 +162,11 @@ namespace Fact.Extensions.Validation.Experimental
                     binder.Evaluate(_uncommitted); */
             }
 
-            Validate?.Invoke(this, context);
+            // DEBT: Decompose and run them one at a time just like Binder2 so that async is respected
+            // Do this by making a common base class or at least a common helper method
+            Validate?.Invoke(this, ctx);
+
+            return Task.CompletedTask;
         }
 
         // Recommended to use shims instead
@@ -260,18 +268,24 @@ namespace Fact.Extensions.Validation.Experimental
             /// </summary>
             None,
             /// <summary>
-            /// For human real-time events, happening in the sub-second range.  Things like mouse clicks and
-            /// key presses.
+            /// For manually activated batch processes.  Similar to 'None' except there is the most
+            /// minimal level of user interaction
             /// </summary>
-            High,
+            Manual,
             /// <summary>
-            /// For things like overall field validation.  On the order of 1-10s expected interaction time
+            /// For things like form submission, final button presses.  On the order of 11s+ expected interaction time
+            /// </summary>
+            Low,
+            /// <summary>
+            /// For things like overall field validation, focus gain/loss.
+            /// On the order of 1-10s expected interaction time
             /// </summary>
             Medium,
             /// <summary>
-            /// For things like form submission.  On the order of 11s+ expected interaction time
+            /// For human real-time events, happening in the sub-second range.  Things like mouse clicks and
+            /// key presses.
             /// </summary>
-            Low
+            High
         }
     }
 

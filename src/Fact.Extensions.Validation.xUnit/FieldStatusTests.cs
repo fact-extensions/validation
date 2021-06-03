@@ -6,6 +6,7 @@ using Xunit;
 namespace Fact.Extensions.Validation.xUnit
 {
     using Experimental;
+    using System.Threading.Tasks;
 
     public class FieldStatusTests : IClassFixture<Fixture>
     {
@@ -114,6 +115,8 @@ namespace Fact.Extensions.Validation.xUnit
                     _pass2.Error("mismatch");
                     //b.Error("pass1", "mismatch");
                 }
+
+                return new ValueTask();
             };
             entity.Evaluate(inputContext);
 
@@ -145,6 +148,8 @@ namespace Fact.Extensions.Validation.xUnit
                     _pass1.Error("mismatch");
                     _pass2.Error("mismatch");
                 }
+
+                return new ValueTask();
             };
             entity.Evaluate(null);
 

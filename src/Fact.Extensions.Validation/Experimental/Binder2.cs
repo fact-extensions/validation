@@ -22,6 +22,12 @@ namespace Fact.Extensions.Validation.Experimental
         
         public CancellationToken CancellationToken { get; }
 
+        public Interaction? InteractionLevel { get; }
+
+        // Still experimental -- however, it seems prudent to perhaps keep InteractionLevel
+        // inside of here
+        public InputContext InputContext { get; set; }
+
         public Context2(CancellationToken cancellationToken)
         {
             CancellationToken = cancellationToken;
