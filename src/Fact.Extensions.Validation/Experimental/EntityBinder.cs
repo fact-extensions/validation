@@ -22,6 +22,8 @@ namespace Fact.Extensions.Validation.Experimental
                 await binder.Process(ct);
             }
         }
+
+        public IEnumerable<IField> Fields => items.Select(x => x.binder.Field);
     }
 
 
@@ -30,15 +32,20 @@ namespace Fact.Extensions.Validation.Experimental
         static void Helper<T>(EntityBinder binder, PropertyInfo property)
         {
             var field = new FieldStatus<T>(property.Name, default(T));
-            var fieldBinder = new Binder2<T>(field);
-            var statuses = new LinkedList<Status>();
             Func<T> getter = () => (T)property.GetValue(binder.Value);
-            field.Add(statuses);
-            var shimField = new ShimFieldBase2<T>(fieldBinder, statuses, getter);
+            var fieldBinder = new Binder2<T>(field, getter);
+            var fb = new FluentBinder2<T>(fieldBinder, true);
+
+            // DEBT: A little sloppy having FluentBinder magically do this
+            //var statuses = new LinkedList<Status>();
+            //field.Add(statuses);
+            //var shimField = new ShimFieldBase2<T>(fieldBinder, statuses, getter);
+            var shimField = fb.Field;
 
             fieldBinder.ProcessingAsync += (f, context) =>
             {
-                statuses.Clear();
+                // handled automatically by FluentBinder2
+                //statuses.Clear();
 
                 foreach (var attribute in property.GetCustomAttributes().OfType<ValidationAttribute>())
                 {
@@ -73,12 +80,12 @@ namespace Fact.Extensions.Validation.Experimental
 
     public abstract class ValidationAttribute : Attribute
     {
-        public abstract void Validate(IField field);
+        public abstract void Validate<T>(IField<T> field);
     }
 
     public class RequiredAttribute : ValidationAttribute
     {
-        public override void Validate(IField field)
+        public override void Validate<T>(IField<T> field)
         {
             if (field.Value == null)
                 field.Error(FieldStatus.ComparisonCode.IsNull, null, "");
