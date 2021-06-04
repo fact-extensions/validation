@@ -50,8 +50,7 @@ namespace Fact.Extensions.Validation
 
         public static void Error(this IFieldStatusCollector2 field, FieldStatus.ComparisonCode code,
             object value, string description = null) =>
-            field.Add(new ScalarStatus(Status.Code.Error,
-                description, FieldStatus.ComparisonCode.Unspecified, value));
+            field.Add(new ScalarStatus(Status.Code.Error, description, code, value));
 
         public static void Add(this IFieldStatusCollector2 field, Status.Code code, string description) =>
             field.Add(new Status(code, description));

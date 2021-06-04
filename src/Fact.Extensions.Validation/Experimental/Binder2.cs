@@ -44,6 +44,8 @@ namespace Fact.Extensions.Validation.Experimental
     public interface IBinder2 : IBinder
     {
         event ProcessingDelegateAsync ProcessingAsync;
+
+        Task Process(CancellationToken ct = default);
     }
 
 

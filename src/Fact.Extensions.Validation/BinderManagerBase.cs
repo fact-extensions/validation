@@ -7,16 +7,12 @@ namespace Fact.Extensions.Validation
     using Fact.Extensions.Validation.Experimental;
     using System.Linq;
 
-    public class BinderManagerBase<TSource>
+    public class BinderManagerBase
     {
-        // 1:1 Field binders
-        protected List<Item> binders = new List<Item>();
-
-        public class Item
+        public class ItemBase
         {
             public IBinder binder;
             public event Action Initialize;
-            public readonly TSource control;
             // DEBT: Pretty sure we can deduce this at will based on an initial vs current value
             [Obsolete]
             public bool modified;
@@ -24,9 +20,24 @@ namespace Fact.Extensions.Validation
 
             public void DoInitialize() => Initialize?.Invoke();
 
-            public Item(IBinder binder, TSource source)
+            public ItemBase(IBinder binder)
             {
                 this.binder = binder;
+            }
+        }
+    }
+
+    public class BinderManagerBase<TSource> : BinderManagerBase
+    {
+        // 1:1 Field binders
+        protected List<Item> binders = new List<Item>();
+
+        public class Item : ItemBase
+        {
+            public readonly TSource control;
+
+            public Item(IBinder binder, TSource source) : base(binder)
+            {
                 this.control = source;
             }
         }
