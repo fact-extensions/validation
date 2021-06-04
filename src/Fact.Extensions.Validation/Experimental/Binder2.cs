@@ -40,12 +40,16 @@ namespace Fact.Extensions.Validation.Experimental
     public delegate ValueTask ProcessingDelegateAsync(IField f, Context2 context);
 
 
-
-    public interface IBinder2 : IBinder
+    public interface IBinder2Base
     {
         event ProcessingDelegateAsync ProcessingAsync;
 
         Task Process(CancellationToken ct = default);
+    }
+
+    public interface IBinder2 : IBinder, 
+        IBinder2Base
+    {
     }
 
 

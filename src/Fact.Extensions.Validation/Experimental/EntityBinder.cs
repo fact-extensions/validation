@@ -75,6 +75,13 @@ namespace Fact.Extensions.Validation.Experimental
                 h.Invoke(null, new object[] { binder, property });
             }
         }
+
+
+        public static void BindInstance<T>(this EntityBinder binder, T t)
+        {
+            binder.Value = t;
+            binder.Bind(typeof(T));
+        }
     }
 
 

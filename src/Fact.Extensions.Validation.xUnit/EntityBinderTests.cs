@@ -18,9 +18,7 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var eb = new EntityBinder();
 
-            eb.Value = new SyntheticEntity1();
-
-            eb.Bind(typeof(SyntheticEntity1));
+            eb.BindInstance(new SyntheticEntity1());
             await eb.Process();
 
             var fields = eb.Fields.ToArray();
