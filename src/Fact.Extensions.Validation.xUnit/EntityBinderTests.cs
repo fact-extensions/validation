@@ -17,13 +17,24 @@ namespace Fact.Extensions.Validation.xUnit
         public async Task Test1()
         {
             var eb = new EntityBinder();
+            var inputEntity = new SyntheticEntity1();
+            var outputEntity = new SyntheticEntity1();
 
-            eb.BindInstance(new SyntheticEntity1());
+            inputEntity.UserName = "fred";
+
+            eb.BindInstance(inputEntity);
+            Committer c = eb.BindOutput(outputEntity);
             await eb.Process();
 
             var fields = eb.Fields.ToArray();
             var statuses = fields.SelectMany(f => f.Statuses).ToArray();
             statuses.Should().HaveCount(2);
+
+            outputEntity.UserName.Should().BeNull();
+
+            await c.DoCommit();
+
+            outputEntity.UserName.Should().Be(inputEntity.UserName);
         }
     }
 }

@@ -24,12 +24,14 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
         public IEnumerable<IField> Fields => items.Select(x => x.binder.Field);
+
+        public IEnumerable<IBinder2> Binders => items.Select(x => x.binder).Cast<IBinder2>();
     }
 
 
     public static class EntityBinderExtensions
     {
-        static void Helper<T>(EntityBinder binder, PropertyInfo property)
+        static void InputHelper<T>(EntityBinder binder, PropertyInfo property)
         {
             var field = new FieldStatus<T>(property.Name, default(T));
             Func<T> getter = () => (T)property.GetValue(binder.Value);
@@ -60,14 +62,14 @@ namespace Fact.Extensions.Validation.Experimental
             binder.items.Add(item);
         }
 
-        public static void Bind(this EntityBinder binder, Type t)
+        public static void BindInput(this EntityBinder binder, Type t)
         {
             //t.GetTypeInfo().GetProperties();
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
 
             //var helper = typeof(EntityBinderExtensions).GetRuntimeMethod(nameof(Helper),);
             var t2 = typeof(EntityBinderExtensions);
-            var helperMethod = t2.GetRuntimeMethods().Single(x => x.Name == nameof(Helper));
+            var helperMethod = t2.GetRuntimeMethods().Single(x => x.Name == nameof(InputHelper));
 
             foreach (var property in properties)
             {
@@ -77,10 +79,45 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
+        public static Committer BindOutput(this EntityBinder binder, Type t, object instance)
+        {
+            IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
+            Dictionary<string, IBinder2> binders = binder.Binders.ToDictionary(x => x.Field.Name, y => y);
+            var comitter = new Committer();
+
+            foreach(var property in properties)
+            {
+                if(binders.TryGetValue(property.Name, out IBinder2 b))
+                {
+                    // DEBT: Assign to DBNull or similar so we can tell if it's uninitialized
+                    object staged = null;
+                    
+                    b.ProcessedAsync += (f, context) =>
+                    {
+                        staged = context.Value;
+                        return new ValueTask();
+                    };
+
+                    comitter.Committing += () =>
+                    {
+                        property.SetValue(instance, staged);
+                        return new ValueTask();
+                    };
+                }
+            }
+
+            return comitter;
+        }
+
+
+        public static Committer BindOutput<T>(this EntityBinder binder, T instance) =>
+            binder.BindOutput(typeof(T), instance);
+
+
         public static void BindInstance<T>(this EntityBinder binder, T t)
         {
             binder.Value = t;
-            binder.Bind(typeof(T));
+            binder.BindInput(typeof(T));
         }
     }
 

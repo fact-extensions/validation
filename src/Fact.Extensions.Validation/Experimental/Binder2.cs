@@ -43,6 +43,7 @@ namespace Fact.Extensions.Validation.Experimental
     public interface IBinder2Base
     {
         event ProcessingDelegateAsync ProcessingAsync;
+        event ProcessingDelegateAsync ProcessedAsync;
 
         Task Process(CancellationToken ct = default);
     }
@@ -101,6 +102,7 @@ namespace Fact.Extensions.Validation.Experimental
             }
         }
         public event ProcessingDelegateAsync ProcessingAsync;
+        public event ProcessingDelegateAsync ProcessedAsync;
 
         public async Task Process(CancellationToken ct = default)
         {
@@ -129,6 +131,9 @@ namespace Fact.Extensions.Validation.Experimental
             // https://stackoverflow.com/questions/27238232/how-can-i-cancel-task-whenall
             var tcs = new TaskCompletionSource<bool>(ct);
             await Task.WhenAny(Task.WhenAll(nonsequential), tcs.Task);
+
+            if(ProcessedAsync != null)
+                await ProcessedAsync.Invoke(field, context);
         }
     }
 
