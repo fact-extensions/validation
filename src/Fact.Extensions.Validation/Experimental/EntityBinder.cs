@@ -8,14 +8,24 @@ using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation.Experimental
 {
-    // TODO: Make this an IBinder2 also
-    public class EntityBinder : AggregatedBinderBase
+    // TODO: Make an IEntityBinder so that we can do an IEntityBinder<T>
+    public class EntityBinder : Binder2,
+        IAggregatedBinder
     {
-        public List<ItemBase> items = new List<ItemBase>();
+        public List<Item> items = new List<Item>();
+
+        public class Item : AggregatedBinderBase.ItemBase
+        {
+            public Item(IBinder binder) : base(binder)
+            {
+
+            }
+        }
 
         public object Value { get; set; }
 
-        public async Task Process(CancellationToken ct = default)
+        // FIX: Need to fuse this and Binder2.Process, if we can
+        public async new Task Process(CancellationToken ct = default)
         {
             foreach(var item in items)
             {
@@ -27,6 +37,8 @@ namespace Fact.Extensions.Validation.Experimental
         public IEnumerable<IField> Fields => items.Select(x => x.binder.Field);
 
         public IEnumerable<IBinder2> Binders => items.Select(x => x.binder).Cast<IBinder2>();
+
+        public EntityBinder(IField field) : base(field) { }
     }
 
 
@@ -58,7 +70,7 @@ namespace Fact.Extensions.Validation.Experimental
                 return new ValueTask();
             };
 
-            var item = new EntityBinder.ItemBase(fieldBinder);
+            var item = new EntityBinder.Item(fieldBinder);
 
             binder.items.Add(item);
         }
