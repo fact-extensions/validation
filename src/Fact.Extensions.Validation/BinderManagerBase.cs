@@ -7,11 +7,31 @@ namespace Fact.Extensions.Validation
     using Fact.Extensions.Validation.Experimental;
     using System.Linq;
 
-    public class BinderManagerBase
+
+    public interface IAggregatedBinder
+    {
+        IEnumerable<IBinder2> Binders { get; }
+    }
+
+    public class AggregatedBinderBase
     {
         public class ItemBase
         {
+            // DEBT: Due to InternalBindText clumsiness, have to make this non readonly
             public IBinder binder;
+
+            public ItemBase(IBinder binder)
+            {
+                this.binder = binder;
+            }
+        }
+
+    }
+
+    public class BinderManagerBase : AggregatedBinderBase
+    {
+        public new class ItemBase : AggregatedBinderBase.ItemBase
+        {
             public event Action Initialize;
             // DEBT: Pretty sure we can deduce this at will based on an initial vs current value
             [Obsolete]
@@ -20,9 +40,8 @@ namespace Fact.Extensions.Validation
 
             public void DoInitialize() => Initialize?.Invoke();
 
-            public ItemBase(IBinder binder)
+            public ItemBase(IBinder binder) : base(binder)
             {
-                this.binder = binder;
             }
         }
     }

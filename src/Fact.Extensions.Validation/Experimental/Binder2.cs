@@ -60,10 +60,18 @@ namespace Fact.Extensions.Validation.Experimental
 
     }
 
+
+    public class Binder2Base : BinderBaseBase
+    {
+        public Binder2Base(IField field) : base(field)
+        {
+        }
+    }
+
     /// <summary>
     /// Boilerplate for less-typed filter-only style binder
     /// </summary>
-    public class Binder2<T> : BinderBaseBase, 
+    public class Binder2<T> : Binder2Base, 
         IBinder2<T>
     {
         public bool AbortOnNull { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }

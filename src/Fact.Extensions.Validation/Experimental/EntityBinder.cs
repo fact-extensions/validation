@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation.Experimental
 {
-    public class EntityBinder : BinderManagerBase
+    // TODO: Make this an IBinder2 also
+    public class EntityBinder : AggregatedBinderBase
     {
         public List<ItemBase> items = new List<ItemBase>();
 
