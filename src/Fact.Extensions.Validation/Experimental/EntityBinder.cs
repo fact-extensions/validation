@@ -16,9 +16,23 @@ namespace Fact.Extensions.Validation.Experimental
 
         public class Item : AggregatedBinderBase.ItemBase
         {
-            public Item(IBinder binder) : base(binder)
+            public PropertyInfo Property { get; }
+            
+            public Item(IBinder binder, PropertyInfo property) : base(binder)
             {
+                Property = property;
+            }
+        }
 
+
+        public class Item<T> : Item
+        {
+            public FluentBinder2<T> FluentBinder { get; }
+            
+            public Item(FluentBinder2<T> fb, PropertyInfo property) : 
+                base(fb.Binder, property)
+            {
+                FluentBinder = fb;
             }
         }
 
@@ -38,6 +52,8 @@ namespace Fact.Extensions.Validation.Experimental
 
         public IEnumerable<IBinder2> Binders => items.Select(x => x.binder).Cast<IBinder2>();
 
+        public IEnumerable<Item> Items => items;
+
         public EntityBinder(IField field) : base(field) { }
 
         public void Add(Item item)
@@ -49,6 +65,27 @@ namespace Fact.Extensions.Validation.Experimental
 
     public static class EntityBinderExtensions
     {
+        static void ValidationHelper<T>(EntityBinder.Item<T> item)
+        {
+            var shimField = item.FluentBinder.Field;
+            var fieldBinder = item.FluentBinder.Binder;
+            var property = item.Property;
+            
+            fieldBinder.ProcessingAsync += (f, context) =>
+            {
+                // handled automatically by FluentBinder2
+                //statuses.Clear();
+
+                foreach (var attribute in property.GetCustomAttributes().OfType<ValidationAttribute>())
+                {
+                    attribute.Validate(shimField);
+                }
+
+                return new ValueTask();
+            };
+
+        }
+        
         static void InputHelper<T>(EntityBinder binder, PropertyInfo property)
         {
             var field = new FieldStatus<T>(property.Name, default(T));
@@ -75,7 +112,7 @@ namespace Fact.Extensions.Validation.Experimental
                 return new ValueTask();
             };
 
-            var item = new EntityBinder.Item(fieldBinder);
+            var item = new EntityBinder.Item(fieldBinder, property);
 
             binder.Add(item);
         }
@@ -93,6 +130,28 @@ namespace Fact.Extensions.Validation.Experimental
             {
                 var h = helperMethod.MakeGenericMethod(property.PropertyType);
                 h.Invoke(null, new object[] { binder, property });
+            }
+        }
+
+
+        public static void BindValidation(this EntityBinder binder, Type t)
+        {
+            IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
+            IEnumerable<IBinder2> binders = binder.Binders;
+
+            foreach (var item in binder.Items)
+            {
+                
+            }
+            
+            foreach (var property in properties)
+            {
+                IBinder2 match = binders.SingleOrDefault(b => b.Field.Name == property.Name);
+
+                if (match != null)
+                {
+                    
+                }
             }
         }
 
@@ -134,7 +193,7 @@ namespace Fact.Extensions.Validation.Experimental
             binder.BindOutput(typeof(T), instance);
 
 
-        public static void BindInstance<T>(this EntityBinder binder, T t)
+        public static void BindInput<T>(this EntityBinder binder, T t)
         {
             binder.Value = t;
             binder.BindInput(typeof(T));

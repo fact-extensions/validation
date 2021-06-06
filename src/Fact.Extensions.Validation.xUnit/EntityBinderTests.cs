@@ -30,7 +30,7 @@ namespace Fact.Extensions.Validation.xUnit
 
             inputEntity.UserName = "fred";
 
-            eb.BindInstance(inputEntity);
+            eb.BindInput(inputEntity);
             Committer c = eb.BindOutput(outputEntity);
             await eb.Process();
 
