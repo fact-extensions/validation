@@ -10,6 +10,10 @@ namespace Fact.Extensions.Validation.Experimental
 {
     public class Context2 : Context
     {
+        /// <summary>
+        /// Current value, which starts as populated by the binder's getter but may
+        /// be converted as the pipeline is processed
+        /// </summary>
         public object Value { get; set; }
         
         /// <summary>
