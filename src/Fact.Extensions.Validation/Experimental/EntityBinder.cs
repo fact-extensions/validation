@@ -12,7 +12,7 @@ namespace Fact.Extensions.Validation.Experimental
     public class EntityBinder : Binder2,
         IAggregatedBinder
     {
-        public List<Item> items = new List<Item>();
+        List<Item> items = new List<Item>();
 
         public class Item : AggregatedBinderBase.ItemBase
         {
@@ -39,6 +39,11 @@ namespace Fact.Extensions.Validation.Experimental
         public IEnumerable<IBinder2> Binders => items.Select(x => x.binder).Cast<IBinder2>();
 
         public EntityBinder(IField field) : base(field) { }
+
+        public void Add(Item item)
+        {
+            items.Add(item);
+        }
     }
 
 
@@ -72,7 +77,7 @@ namespace Fact.Extensions.Validation.Experimental
 
             var item = new EntityBinder.Item(fieldBinder);
 
-            binder.items.Add(item);
+            binder.Add(item);
         }
 
         public static void BindInput(this EntityBinder binder, Type t)
@@ -92,11 +97,13 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static Committer BindOutput(this EntityBinder binder, Type t, object instance)
+        public static Committer BindOutput(this EntityBinder binder, Type t, object instance, 
+            Committer committer = null)
         {
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
             Dictionary<string, IBinder2> binders = binder.Binders.ToDictionary(x => x.Field.Name, y => y);
-            var comitter = new Committer();
+            
+            if (committer == null) committer = new Committer(); 
 
             foreach(var property in properties)
             {
@@ -111,7 +118,7 @@ namespace Fact.Extensions.Validation.Experimental
                         return new ValueTask();
                     };
 
-                    comitter.Committing += () =>
+                    committer.Committing += () =>
                     {
                         property.SetValue(instance, staged);
                         return new ValueTask();
@@ -119,7 +126,7 @@ namespace Fact.Extensions.Validation.Experimental
                 }
             }
 
-            return comitter;
+            return committer;
         }
 
 
