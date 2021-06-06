@@ -14,9 +14,11 @@ namespace Fact.Extensions.Validation.Experimental
     {
         List<Item> items = new List<Item>();
 
-        public class Item : AggregatedBinderBase.ItemBase
+        public abstract class Item : AggregatedBinderBase.ItemBase
         {
             public PropertyInfo Property { get; }
+
+            public abstract void InitValidation();
             
             public Item(IBinder binder, PropertyInfo property) : base(binder)
             {
@@ -28,7 +30,26 @@ namespace Fact.Extensions.Validation.Experimental
         public class Item<T> : Item
         {
             public FluentBinder2<T> FluentBinder { get; }
-            
+
+            public override void InitValidation()
+            {
+                var shimField = FluentBinder.Field;
+                
+                FluentBinder.Binder.ProcessingAsync += (f, context) =>
+                {
+                    // handled automatically by FluentBinder2
+                    //statuses.Clear();
+
+                    foreach (var attribute in Property.GetCustomAttributes().OfType<ValidationAttribute>())
+                    {
+                        attribute.Validate(shimField);
+                    }
+
+                    return new ValueTask();
+                };
+
+            }
+
             public Item(FluentBinder2<T> fb, PropertyInfo property) : 
                 base(fb.Binder, property)
             {
@@ -97,6 +118,7 @@ namespace Fact.Extensions.Validation.Experimental
             //var statuses = new LinkedList<Status>();
             //field.Add(statuses);
             //var shimField = new ShimFieldBase2<T>(fieldBinder, statuses, getter);
+            /*
             var shimField = fb.Field;
 
             fieldBinder.ProcessingAsync += (f, context) =>
@@ -110,10 +132,12 @@ namespace Fact.Extensions.Validation.Experimental
                 }
 
                 return new ValueTask();
-            };
+            }; */
 
-            var item = new EntityBinder.Item(fieldBinder, property);
+            var item = new EntityBinder.Item<T>(fb, property);
 
+            item.InitValidation();
+            
             binder.Add(item);
         }
 
@@ -141,7 +165,7 @@ namespace Fact.Extensions.Validation.Experimental
 
             foreach (var item in binder.Items)
             {
-                
+                item.InitValidation();
             }
             
             foreach (var property in properties)
