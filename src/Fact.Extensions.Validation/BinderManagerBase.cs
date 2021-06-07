@@ -13,12 +13,21 @@ namespace Fact.Extensions.Validation
         IEnumerable<IBinder2> Binders { get; }
     }
 
+
+    public interface IBinderProvider
+    {
+        IBinder2 Binder { get; }
+    }
+
     public class AggregatedBinderBase
     {
-        public class ItemBase
+        public class ItemBase : IBinderProvider
         {
             // DEBT: Due to InternalBindText clumsiness, have to make this non readonly
             public IBinder binder;
+            
+            // DEBT: Still transitioning to IBinder2, so clumsy here
+            public IBinder2 Binder => (IBinder2) binder;
 
             public ItemBase(IBinder binder)
             {

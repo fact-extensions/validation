@@ -12,7 +12,7 @@ namespace Fact.Extensions.Validation.Experimental
     public class EntityBinder : Binder2,
         IAggregatedBinder
     {
-        List<Item> items = new List<Item>();
+        List<IBinderProvider> items = new List<IBinderProvider>();
 
         public abstract class Item : AggregatedBinderBase.ItemBase
         {
@@ -64,20 +64,19 @@ namespace Fact.Extensions.Validation.Experimental
         {
             foreach(var item in items)
             {
-                var binder = (IBinder2)item.binder;
-                await binder.Process(ct);
+                await item.Binder.Process(ct);
             }
         }
 
-        public IEnumerable<IField> Fields => items.Select(x => x.binder.Field);
+        public IEnumerable<IField> Fields => items.Select(x => x.Binder.Field);
 
-        public IEnumerable<IBinder2> Binders => items.Select(x => x.binder).Cast<IBinder2>();
+        public IEnumerable<IBinder2> Binders => items.Select(x => x.Binder);
 
-        public IEnumerable<Item> Items => items;
+        public IEnumerable<IBinderProvider> Items => items;
 
         public EntityBinder(IField field) : base(field) { }
 
-        public void Add(Item item)
+        public void Add(IBinderProvider item)
         {
             items.Add(item);
         }
@@ -86,12 +85,15 @@ namespace Fact.Extensions.Validation.Experimental
 
     public static class EntityBinderExtensions
     {
-        static void ValidationHelper<T>(EntityBinder.Item<T> item)
+        static void ValidationHelper<T>(IBinder2<T> binder, PropertyInfo property)
         {
+            var item = CreatePropertyItem2(binder, property);
             var shimField = item.FluentBinder.Field;
-            var fieldBinder = item.FluentBinder.Binder;
-            var property = item.Property;
+            //var fieldBinder = item.FluentBinder.Binder;
+            var fieldBinder = binder;
             
+            item.InitValidation();
+            /*
             fieldBinder.ProcessingAsync += (f, context) =>
             {
                 // handled automatically by FluentBinder2
@@ -104,15 +106,12 @@ namespace Fact.Extensions.Validation.Experimental
 
                 return new ValueTask();
             };
-
+            */
         }
 
-        static EntityBinder.Item<T> CreatePropertyItem<T>(EntityBinder binder, PropertyInfo property)
+        static EntityBinder.Item<T> CreatePropertyItem2<T>(IBinder2<T> binder, PropertyInfo property)
         {
-            var field = new FieldStatus<T>(property.Name, default(T));
-            Func<T> getter = () => (T)property.GetValue(binder.Value);
-            var fieldBinder = new Binder2<T>(field, getter);
-            var fb = new FluentBinder2<T>(fieldBinder, true);
+            var fb = new FluentBinder2<T>(binder, true);
 
             // DEBT: A little sloppy having FluentBinder magically do this
             //var statuses = new LinkedList<Status>();
@@ -137,6 +136,15 @@ namespace Fact.Extensions.Validation.Experimental
             var item = new EntityBinder.Item<T>(fb, property);
 
             return item;
+        }
+
+        static EntityBinder.Item<T> CreatePropertyItem<T>(EntityBinder binder, PropertyInfo property)
+        {
+            var field = new FieldStatus<T>(property.Name, default(T));
+            Func<T> getter = () => (T)property.GetValue(binder.Value);
+            var fieldBinder = new Binder2<T>(field, getter);
+
+            return CreatePropertyItem2(fieldBinder, property);
         }
 
         static void InputHelper<T>(EntityBinder binder, PropertyInfo property, bool initValidation)
@@ -171,11 +179,15 @@ namespace Fact.Extensions.Validation.Experimental
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
             IEnumerable<IBinder2> binders = binder.Binders;
 
+            /*
             foreach (var item in binder.Items.OfType<EntityBinder.Item>())
             {
                 if(item.Property.PropertyType == t)
                     item.InitValidation();
-            }
+            } */
+            
+            var t2 = typeof(EntityBinderExtensions);
+            var helperMethod = t2.GetRuntimeMethods().Single(x => x.Name == nameof(ValidationHelper));
             
             foreach (var property in properties)
             {
@@ -183,7 +195,9 @@ namespace Fact.Extensions.Validation.Experimental
 
                 if (match != null)
                 {
-                    
+                    var h = helperMethod.MakeGenericMethod(property.PropertyType);
+                    // DEBT: It is assumed binder is IBinder2<T>
+                    h.Invoke(null, new object[] { match, property });
                 }
             }
         }
