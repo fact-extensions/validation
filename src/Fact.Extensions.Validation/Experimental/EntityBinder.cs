@@ -106,8 +106,8 @@ namespace Fact.Extensions.Validation.Experimental
             };
 
         }
-        
-        static void InputHelper<T>(EntityBinder binder, PropertyInfo property, bool initValidation)
+
+        static EntityBinder.Item<T> CreatePropertyItem<T>(EntityBinder binder, PropertyInfo property)
         {
             var field = new FieldStatus<T>(property.Name, default(T));
             Func<T> getter = () => (T)property.GetValue(binder.Value);
@@ -135,6 +135,13 @@ namespace Fact.Extensions.Validation.Experimental
             }; */
 
             var item = new EntityBinder.Item<T>(fb, property);
+
+            return item;
+        }
+
+        static void InputHelper<T>(EntityBinder binder, PropertyInfo property, bool initValidation)
+        {
+            var item = CreatePropertyItem<T>(binder, property);
 
             if(initValidation)
                 item.InitValidation();
@@ -164,9 +171,10 @@ namespace Fact.Extensions.Validation.Experimental
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
             IEnumerable<IBinder2> binders = binder.Binders;
 
-            foreach (var item in binder.Items)
+            foreach (var item in binder.Items.OfType<EntityBinder.Item>())
             {
-                item.InitValidation();
+                if(item.Property.PropertyType == t)
+                    item.InitValidation();
             }
             
             foreach (var property in properties)
