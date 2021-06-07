@@ -11,6 +11,8 @@ namespace Fact.Extensions.Validation
     public interface IAggregatedBinder
     {
         IEnumerable<IBinder2> Binders { get; }
+
+        void Add(IBinderProvider binderProvider);
     }
 
 

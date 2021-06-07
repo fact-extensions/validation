@@ -58,10 +58,18 @@ namespace Fact.Extensions.Validation.xUnit
 
             var eb = new EntityBinder(field);
             var inputEntity = new SyntheticEntity1();
+            var field1 = new FieldStatus<string>(nameof(SyntheticEntity1.Password1), null);
+            var binder1 = new Binder2<string>(field1, () => null);
+            var item1 = new AggregatedBinderBase.ItemBase(binder1);
+            var field2 = new FieldStatus<string>(nameof(SyntheticEntity1.Password2), null);
+            var binder2 = new Binder2<string>(field2, () => null);
+            var item2 = new AggregatedBinderBase.ItemBase(binder2);
             
             inputEntity.UserName = "fred";
-
-            eb.BindInput2(inputEntity, false);
+            
+            eb.Add(item1);
+            eb.Add(item2);
+            //eb.BindInput2(inputEntity, false);
             eb.BindValidation(typeof(SyntheticEntity1));
             await eb.Process();
 
