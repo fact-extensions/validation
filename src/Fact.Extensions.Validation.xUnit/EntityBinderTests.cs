@@ -24,7 +24,7 @@ namespace Fact.Extensions.Validation.xUnit
             // entity that only exists as a bunch of getters from those controls.
             var field = new FieldStatus("synthetic", null);
 
-            var eb = new EntityBinder(field);
+            var eb = new AggregatedBinder(field);
             var inputEntity = new SyntheticEntity1();
             var outputEntity = new SyntheticEntity1();
 
@@ -50,7 +50,7 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var field = new FieldStatus("synthetic", null);
 
-            var eb = new EntityBinder(field);
+            var eb = new AggregatedBinder(field);
 
             eb.AddField<string>(nameof(SyntheticEntity1.Password1), () => null);
             eb.AddField<string>(nameof(SyntheticEntity1.Password2), () => null);

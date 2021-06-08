@@ -8,60 +8,61 @@ using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation.Experimental
 {
+    public abstract class PropertyBinderProvider : AggregatedBinderBase.ItemBase
+    {
+        public PropertyInfo Property { get; }
+
+        public abstract void InitValidation();
+            
+        public PropertyBinderProvider(IBinder binder, PropertyInfo property) : base(binder)
+        {
+            Property = property;
+        }
+    }
+
+
+    public class PropertyBinderProvider<T> : PropertyBinderProvider
+    {
+        public FluentBinder2<T> FluentBinder { get; }
+
+        public override void InitValidation()
+        {
+            var shimField = FluentBinder.Field;
+                
+            FluentBinder.Binder.ProcessingAsync += (f, context) =>
+            {
+                // handled automatically by FluentBinder2
+                //statuses.Clear();
+
+                foreach (var attribute in Property.GetCustomAttributes().OfType<ValidationAttribute>())
+                {
+                    attribute.Validate(shimField);
+                }
+
+                return new ValueTask();
+            };
+
+        }
+
+        public PropertyBinderProvider(FluentBinder2<T> fb, PropertyInfo property) : 
+            base(fb.Binder, property)
+        {
+            FluentBinder = fb;
+        }
+    }
+
     // TODO: Make an IEntityBinder so that we can do an IEntityBinder<T>
-    public class EntityBinder : Binder2,
+    public class AggregatedBinder : Binder2,
         IAggregatedBinder
     {
         List<IBinderProvider> items = new List<IBinderProvider>();
 
-        public abstract class Item : AggregatedBinderBase.ItemBase
-        {
-            public PropertyInfo Property { get; }
-
-            public abstract void InitValidation();
-            
-            public Item(IBinder binder, PropertyInfo property) : base(binder)
-            {
-                Property = property;
-            }
-        }
-
-
-        public class Item<T> : Item
-        {
-            public FluentBinder2<T> FluentBinder { get; }
-
-            public override void InitValidation()
-            {
-                var shimField = FluentBinder.Field;
-                
-                FluentBinder.Binder.ProcessingAsync += (f, context) =>
-                {
-                    // handled automatically by FluentBinder2
-                    //statuses.Clear();
-
-                    foreach (var attribute in Property.GetCustomAttributes().OfType<ValidationAttribute>())
-                    {
-                        attribute.Validate(shimField);
-                    }
-
-                    return new ValueTask();
-                };
-
-            }
-
-            public Item(FluentBinder2<T> fb, PropertyInfo property) : 
-                base(fb.Binder, property)
-            {
-                FluentBinder = fb;
-            }
-        }
 
         public IEnumerable<IBinder2> Binders => items.Select(x => x.Binder);
 
         public IEnumerable<IBinderProvider> Items => items;
 
-        public EntityBinder(IField field) : base(field)
+        public AggregatedBinder(IField field) : base(field)
         {
             // DEBT: A little sloppy to lazy init our getter, however aggregated
             // binder may indeed not need to retrieve any value for context.Value
@@ -104,7 +105,7 @@ namespace Fact.Extensions.Validation.Experimental
             */
         }
 
-        static EntityBinder.Item<T> CreatePropertyItem2<T>(IBinder2<T> binder, PropertyInfo property)
+        static PropertyBinderProvider<T> CreatePropertyItem2<T>(IBinder2<T> binder, PropertyInfo property)
         {
             var fb = new FluentBinder2<T>(binder, true);
 
@@ -128,12 +129,12 @@ namespace Fact.Extensions.Validation.Experimental
                 return new ValueTask();
             }; */
 
-            var item = new EntityBinder.Item<T>(fb, property);
+            var item = new PropertyBinderProvider<T>(fb, property);
 
             return item;
         }
 
-        static EntityBinder.Item<T> CreatePropertyItem<T>(EntityBinder binder, PropertyInfo property)
+        static PropertyBinderProvider<T> CreatePropertyItem<T>(AggregatedBinder binder, PropertyInfo property)
         {
             var field = new FieldStatus<T>(property.Name, default(T));
             Func<T> getter = () => (T)property.GetValue(binder.getter());
@@ -142,7 +143,7 @@ namespace Fact.Extensions.Validation.Experimental
             return CreatePropertyItem2(fieldBinder, property);
         }
 
-        static void InputHelper<T>(EntityBinder binder, PropertyInfo property, bool initValidation)
+        static void InputHelper<T>(AggregatedBinder binder, PropertyInfo property, bool initValidation)
         {
             var item = CreatePropertyItem<T>(binder, property);
 
@@ -152,7 +153,7 @@ namespace Fact.Extensions.Validation.Experimental
             binder.Add(item);
         }
 
-        public static void BindInput(this EntityBinder binder, Type t, bool initValidation = false)
+        public static void BindInput(this AggregatedBinder binder, Type t, bool initValidation = false)
         {
             //t.GetTypeInfo().GetProperties();
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
@@ -172,7 +173,7 @@ namespace Fact.Extensions.Validation.Experimental
         // TODO: Add a flag indicating whether to treat non-present fields as either 'null'
         // or to skip validating them entirely - although seems to me almost definitely we
         // want the former
-        public static void BindValidation(this EntityBinder binder, Type t)
+        public static void BindValidation(this AggregatedBinder binder, Type t)
         {
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
             IEnumerable<IBinder2> binders = binder.Binders;
@@ -205,7 +206,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static Committer BindOutput(this EntityBinder binder, Type t, object instance, 
+        public static Committer BindOutput(this AggregatedBinder binder, Type t, object instance, 
             Committer committer = null)
         {
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
@@ -238,11 +239,11 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static Committer BindOutput<T>(this EntityBinder binder, T instance) =>
+        public static Committer BindOutput<T>(this AggregatedBinder binder, T instance) =>
             binder.BindOutput(typeof(T), instance);
 
 
-        public static void BindInput2<T>(this EntityBinder binder, T t, bool initValidation = false)
+        public static void BindInput2<T>(this AggregatedBinder binder, T t, bool initValidation = false)
         {
             binder.getter2 = () => t;
             binder.BindInput(typeof(T), initValidation);
