@@ -134,7 +134,7 @@ namespace Fact.Extensions.Validation.Experimental
             return item;
         }
 
-        static PropertyBinderProvider<T> CreatePropertyItem<T>(AggregatedBinder binder, PropertyInfo property)
+        static PropertyBinderProvider<T> CreatePropertyItem<T>(IBinder2 binder, PropertyInfo property)
         {
             var field = new FieldStatus<T>(property.Name, default(T));
             Func<T> getter = () => (T)property.GetValue(binder.getter());
@@ -143,7 +143,7 @@ namespace Fact.Extensions.Validation.Experimental
             return CreatePropertyItem2(fieldBinder, property);
         }
 
-        static void InputHelper<T>(AggregatedBinder binder, PropertyInfo property, bool initValidation)
+        static void InputHelper<T>(IAggregatedBinder binder, PropertyInfo property, bool initValidation)
         {
             var item = CreatePropertyItem<T>(binder, property);
 
@@ -153,7 +153,7 @@ namespace Fact.Extensions.Validation.Experimental
             binder.Add(item);
         }
 
-        public static void BindInput(this AggregatedBinder binder, Type t, bool initValidation = false)
+        public static void BindInput(this IAggregatedBinder binder, Type t, bool initValidation = false)
         {
             //t.GetTypeInfo().GetProperties();
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
@@ -173,7 +173,7 @@ namespace Fact.Extensions.Validation.Experimental
         // TODO: Add a flag indicating whether to treat non-present fields as either 'null'
         // or to skip validating them entirely - although seems to me almost definitely we
         // want the former
-        public static void BindValidation(this AggregatedBinder binder, Type t)
+        public static void BindValidation(this IAggregatedBinder binder, Type t)
         {
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
             IEnumerable<IBinder2> binders = binder.Binders;
@@ -206,7 +206,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static Committer BindOutput(this AggregatedBinder binder, Type t, object instance, 
+        public static Committer BindOutput(this IAggregatedBinder binder, Type t, object instance, 
             Committer committer = null)
         {
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
