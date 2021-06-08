@@ -216,6 +216,19 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
+
+        public static FluentBinder2<string> StartsWith(this FluentBinder2<string> fb, string mustStartWith)
+        {
+            fb.Binder.ProcessingAsync += (field, context) =>
+            {
+                if (!((string)fb.Field.Value).StartsWith(mustStartWith))
+                    fb.Field.Error(FieldStatus.ComparisonCode.Unspecified, mustStartWith,
+                        $"Must start with: {mustStartWith}");
+                return new ValueTask();
+            };
+            return fb;
+        }
+
         public static FluentBinder2<T> Required<T>(this FluentBinder2<T> fb)
         {
             fb.Binder.ProcessingAsync += (field, context) =>

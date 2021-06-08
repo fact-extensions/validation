@@ -68,14 +68,27 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var field = new FieldStatus("synthetic", null);
             var ab = new AggregatedBinder(field);
-            var inputEntity = new SyntheticEntity1();
 
-            var entityBinder = ab.BindInput2(inputEntity, true);
+            var inputEntity = new SyntheticEntity1
+            {
+                Password1 = "bye"
+            };
+
+            var entityBinder = ab.BindInput2(inputEntity);
+
+            // FIX: Need to build out Required and AbortOnNull, otherwise we get a null exception
+            // when reaching 'StartsWith'
 
             var passwordBinder1 = entityBinder.Get(x => x.Password1);
-            passwordBinder1.FluentBinder.IsTrue(x => x == null, "Must be null");
+            passwordBinder1.FluentBinder.
+                Required().
+                StartsWith("hi");
 
             await ab.Process();
+
+            var fields = ab.Fields().ToArray();
+            var statuses = fields.SelectMany(f => f.Statuses).ToArray();
+            statuses.Should().HaveCount(1);
         }
     }
 }
