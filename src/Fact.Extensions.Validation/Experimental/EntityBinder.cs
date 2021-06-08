@@ -57,8 +57,6 @@ namespace Fact.Extensions.Validation.Experimental
             }
         }
 
-        public object Value { get; set; }
-
         // FIX: Need to fuse this and Binder2.Process, if we can
         public async new Task Process(CancellationToken ct = default)
         {
@@ -74,7 +72,7 @@ namespace Fact.Extensions.Validation.Experimental
         public IEnumerable<IBinderProvider> Items => items;
 
         public EntityBinder(IField field) : base(field) { }
-
+        
         public void Add(IBinderProvider item)
         {
             items.Add(item);
@@ -140,7 +138,7 @@ namespace Fact.Extensions.Validation.Experimental
         static EntityBinder.Item<T> CreatePropertyItem<T>(EntityBinder binder, PropertyInfo property)
         {
             var field = new FieldStatus<T>(property.Name, default(T));
-            Func<T> getter = () => (T)property.GetValue(binder.Value);
+            Func<T> getter = () => (T)property.GetValue(binder.getter());
             var fieldBinder = new Binder2<T>(field, getter);
 
             return CreatePropertyItem2(fieldBinder, property);
@@ -241,7 +239,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public static void BindInput2<T>(this EntityBinder binder, T t, bool initValidation = false)
         {
-            binder.Value = t;
+            binder.getter2 = () => t;
             binder.BindInput(typeof(T), initValidation);
         }
 
