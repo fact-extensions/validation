@@ -68,7 +68,6 @@ namespace Fact.Extensions.Validation.Experimental
             }
         }
 
-        public IEnumerable<IField> Fields => items.Select(x => x.Binder.Field);
 
         public IEnumerable<IBinder2> Binders => items.Select(x => x.Binder);
 
@@ -245,6 +244,20 @@ namespace Fact.Extensions.Validation.Experimental
             binder.Value = t;
             binder.BindInput(typeof(T), initValidation);
         }
+
+
+        public static FluentBinder2<T> AddField<T>(this IAggregatedBinder binder, string name, Func<T> getter, 
+            Func<IBinder2, IBinderProvider> providerFactory)
+        {
+            var f = new FieldStatus<T>(name, default(T));
+            var b = new Binder2<T>(f, getter);
+            var fb = new FluentBinder2<T>(b);
+            binder.Add(providerFactory(b));
+            return fb;
+        }
+
+        public static FluentBinder2<T> AddField<T>(this IAggregatedBinder binder, string name, Func<T> getter) =>
+            binder.AddField(name, getter, b => new BinderManagerBase.ItemBase(b));
     }
 
 

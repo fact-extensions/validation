@@ -98,4 +98,18 @@ namespace Fact.Extensions.Validation
             binders.Select(x => x.binder.Field);
     }
 
+
+    public static class IAggregatedBinderExtensions
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="binder"></param>
+        /// <returns></returns>
+        /// <remarks>It's possible to have multiple binders associated to one field</remarks>
+        public static IEnumerable<IField> Fields(this IAggregatedBinder binder)
+        {
+            return binder.Binders.Select(x => x.Field).Distinct();
+        }
+    }
 }
