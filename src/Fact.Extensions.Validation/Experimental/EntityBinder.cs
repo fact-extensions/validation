@@ -57,6 +57,7 @@ namespace Fact.Extensions.Validation.Experimental
             }
         }
 
+        /*
         // FIX: Need to fuse this and Binder2.Process, if we can
         public async new Task Process(CancellationToken ct = default)
         {
@@ -64,18 +65,26 @@ namespace Fact.Extensions.Validation.Experimental
             {
                 await item.Binder.Process(ct);
             }
-        }
+        } */
 
 
         public IEnumerable<IBinder2> Binders => items.Select(x => x.Binder);
 
         public IEnumerable<IBinderProvider> Items => items;
 
-        public EntityBinder(IField field) : base(field) { }
+        public EntityBinder(IField field) : base(field)
+        {
+            // DEBT: A little sloppy to lazy init our getter, however aggregated
+            // binder may indeed not need to retrieve any value for context.Value
+            // during Process call
+            getter2 = () => null;
+        }
         
         public void Add(IBinderProvider item)
         {
             items.Add(item);
+            ProcessingAsync += async (field, context) => 
+                await item.Binder.Process(context.CancellationToken);
         }
     }
 
