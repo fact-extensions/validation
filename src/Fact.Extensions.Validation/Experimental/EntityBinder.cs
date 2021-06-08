@@ -57,17 +57,6 @@ namespace Fact.Extensions.Validation.Experimental
             }
         }
 
-        /*
-        // FIX: Need to fuse this and Binder2.Process, if we can
-        public async new Task Process(CancellationToken ct = default)
-        {
-            foreach(var item in items)
-            {
-                await item.Binder.Process(ct);
-            }
-        } */
-
-
         public IEnumerable<IBinder2> Binders => items.Select(x => x.Binder);
 
         public IEnumerable<IBinderProvider> Items => items;
@@ -180,6 +169,9 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
+        // TODO: Add a flag indicating whether to treat non-present fields as either 'null'
+        // or to skip validating them entirely - although seems to me almost definitely we
+        // want the former
         public static void BindValidation(this EntityBinder binder, Type t)
         {
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
@@ -204,6 +196,10 @@ namespace Fact.Extensions.Validation.Experimental
                     var h = helperMethod.MakeGenericMethod(property.PropertyType);
                     // DEBT: It is assumed binder is IBinder2<T>
                     h.Invoke(null, new object[] { match, property });
+                }
+                else
+                {
+                    // TODO: Optionally ake a new always-null field+binder here
                 }
             }
         }
