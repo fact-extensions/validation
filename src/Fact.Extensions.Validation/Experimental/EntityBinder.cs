@@ -79,6 +79,44 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+    /// <summary>
+    /// Experimental helper for only-reflection-entity assistance
+    /// </summary>
+    public class EntityBinder : IAggregatedBinderBase
+    {
+        public Type EntityType { get; }
+        
+        readonly List<PropertyBinderProvider> providers = new List<PropertyBinderProvider>();
+
+        public IEnumerable<IBinder2> Binders => providers.Select(x => x.Binder);
+
+        // DEBT: A bit sloppy here we might want a more discrete IAggregatedBinderBase instead
+        public void Add(IBinderProvider binderProvider) =>
+            Add((PropertyBinderProvider) binderProvider);
+        
+        public void Add(PropertyBinderProvider binderProvider)
+        {
+            providers.Add(binderProvider);
+        }
+
+        public EntityBinder(Type entityType)
+        {
+            EntityType = entityType;
+        }
+
+        void BindValidation()
+        {
+            this.BindValidation(EntityType);
+        }
+
+
+        Committer BindOutput(object instance, Committer committer = null)
+        {
+            return this.BindOutput(EntityType, instance, committer);
+        }
+    }
+
+
     public static class EntityBinderExtensions
     {
         static void ValidationHelper<T>(IBinder2<T> binder, PropertyInfo property)
@@ -153,10 +191,11 @@ namespace Fact.Extensions.Validation.Experimental
             binder.Add(item);
         }
 
-        public static void BindInput(this IAggregatedBinder binder, Type t, bool initValidation = false)
+        public static EntityBinder BindInput(this IAggregatedBinder binder, Type t, bool initValidation = false)
         {
             //t.GetTypeInfo().GetProperties();
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
+            var eb = new EntityBinder(t);
 
             //var helper = typeof(EntityBinderExtensions).GetRuntimeMethod(nameof(Helper),);
             var t2 = typeof(EntityBinderExtensions);
@@ -167,13 +206,18 @@ namespace Fact.Extensions.Validation.Experimental
                 var h = helperMethod.MakeGenericMethod(property.PropertyType);
                 h.Invoke(null, new object[] { binder, property, initValidation });
             }
+            
+            foreach (var binderProvider in binder.Binders.OfType<PropertyBinderProvider>())
+                eb.Add(binderProvider);
+
+            return eb;
         }
 
 
         // TODO: Add a flag indicating whether to treat non-present fields as either 'null'
         // or to skip validating them entirely - although seems to me almost definitely we
         // want the former
-        public static void BindValidation(this IAggregatedBinder binder, Type t)
+        public static void BindValidation(this IAggregatedBinderBase binder, Type t)
         {
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
             IEnumerable<IBinder2> binders = binder.Binders;
@@ -206,7 +250,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static Committer BindOutput(this IAggregatedBinder binder, Type t, object instance, 
+        public static Committer BindOutput(this IAggregatedBinderBase binder, Type t, object instance, 
             Committer committer = null)
         {
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
@@ -243,10 +287,10 @@ namespace Fact.Extensions.Validation.Experimental
             binder.BindOutput(typeof(T), instance);
 
 
-        public static void BindInput2<T>(this AggregatedBinder binder, T t, bool initValidation = false)
+        public static EntityBinder BindInput2<T>(this AggregatedBinder binder, T t, bool initValidation = false)
         {
             binder.getter2 = () => t;
-            binder.BindInput(typeof(T), initValidation);
+            return binder.BindInput(typeof(T), initValidation);
         }
 
 

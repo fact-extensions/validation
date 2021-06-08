@@ -8,11 +8,15 @@ namespace Fact.Extensions.Validation
     using System.Linq;
 
 
-    public interface IAggregatedBinder : IBinder2
+    public interface IAggregatedBinderBase
     {
         IEnumerable<IBinder2> Binders { get; }
 
         void Add(IBinderProvider binderProvider);
+    }
+
+    public interface IAggregatedBinder : IAggregatedBinderBase, IBinder2
+    {
     }
 
 

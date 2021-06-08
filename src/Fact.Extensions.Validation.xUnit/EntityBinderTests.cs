@@ -24,17 +24,17 @@ namespace Fact.Extensions.Validation.xUnit
             // entity that only exists as a bunch of getters from those controls.
             var field = new FieldStatus("synthetic", null);
 
-            var eb = new AggregatedBinder(field);
+            var ab = new AggregatedBinder(field);
             var inputEntity = new SyntheticEntity1();
             var outputEntity = new SyntheticEntity1();
 
             inputEntity.UserName = "fred";
 
-            eb.BindInput2(inputEntity, true);
-            Committer c = eb.BindOutput(outputEntity);
-            await eb.Process();
+            ab.BindInput2(inputEntity, true);
+            Committer c = ab.BindOutput(outputEntity);
+            await ab.Process();
 
-            var fields = eb.Fields().ToArray();
+            var fields = ab.Fields().ToArray();
             var statuses = fields.SelectMany(f => f.Statuses).ToArray();
             statuses.Should().HaveCount(2);
 
