@@ -28,15 +28,17 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public FluentBinder2<T> FluentBinder { get; }
 
-        public override void InitValidation()
+        public new IBinder2<T> Binder => (IBinder2<T>)base.Binder;
+
+        public static void InitValidation(FluentBinder2<T> fluentBinder, PropertyInfo property)
         {
-            var shimField = FluentBinder.Field;
-            var attributes = Property.GetCustomAttributes().OfType<ValidationAttribute>();
+            var shimField = fluentBinder.Field;
+            var attributes = property.GetCustomAttributes().OfType<ValidationAttribute>();
 
             foreach (var a in attributes)
-                a.Configure(FluentBinder);
+                a.Configure(fluentBinder);
 
-            FluentBinder.Binder.ProcessingAsync += (f, context) =>
+            fluentBinder.Binder.ProcessingAsync += (f, context) =>
             {
                 // handled automatically by FluentBinder2
                 //statuses.Clear();
@@ -49,6 +51,12 @@ namespace Fact.Extensions.Validation.Experimental
                 return new ValueTask();
             };
 
+
+        }
+
+        public override void InitValidation()
+        {
+            InitValidation(FluentBinder, Property);
         }
 
         public PropertyBinderProvider(FluentBinder2<T> fb, PropertyInfo property) : 
@@ -149,9 +157,11 @@ namespace Fact.Extensions.Validation.Experimental
 
     public static class EntityBinderExtensions
     {
-        static void ValidationHelper<T>(IBinder2<T> binder, PropertyInfo property)
+        //static void ValidationHelper<T>(IBinder2<T> binder, PropertyInfo property)
+        static void ValidationHelper<T>(IBinderProvider binderProvider, PropertyInfo property)
         {
-            var item = CreatePropertyItem2(binder, property);
+            var binder = binderProvider.Binder;
+            var item = CreatePropertyItem2<T>(binder, property);
             var shimField = item.FluentBinder.Field;
             //var fieldBinder = item.FluentBinder.Binder;
             var fieldBinder = binder;
@@ -159,9 +169,15 @@ namespace Fact.Extensions.Validation.Experimental
             item.InitValidation();
         }
 
-        static PropertyBinderProvider<T> CreatePropertyItem2<T>(IBinder2<T> binder, PropertyInfo property)
+        static PropertyBinderProvider<T> CreatePropertyItem2<T>(IBinder2 binder, PropertyInfo property)
         {
-            var fb = new FluentBinder2<T>(binder, true);
+            FluentBinder2<T> fb;
+
+            // DEBT: Want, but maybe can't have, IBinder2<T> through and through
+            if (binder is IBinder2<T> typedBinder)
+                fb = new FluentBinder2<T>(typedBinder, true);
+            else
+                fb = new FluentBinder2<T>(binder, true);
 
             var item = new PropertyBinderProvider<T>(fb, property);
 
@@ -174,7 +190,7 @@ namespace Fact.Extensions.Validation.Experimental
             Func<T> getter = () => (T)property.GetValue(binder.getter());
             var fieldBinder = new Binder2<T>(field, getter);
 
-            return CreatePropertyItem2(fieldBinder, property);
+            return CreatePropertyItem2<T>(fieldBinder, property);
         }
 
         static void InputHelper<T>(IAggregatedBinder binder, PropertyInfo property, bool initValidation)
@@ -219,7 +235,8 @@ namespace Fact.Extensions.Validation.Experimental
         public static void BindValidation(this IAggregatedBinderBase binder, Type t)
         {
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
-            IEnumerable<IBinder2> binders = binder.Binders;
+            //IEnumerable<IBinder2> binders = binder.Binders;
+            IEnumerable<IBinderProvider> binderProviders = binder.Providers;
 
             /*
             foreach (var item in binder.Items.OfType<EntityBinder.Item>())
@@ -233,7 +250,8 @@ namespace Fact.Extensions.Validation.Experimental
             
             foreach (var property in properties)
             {
-                IBinder2 match = binders.SingleOrDefault(b => b.Field.Name == property.Name);
+                //IBinder2 match = binders.SingleOrDefault(b => b.Field.Name == property.Name);
+                IBinderProvider match = binderProviders.SingleOrDefault(p => p.Binder.Field.Name == property.Name);
 
                 if (match != null)
                 {
