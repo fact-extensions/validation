@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -60,6 +61,8 @@ namespace Fact.Extensions.Validation.Experimental
 
         public IEnumerable<IBinder2> Binders => items.Select(x => x.Binder);
 
+        public IEnumerable<IBinderProvider> Providers => items;
+
         public IEnumerable<IBinderProvider> Items => items;
 
         public AggregatedBinder(IField field) : base(field)
@@ -86,9 +89,11 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public Type EntityType { get; }
         
-        readonly List<PropertyBinderProvider> providers = new List<PropertyBinderProvider>();
+        protected readonly List<PropertyBinderProvider> providers = new List<PropertyBinderProvider>();
 
         public IEnumerable<IBinder2> Binders => providers.Select(x => x.Binder);
+
+        public IEnumerable<IBinderProvider> Providers => providers;
 
         // DEBT: A bit sloppy here we might want a more discrete IAggregatedBinderBase instead
         public void Add(IBinderProvider binderProvider) =>
@@ -113,6 +118,25 @@ namespace Fact.Extensions.Validation.Experimental
         Committer BindOutput(object instance, Committer committer = null)
         {
             return this.BindOutput(EntityType, instance, committer);
+        }
+    }
+
+
+    public class EntityBinder<T> : EntityBinder
+    {
+        public EntityBinder() : base(typeof(T))
+        {
+
+        }
+
+        public PropertyBinderProvider<TProperty> Get<TProperty>(Expression<Func<T, TProperty>> propertyLambda)
+        {
+            var name = propertyLambda.Name;
+            var member = propertyLambda.Body as MemberExpression;
+            var properInfo = member.Member as PropertyInfo;
+
+            var p = providers.Single(x => x.Property == properInfo);
+            return (PropertyBinderProvider<TProperty>)p;
         }
     }
 
@@ -191,11 +215,14 @@ namespace Fact.Extensions.Validation.Experimental
             binder.Add(item);
         }
 
-        public static EntityBinder BindInput(this IAggregatedBinder binder, Type t, bool initValidation = false)
+        public static EntityBinder BindInput(this IAggregatedBinder binder, Type t, bool initValidation = false, 
+            EntityBinder eb = null)
         {
             //t.GetTypeInfo().GetProperties();
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
-            var eb = new EntityBinder(t);
+            
+            if(eb == null)
+                eb = new EntityBinder(t);
 
             //var helper = typeof(EntityBinderExtensions).GetRuntimeMethod(nameof(Helper),);
             var t2 = typeof(EntityBinderExtensions);
@@ -207,7 +234,7 @@ namespace Fact.Extensions.Validation.Experimental
                 h.Invoke(null, new object[] { binder, property, initValidation });
             }
             
-            foreach (var binderProvider in binder.Binders.OfType<PropertyBinderProvider>())
+            foreach (var binderProvider in binder.Providers.OfType<PropertyBinderProvider>())
                 eb.Add(binderProvider);
 
             return eb;
@@ -287,10 +314,12 @@ namespace Fact.Extensions.Validation.Experimental
             binder.BindOutput(typeof(T), instance);
 
 
-        public static EntityBinder BindInput2<T>(this AggregatedBinder binder, T t, bool initValidation = false)
+        public static EntityBinder<T> BindInput2<T>(this AggregatedBinder binder, T t, bool initValidation = false)
         {
+            var eb = new EntityBinder<T>();
             binder.getter2 = () => t;
-            return binder.BindInput(typeof(T), initValidation);
+            binder.BindInput(typeof(T), initValidation, eb);
+            return eb;
         }
 
 

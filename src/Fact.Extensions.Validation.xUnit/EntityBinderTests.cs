@@ -62,5 +62,20 @@ namespace Fact.Extensions.Validation.xUnit
             var statuses = fields.SelectMany(f => f.Statuses).ToArray();
             statuses.Should().HaveCount(2);
         }
+
+        [Fact]
+        public async Task Test3()
+        {
+            var field = new FieldStatus("synthetic", null);
+            var ab = new AggregatedBinder(field);
+            var inputEntity = new SyntheticEntity1();
+
+            var entityBinder = ab.BindInput2(inputEntity, true);
+
+            var passwordBinder1 = entityBinder.Get(x => x.Password1);
+            passwordBinder1.FluentBinder.IsTrue(x => x == null, "Must be null");
+
+            await ab.Process();
+        }
     }
 }
