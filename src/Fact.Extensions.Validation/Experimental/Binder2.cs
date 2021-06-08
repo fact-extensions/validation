@@ -292,7 +292,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
         
 
-        public static FluentBinder2<TTo> Convert<TTo>(this IFluentBinder2 fb, Optional<TTo> defaultValue = null)
+        public static FluentBinder2<TTo> Convert<TTo>(this IFluentBinder fb, Optional<TTo> defaultValue = null)
         {
             var fb2 = new FluentBinder2<TTo>(fb.Binder, false);
             fb.Binder.ProcessingAsync += (field, context) =>
@@ -364,23 +364,39 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
-    public interface IFluentBinder2
+    public interface IFluentBinder
     {
         IBinder2 Binder { get; }
         
         IField Field { get; }
     }
 
-    public class FluentBinder2<T> : IFluentBinder2
+    public interface IFluentBinder<T> : IFluentBinder
+    {
+        // DEBT: IField<T> would be better here if we can
+        new ShimFieldBase2<T> Field { get; }
+    }
+
+    public class FluentBinder2<T> : IFluentBinder<T>
     {
         internal T test1;
         
         readonly IBinder2 binder;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// Experimentally putting this here instead of inside binder itself.  That way, conversion chains can have
+        /// independent logic for whether to treat null as an exception or a silent pass
+        /// NOT FUNCTIONAL
+        /// </remarks>
+        public bool AbortOnNull { get; set; } = true;
+
         public IBinder2 Binder => binder;
         public ShimFieldBase2<T> Field { get; }
 
-        IField IFluentBinder2.Field => Field;
+        IField IFluentBinder.Field => Field;
 
         readonly List<Status> statuses = new List<Status>();
 
@@ -391,6 +407,9 @@ namespace Fact.Extensions.Validation.Experimental
             binder.ProcessingAsync += (field, context) =>
             {
                 statuses.Clear();
+                // Doesn't quite work because some scenarios have parallel FluentBinders
+                //if (AbortOnNull && Field.Value == null)
+                    //context.Abort = true;
                 return new ValueTask();
             };
 

@@ -36,6 +36,12 @@ namespace Fact.Extensions.Validation
         IBinder2 Binder { get; }
     }
 
+
+    public interface IBinderProvider<T> : IBinderProvider
+    {
+        FluentBinder2<T> FluentBinder { get; }
+    }
+
     public class AggregatedBinderBase
     {
         public class ItemBase : IBinderProvider

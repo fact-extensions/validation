@@ -22,22 +22,28 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public class PropertyBinderProvider<T> : PropertyBinderProvider
+    public class PropertyBinderProvider<T> : 
+        PropertyBinderProvider,
+        IBinderProvider<T>
     {
         public FluentBinder2<T> FluentBinder { get; }
 
         public override void InitValidation()
         {
             var shimField = FluentBinder.Field;
-                
+            var attributes = Property.GetCustomAttributes().OfType<ValidationAttribute>();
+
+            foreach (var a in attributes)
+                a.Configure(FluentBinder);
+
             FluentBinder.Binder.ProcessingAsync += (f, context) =>
             {
                 // handled automatically by FluentBinder2
                 //statuses.Clear();
 
-                foreach (var attribute in Property.GetCustomAttributes().OfType<ValidationAttribute>())
+                foreach (var attribute in attributes)
                 {
-                    attribute.Validate(shimField);
+                    attribute.Validate(shimField, context);
                 }
 
                 return new ValueTask();
@@ -151,45 +157,11 @@ namespace Fact.Extensions.Validation.Experimental
             var fieldBinder = binder;
             
             item.InitValidation();
-            /*
-            fieldBinder.ProcessingAsync += (f, context) =>
-            {
-                // handled automatically by FluentBinder2
-                //statuses.Clear();
-
-                foreach (var attribute in property.GetCustomAttributes().OfType<ValidationAttribute>())
-                {
-                    attribute.Validate(shimField);
-                }
-
-                return new ValueTask();
-            };
-            */
         }
 
         static PropertyBinderProvider<T> CreatePropertyItem2<T>(IBinder2<T> binder, PropertyInfo property)
         {
             var fb = new FluentBinder2<T>(binder, true);
-
-            // DEBT: A little sloppy having FluentBinder magically do this
-            //var statuses = new LinkedList<Status>();
-            //field.Add(statuses);
-            //var shimField = new ShimFieldBase2<T>(fieldBinder, statuses, getter);
-            /*
-            var shimField = fb.Field;
-
-            fieldBinder.ProcessingAsync += (f, context) =>
-            {
-                // handled automatically by FluentBinder2
-                //statuses.Clear();
-
-                foreach (var attribute in property.GetCustomAttributes().OfType<ValidationAttribute>())
-                {
-                    attribute.Validate(shimField);
-                }
-
-                return new ValueTask();
-            }; */
 
             var item = new PropertyBinderProvider<T>(fb, property);
 
@@ -340,15 +312,32 @@ namespace Fact.Extensions.Validation.Experimental
 
     public abstract class ValidationAttribute : Attribute
     {
-        public abstract void Validate<T>(IField<T> field);
+        public virtual void Configure<T>(FluentBinder2<T> fb)
+        {
+
+        }
+
+        public abstract void Validate<T>(IField<T> field, Context2 context);
     }
 
     public class RequiredAttribute : ValidationAttribute
     {
-        public override void Validate<T>(IField<T> field)
+        public override void Configure<T>(FluentBinder2<T> fb)
+        {
+            // We're gonna handle aborting on null ourselves
+            // DEBT: There could be conditions where other validators come first and want to see
+            // if there is a null.  However, arguably, they would be doing the job 'Required' is trying to do here
+            // TODO: Look into evaluation order also as that may become a factor -- i.e. RequiredAttribute needs
+            // to run first
+            fb.AbortOnNull = false;
+        }
+        public override void Validate<T>(IField<T> field, Context2 context)
         {
             if (field.Value == null)
-                field.Error(FieldStatus.ComparisonCode.IsNull, null, "");
+            {
+                field.Error(FieldStatus.ComparisonCode.IsNull, null, "Must not be null");
+                context.Abort = true;
+            }
         }
     }
 
