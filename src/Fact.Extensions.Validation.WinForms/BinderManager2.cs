@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using Fact.Extensions.Validation.Experimental;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Fact.Extensions.Validation.WinForms
 {
@@ -83,6 +86,51 @@ namespace Fact.Extensions.Validation.WinForms
     }
 
 
+    public static class AggregatedBinderExtensions
+    {
+        static IBinderProvider<T> Setup<T>(IAggregatedBinder aggregatedBinder, Control control, Func<T> getter, 
+            Action<Tracker<T>> initEvent)
+        {
+            var services = aggregatedBinder.Services;
+            var styleManager = services?.GetService<StyleManager>() ?? default;
+            var cancellationToken = services?.GetService<CancellationToken>() ?? default;
+            var tracker = new Tracker<T>(getter());
+            initEvent(tracker);
+            
+            IBinderProvider<T> bp = aggregatedBinder.AddField(control.Name, 
+                () => tracker.Value, 
+                _fb => new BinderManagerBase.Item<T>(_fb, control, tracker));
+
+            var _item = (BinderManagerBase.Item)bp;
+            var f = (FieldStatus<T>)bp.Binder.Field;   // DEBT: Sloppy cast
+            tracker.Updated += async (v, c) =>
+            {
+                f.Value = v;
+
+                // DEBT: Need to feed this cancellationtoken still
+                await aggregatedBinder.Process();
+
+                styleManager.ContentChanged(_item);
+            };
+
+            control.GotFocus += (s, e) => styleManager.FocusGained(_item);
+            control.LostFocus += (s, e) => styleManager.FocusLost(_item);
+
+            return bp;
+        }
+
+        // UNFINISHED
+        public static IFluentBinder<string> BindText2(this IAggregatedBinder aggregatedBinder, Control control)
+        {
+            var bp = Setup<string>(aggregatedBinder, control,
+                () => control.Text,
+                tracker => control.TextChanged += (s, e) => tracker.Value = control.Text);
+
+            return bp.FluentBinder;
+        }
+    }
+
+
     public interface IStyleManager
     {
 
@@ -94,7 +142,7 @@ namespace Fact.Extensions.Validation.WinForms
 
         public void ContentChanged(BinderManagerBase.Item item)
         {
-            bool hasStatus = item.binder.Field.Statuses.Any();
+            bool hasStatus = item.Binder.Field.Statuses.Any();
 
             item.control.BackColor = hasStatus ?
                 (item.IsModified ? colorOptions.FocusedStatus : colorOptions.InitialStatus) :
@@ -104,7 +152,7 @@ namespace Fact.Extensions.Validation.WinForms
 
         public void FocusLost(BinderManagerBase.Item item)
         {
-            bool hasStatus = item.binder.Field.Statuses.Any();
+            bool hasStatus = item.Binder.Field.Statuses.Any();
 
             item.control.BackColor = hasStatus ?
                 colorOptions.UnfocusedStatus :
@@ -114,7 +162,7 @@ namespace Fact.Extensions.Validation.WinForms
 
         public void FocusGained(BinderManagerBase.Item item)
         {
-            bool hasStatus = item.binder.Field.Statuses.Any();
+            bool hasStatus = item.Binder.Field.Statuses.Any();
 
             item.control.BackColor = hasStatus ?
                 (item.IsModified ? colorOptions.FocusedStatus : colorOptions.InitialStatus) :

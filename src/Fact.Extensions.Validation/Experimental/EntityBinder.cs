@@ -317,7 +317,7 @@ namespace Fact.Extensions.Validation.Experimental
 
 
         public static FluentBinder2<T> AddField<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter, 
-            Func<IFluentBinder, IBinderProvider> providerFactory)
+            Func<IFluentBinder<T>, IBinderProvider> providerFactory)
         {
             var f = new FieldStatus<T>(name, default(T));
             var b = new Binder2<T>(f, getter);
@@ -325,6 +325,18 @@ namespace Fact.Extensions.Validation.Experimental
             binder.Add(providerFactory(fb));
             return fb;
         }
+
+        public static IBinderProvider<T> AddField<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter,
+            Func<IFluentBinder<T>, IBinderProvider<T>> providerFactory)
+        {
+            var f = new FieldStatus<T>(name, default(T));
+            var b = new Binder2<T>(f, getter);
+            var fb = new FluentBinder2<T>(b);
+            var bp = providerFactory(fb);
+            binder.Add(bp);
+            return bp;
+        }
+
 
         public static FluentBinder2<T> AddField<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter) =>
             binder.AddField(name, getter, fb => new BinderManagerBase.ItemBase(fb.Binder, fb));

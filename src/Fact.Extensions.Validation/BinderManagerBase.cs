@@ -113,11 +113,15 @@ namespace Fact.Extensions.Validation
             }
         }
 
-        public class Item<T> : Item
+        public class Item<T> : Item, IBinderProvider<T>
         {
             public readonly Tracker<T> tracked;
 
             public override bool IsModified => tracked.IsModified;
+
+            IFluentBinder<T> IBinderProvider<T>.FluentBinder => (IFluentBinder<T>)base.FluentBinder;
+
+            IBinder2<T> IBinderProvider<T>.Binder => (IBinder2<T>)base.Binder;
 
             public Item(IFluentBinder<T> fluentBinder, TSource source, T initialValue) :
                 this(fluentBinder, source, new Tracker<T>(initialValue))
