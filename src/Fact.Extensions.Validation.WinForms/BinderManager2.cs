@@ -34,7 +34,10 @@ namespace Fact.Extensions.Validation.WinForms
         {
             //binder.getter = () => getter(control);
             //binder.getter2 = () => getter(control);
-            item = new Item<T>(binder, control, tracker);
+            // DEBT: "initial value" needs more work, but coming along
+            var fb = new FluentBinder2<T>(binder, true);
+            
+            item = new Item<T>(binder, fb, control, tracker);
 
             binders.Add(item);
 
@@ -44,8 +47,6 @@ namespace Fact.Extensions.Validation.WinForms
             control.LostFocus += (s, e) => styleManager.FocusLost(item2);
 
 
-            // DEBT: "initial value" needs more work, but coming along
-            var fb = new FluentBinder2<T>(binder, true);
             return fb;
         }
 

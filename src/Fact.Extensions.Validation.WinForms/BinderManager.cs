@@ -175,7 +175,7 @@ namespace Fact.Extensions.Validation.WinForms
             where TControl: Control
         {
             // DEBT: Clumsy and eventually problematic initialization
-            var item = new Item(null, control);
+            var item = new Item(null, null, control);
 
             Binder<T> binder = InternalBindText<T>(item, name);
             string initialText = control.Text;

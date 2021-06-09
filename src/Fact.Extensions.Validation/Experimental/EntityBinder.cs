@@ -15,7 +15,8 @@ namespace Fact.Extensions.Validation.Experimental
 
         public abstract void InitValidation();
             
-        public PropertyBinderProvider(IBinder binder, PropertyInfo property) : base(binder)
+        public PropertyBinderProvider(IBinder binder, IFluentBinder fluentBinder,
+            PropertyInfo property) : base(binder, fluentBinder)
         {
             Property = property;
         }
@@ -26,7 +27,7 @@ namespace Fact.Extensions.Validation.Experimental
         PropertyBinderProvider,
         IBinderProvider<T>
     {
-        public FluentBinder2<T> FluentBinder { get; }
+        public new FluentBinder2<T> FluentBinder { get; }
 
         public new IBinder2<T> Binder => (IBinder2<T>)base.Binder;
 
@@ -60,7 +61,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
         public PropertyBinderProvider(FluentBinder2<T> fb, PropertyInfo property) : 
-            base(fb.Binder, property)
+            base(fb.Binder, fb, property)
         {
             FluentBinder = fb;
         }
@@ -314,17 +315,17 @@ namespace Fact.Extensions.Validation.Experimental
 
 
         public static FluentBinder2<T> AddField<T>(this IAggregatedBinder binder, string name, Func<T> getter, 
-            Func<IBinder2, IBinderProvider> providerFactory)
+            Func<IFluentBinder, IBinderProvider> providerFactory)
         {
             var f = new FieldStatus<T>(name, default(T));
             var b = new Binder2<T>(f, getter);
             var fb = new FluentBinder2<T>(b);
-            binder.Add(providerFactory(b));
+            binder.Add(providerFactory(fb));
             return fb;
         }
 
         public static FluentBinder2<T> AddField<T>(this IAggregatedBinder binder, string name, Func<T> getter) =>
-            binder.AddField(name, getter, b => new BinderManagerBase.ItemBase(b));
+            binder.AddField(name, getter, fb => new BinderManagerBase.ItemBase(fb.Binder, fb));
     }
 
 

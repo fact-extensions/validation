@@ -50,13 +50,16 @@ namespace Fact.Extensions.Validation
         {
             // DEBT: Due to InternalBindText clumsiness, have to make this non readonly
             public IBinder binder;
+
+            public IFluentBinder FluentBinder { get; }
             
             // DEBT: Still transitioning to IBinder2, so clumsy here
             public IBinder2 Binder => (IBinder2) binder;
 
-            public ItemBase(IBinder binder)
+            public ItemBase(IBinder binder, IFluentBinder fluentBinder)
             {
                 this.binder = binder;
+                FluentBinder = fluentBinder;
             }
         }
 
@@ -74,7 +77,8 @@ namespace Fact.Extensions.Validation
 
             public void DoInitialize() => Initialize?.Invoke();
 
-            public ItemBase(IBinder binder) : base(binder)
+            public ItemBase(IBinder binder, IFluentBinder fluentBinder) : 
+                base(binder, fluentBinder)
             {
             }
         }
@@ -89,7 +93,8 @@ namespace Fact.Extensions.Validation
         {
             public readonly TSource control;
 
-            public Item(IBinder binder, TSource source) : base(binder)
+            public Item(IBinder binder, IFluentBinder fluentBinder, TSource source) : 
+                base(binder, fluentBinder)
             {
                 this.control = source;
             }
@@ -101,14 +106,14 @@ namespace Fact.Extensions.Validation
 
             public override bool IsModified => tracked.IsModified;
 
-            public Item(IBinder2<T> binder, TSource source, T initialValue) :
-                this(binder, source, new Tracker<T>(initialValue))
+            public Item(IBinder2<T> binder, IFluentBinder<T> fluentBinder, TSource source, T initialValue) :
+                this(binder, fluentBinder, source, new Tracker<T>(initialValue))
             {
                 tracked = new Tracker<T>(initialValue);
             }
 
-            public Item(IBinder2<T> binder, TSource source, Tracker<T> tracker) :
-                base(binder, source)
+            public Item(IBinder2<T> binder, IFluentBinder<T> fluentBinder, TSource source, Tracker<T> tracker) :
+                base(binder, fluentBinder, source)
             {
                 tracked = tracker;
             }
