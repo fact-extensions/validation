@@ -13,25 +13,7 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public PropertyInfo Property { get; }
 
-        public abstract void InitValidation();
-            
-        public PropertyBinderProvider(IBinder binder, IFluentBinder fluentBinder,
-            PropertyInfo property) : base(binder, fluentBinder)
-        {
-            Property = property;
-        }
-    }
-
-
-    public class PropertyBinderProvider<T> : 
-        PropertyBinderProvider,
-        IBinderProvider<T>
-    {
-        public new IFluentBinder<T> FluentBinder { get; }
-
-        public new IBinder2<T> Binder => (IBinder2<T>)base.Binder;
-
-        public static void InitValidation(IFluentBinder<T> fluentBinder, PropertyInfo property)
+        public static void InitValidation<T>(IFluentBinder<T> fluentBinder, PropertyInfo property)
         {
             var shimField = fluentBinder.Field;
             var attributes = property.GetCustomAttributes().OfType<ValidationAttribute>();
@@ -51,9 +33,26 @@ namespace Fact.Extensions.Validation.Experimental
 
                 return new ValueTask();
             };
-
-
         }
+
+
+        public abstract void InitValidation();
+            
+        public PropertyBinderProvider(IBinder binder, IFluentBinder fluentBinder,
+            PropertyInfo property) : base(binder, fluentBinder)
+        {
+            Property = property;
+        }
+    }
+
+
+    public class PropertyBinderProvider<T> : 
+        PropertyBinderProvider,
+        IBinderProvider<T>
+    {
+        public new IFluentBinder<T> FluentBinder { get; }
+
+        public new IBinder2<T> Binder => (IBinder2<T>)base.Binder;
 
         public override void InitValidation()
         {
@@ -161,13 +160,17 @@ namespace Fact.Extensions.Validation.Experimental
         //static void ValidationHelper<T>(IBinder2<T> binder, PropertyInfo property)
         static void ValidationHelper<T>(IBinderProvider binderProvider, PropertyInfo property)
         {
-            var binder = binderProvider.Binder;
-            var item = CreatePropertyItem2<T>(binder, property);
-            var shimField = item.FluentBinder.Field;
+            //var binder = binderProvider.Binder;
+            // NOTE: Binder sometimes isn't typed, but IFluentBinder<T> always has a T
+            var fluentBinder = (IFluentBinder<T>)binderProvider.FluentBinder;
+            //var item = CreatePropertyItem2<T>(binder, property);
+            //var shimField = item.FluentBinder.Field;
             //var fieldBinder = item.FluentBinder.Binder;
-            var fieldBinder = binder;
-            
-            item.InitValidation();
+            //var fieldBinder = binder;
+
+            //item.InitValidation();
+
+            PropertyBinderProvider.InitValidation(fluentBinder, property);
         }
 
         static PropertyBinderProvider<T> CreatePropertyItem2<T>(IBinder2 binder, PropertyInfo property)
@@ -185,10 +188,10 @@ namespace Fact.Extensions.Validation.Experimental
             return item;
         }
 
-        static PropertyBinderProvider<T> CreatePropertyItem<T>(IBinder2 binder, PropertyInfo property)
+        static PropertyBinderProvider<T> CreatePropertyItem<T>(IBinder2 aggregatedBinder, PropertyInfo property)
         {
             var field = new FieldStatus<T>(property.Name, default(T));
-            Func<T> getter = () => (T)property.GetValue(binder.getter());
+            Func<T> getter = () => (T)property.GetValue(aggregatedBinder.getter());
             var fieldBinder = new Binder2<T>(field, getter);
 
             return CreatePropertyItem2<T>(fieldBinder, property);

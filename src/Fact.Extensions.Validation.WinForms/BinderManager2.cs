@@ -37,7 +37,7 @@ namespace Fact.Extensions.Validation.WinForms
             // DEBT: "initial value" needs more work, but coming along
             var fb = new FluentBinder2<T>(binder, true);
             
-            item = new Item<T>(binder, fb, control, tracker);
+            item = new Item<T>(fb, control, tracker);
 
             binders.Add(item);
 

@@ -33,13 +33,15 @@ namespace Fact.Extensions.Validation
 
     public interface IBinderProvider
     {
+        IFluentBinder FluentBinder { get; }
+
         IBinder2 Binder { get; }
     }
 
 
     public interface IBinderProvider<T> : IBinderProvider
     {
-        IFluentBinder<T> FluentBinder { get; }
+        new IFluentBinder<T> FluentBinder { get; }
 
         new IBinder2<T> Binder { get; }
     }
@@ -93,8 +95,8 @@ namespace Fact.Extensions.Validation
         {
             public readonly TSource control;
 
-            public Item(IBinder binder, IFluentBinder fluentBinder, TSource source) : 
-                base(binder, fluentBinder)
+            public Item(IFluentBinder fluentBinder, TSource source) : 
+                base(fluentBinder.Binder, fluentBinder)
             {
                 this.control = source;
             }
@@ -106,14 +108,14 @@ namespace Fact.Extensions.Validation
 
             public override bool IsModified => tracked.IsModified;
 
-            public Item(IBinder2<T> binder, IFluentBinder<T> fluentBinder, TSource source, T initialValue) :
-                this(binder, fluentBinder, source, new Tracker<T>(initialValue))
+            public Item(IFluentBinder<T> fluentBinder, TSource source, T initialValue) :
+                this(fluentBinder, source, new Tracker<T>(initialValue))
             {
                 tracked = new Tracker<T>(initialValue);
             }
 
-            public Item(IBinder2<T> binder, IFluentBinder<T> fluentBinder, TSource source, Tracker<T> tracker) :
-                base(binder, fluentBinder, source)
+            public Item(IFluentBinder<T> fluentBinder, TSource source, Tracker<T> tracker) :
+                base(fluentBinder, source)
             {
                 tracked = tracker;
             }
