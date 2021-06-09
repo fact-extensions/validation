@@ -27,11 +27,11 @@ namespace Fact.Extensions.Validation.Experimental
         PropertyBinderProvider,
         IBinderProvider<T>
     {
-        public new FluentBinder2<T> FluentBinder { get; }
+        public new IFluentBinder<T> FluentBinder { get; }
 
         public new IBinder2<T> Binder => (IBinder2<T>)base.Binder;
 
-        public static void InitValidation(FluentBinder2<T> fluentBinder, PropertyInfo property)
+        public static void InitValidation(IFluentBinder<T> fluentBinder, PropertyInfo property)
         {
             var shimField = fluentBinder.Field;
             var attributes = property.GetCustomAttributes().OfType<ValidationAttribute>();
@@ -60,7 +60,7 @@ namespace Fact.Extensions.Validation.Experimental
             InitValidation(FluentBinder, Property);
         }
 
-        public PropertyBinderProvider(FluentBinder2<T> fb, PropertyInfo property) : 
+        public PropertyBinderProvider(IFluentBinder<T> fb, PropertyInfo property) : 
             base(fb.Binder, fb, property)
         {
             FluentBinder = fb;
@@ -331,7 +331,7 @@ namespace Fact.Extensions.Validation.Experimental
 
     public abstract class ValidationAttribute : Attribute
     {
-        public virtual void Configure<T>(FluentBinder2<T> fb)
+        public virtual void Configure<T>(IFluentBinder<T> fb)
         {
 
         }
@@ -341,7 +341,7 @@ namespace Fact.Extensions.Validation.Experimental
 
     public class RequiredAttribute : ValidationAttribute
     {
-        public override void Configure<T>(FluentBinder2<T> fb)
+        public override void Configure<T>(IFluentBinder<T> fb)
         {
             // We're gonna handle aborting on null ourselves
             // DEBT: There could be conditions where other validators come first and want to see

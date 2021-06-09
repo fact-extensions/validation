@@ -39,7 +39,7 @@ namespace Fact.Extensions.Validation
 
     public interface IBinderProvider<T> : IBinderProvider
     {
-        FluentBinder2<T> FluentBinder { get; }
+        IFluentBinder<T> FluentBinder { get; }
 
         new IBinder2<T> Binder { get; }
     }

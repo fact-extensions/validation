@@ -179,7 +179,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public delegate bool tryConvertDelegate<TFrom, TTo>(TFrom from, out TTo to);
 
-        public static FluentBinder2<T> IsTrue<T>(this FluentBinder2<T> fb, Func<T, bool> predicate, 
+        public static IFluentBinder<T> IsTrue<T>(this IFluentBinder<T> fb, Func<T, bool> predicate, 
             Func<Status> getIsFalseStatus)
         {
             fb.Binder.ProcessingAsync += (field, context) =>
@@ -193,17 +193,17 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
-        public static FluentBinder2<T> IsTrue<T>(this FluentBinder2<T> fb, Func<T, bool> predicate,
+        public static IFluentBinder<T> IsTrue<T>(this IFluentBinder<T> fb, Func<T, bool> predicate,
             string messageIfFalse, Status.Code level = Status.Code.Error) =>
             fb.IsTrue(predicate, () => new Status(level, messageIfFalse));
 
-        public static FluentBinder2<T> IsTrueScalar<T>(this FluentBinder2<T> fb, Func<T, bool> predicate,
+        public static IFluentBinder<T> IsTrueScalar<T>(this IFluentBinder<T> fb, Func<T, bool> predicate,
             FieldStatus.ComparisonCode code, T compareTo, string messageIfFalse = null,
             Status.Code level = Status.Code.Error) =>
             fb.IsTrue(predicate, () => 
                 new ScalarStatus(level, messageIfFalse, code, compareTo));
         
-        public static FluentBinder2<T> IsTrueAsync<T>(this FluentBinder2<T> fb, Func<T, ValueTask<bool>> predicate, 
+        public static IFluentBinder<T> IsTrueAsync<T>(this IFluentBinder<T> fb, Func<T, ValueTask<bool>> predicate, 
             string messageIfFalse, Status.Code level = Status.Code.Error, bool sequential = true)
         {
             fb.Binder.ProcessingAsync += async (field, context) =>
@@ -217,7 +217,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static FluentBinder2<string> StartsWith(this FluentBinder2<string> fb, string mustStartWith)
+        public static IFluentBinder<string> StartsWith(this IFluentBinder<string> fb, string mustStartWith)
         {
             fb.Binder.ProcessingAsync += (field, context) =>
             {
@@ -229,7 +229,7 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
-        public static FluentBinder2<T> Required<T>(this FluentBinder2<T> fb)
+        public static IFluentBinder<T> Required<T>(this IFluentBinder<T> fb)
         {
             fb.Binder.ProcessingAsync += (field, context) =>
             {
@@ -240,7 +240,7 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
-        public static FluentBinder2<T> LessThan<T>(this FluentBinder2<T> fb, T value,
+        public static IFluentBinder<T> LessThan<T>(this IFluentBinder<T> fb, T value,
             string errorDescription = null)
             where T : IComparable
         {
@@ -249,14 +249,14 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
         
-        public static FluentBinder2<T> GreaterThan<T>(this FluentBinder2<T> fb, T value)
+        public static IFluentBinder<T> GreaterThan<T>(this IFluentBinder<T> fb, T value)
             where T : IComparable
         {
             return fb.IsTrueScalar(v => v.CompareTo(value) > 0,
                 FieldStatus.ComparisonCode.GreaterThan, value);
         }
 
-        public static FluentBinder2<TTo> Convert<T, TTo>(this FluentBinder2<T> fb, 
+        public static IFluentBinder<TTo> Convert<T, TTo>(this IFluentBinder<T> fb, 
             tryConvertDelegate<IField<T>, TTo> converter, string cannotConvert = null, Optional<TTo> defaultValue = null)
         {
             var fb2 = new FluentBinder2<TTo>(fb.Binder, false);
@@ -284,7 +284,7 @@ namespace Fact.Extensions.Validation.Experimental
             return fb2;
         }
 
-        public static FluentBinder2<TTo> Convert<T, TTo>(this FluentBinder2<T> fb,
+        public static IFluentBinder<TTo> Convert<T, TTo>(this IFluentBinder<T> fb,
             tryConvertDelegate<T, TTo> converter, string cannotConvert, Optional<TTo> defaultValue = null)
         {
             return fb.Convert<T, TTo>((IField<T> field, out TTo converted) =>
@@ -330,7 +330,7 @@ namespace Fact.Extensions.Validation.Experimental
         static bool FilterStatus(Status s)
             => s.Level != Status.Code.OK;
 
-        public static FluentBinder2<T> Emit<T>(this FluentBinder2<T> fb, Action<T> emitter, 
+        public static IFluentBinder<T> Emit<T>(this IFluentBinder<T> fb, Action<T> emitter, 
             Func<Status, bool> whenStatus = null, bool bypassFilter = false)
         {
             if (whenStatus == null) whenStatus = FilterStatus;
@@ -366,6 +366,9 @@ namespace Fact.Extensions.Validation.Experimental
 
     public interface IFluentBinder
     {
+        // EXPERIMENTAL
+        bool AbortOnNull { get; set; }
+
         IBinder2 Binder { get; }
         
         IField Field { get; }
