@@ -10,7 +10,8 @@ using Fact.Extensions.Validation.Experimental;
 
 namespace Fact.Extensions.Validation.WinForms
 {
-    public class BinderManager2 : BinderManagerBase
+    public class BinderManager2 : AggregatedBinder
+        //: BinderManagerBase
     {
         /// <summary>
         /// Occurs after interactive validation, whether it generated new status or not
@@ -19,29 +20,28 @@ namespace Fact.Extensions.Validation.WinForms
 
         readonly StyleManager styleManager = new StyleManager();
 
-
-        public BinderManager2(IServiceProvider services) : base(services)
+        public BinderManager2(IServiceProvider services) //: base(services)
+            : base(new FieldStatus("test", null), services)
         {
-
         }
 
 
-        public FluentBinder2<T> Add<TControl, T>(Binder2<T> binder, TControl control, 
+        public FluentBinder2<T> Add<TControl, T>(IBinder2<T> binder, TControl control, 
             //Func<TControl, T> getter, 
             Tracker<T> tracker,
-            out Item<T> item)
+            out BinderManagerBase.Item<T> item)
             where TControl: Control
         {
             //binder.getter = () => getter(control);
             //binder.getter2 = () => getter(control);
             // DEBT: "initial value" needs more work, but coming along
             var fb = new FluentBinder2<T>(binder, true);
-            
-            item = new Item<T>(fb, control, tracker);
 
-            binders.Add(item);
+            item = new BinderManagerBase.Item<T>(fb, control, tracker);
 
-            Item<T> item2 = item;
+            Add(item);
+
+            BinderManagerBase.Item<T> item2 = item;
 
             control.GotFocus += (s, e) => styleManager.FocusGained(item2);
             control.LostFocus += (s, e) => styleManager.FocusLost(item2);
@@ -51,10 +51,10 @@ namespace Fact.Extensions.Validation.WinForms
         }
 
 
-        public FluentBinder2<string> AddText(Binder2<string> binder, Control control, Tracker<string> tracker)
+        public FluentBinder2<string> AddText(IBinder2<string> binder, Control control, Tracker<string> tracker)
         {
             //var fb = Add(binder, control, c => c.Text, out Item<string> item);
-            var fb = Add(binder, control, tracker, out Item<string> item);
+            var fb = Add(binder, control, tracker, out BinderManagerBase.Item<string> item);
 
             control.TextChanged += async (s, e) =>
             {

@@ -72,19 +72,17 @@ namespace Fact.Extensions.Validation.Experimental
     {
         List<IBinderProvider> items = new List<IBinderProvider>();
 
-
-        public IEnumerable<IBinder2> Binders => items.Select(x => x.Binder);
+        public IServiceProvider Services { get; }
 
         public IEnumerable<IBinderProvider> Providers => items;
 
-        public IEnumerable<IBinderProvider> Items => items;
-
-        public AggregatedBinder(IField field) : base(field)
+        public AggregatedBinder(IField field, IServiceProvider services = null) : base(field)
         {
             // DEBT: A little sloppy to lazy init our getter, however aggregated
             // binder may indeed not need to retrieve any value for context.Value
             // during Process call
             getter2 = () => null;
+            Services = services;
         }
         
         public void Add(IBinderProvider item)
@@ -271,11 +269,11 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static Committer BindOutput(this IAggregatedBinderBase binder, Type t, object instance, 
+        public static Committer BindOutput(this IAggregatedBinderProvider binder, Type t, object instance, 
             Committer committer = null)
         {
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
-            Dictionary<string, IBinder2> binders = binder.Binders.ToDictionary(x => x.Field.Name, y => y);
+            Dictionary<string, IBinder2> binders = binder.Providers.ToDictionary(x => x.Binder.Field.Name, y => y.Binder);
             
             if (committer == null) committer = new Committer(); 
 
@@ -304,20 +302,21 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static Committer BindOutput<T>(this AggregatedBinder binder, T instance) =>
+        public static Committer BindOutput<T>(this IAggregatedBinderProvider binder, T instance) =>
             binder.BindOutput(typeof(T), instance);
 
 
         public static EntityBinder<T> BindInput2<T>(this AggregatedBinder binder, T t, bool initValidation = false)
         {
             var eb = new EntityBinder<T>();
+            // DEBT: Still sloppy assigning getter like this
             binder.getter2 = () => t;
             binder.BindInput(typeof(T), initValidation, eb);
             return eb;
         }
 
 
-        public static FluentBinder2<T> AddField<T>(this IAggregatedBinder binder, string name, Func<T> getter, 
+        public static FluentBinder2<T> AddField<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter, 
             Func<IFluentBinder, IBinderProvider> providerFactory)
         {
             var f = new FieldStatus<T>(name, default(T));
@@ -327,7 +326,7 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
-        public static FluentBinder2<T> AddField<T>(this IAggregatedBinder binder, string name, Func<T> getter) =>
+        public static FluentBinder2<T> AddField<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter) =>
             binder.AddField(name, getter, fb => new BinderManagerBase.ItemBase(fb.Binder, fb));
     }
 

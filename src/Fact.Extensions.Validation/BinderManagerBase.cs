@@ -14,19 +14,30 @@ namespace Fact.Extensions.Validation
     }
 
 
+    public interface IServiceProviderProvider
+    {
+        IServiceProvider Services { get; }
+    }
+
+
     public interface ICollector<T>
     {
         void Add(T collected);
     }
 
-    public interface IAggregatedBinderBase : 
-        IAggregatedBinderProvider,
-        ICollector<IBinderProvider>
+    public interface IAggregatedBinderCollector : ICollector<IBinderProvider>
     {
-        IEnumerable<IBinder2> Binders { get; }
     }
 
-    public interface IAggregatedBinder : IAggregatedBinderBase, IBinder2
+    public interface IAggregatedBinderBase : 
+        IAggregatedBinderProvider,
+        IAggregatedBinderCollector
+    {
+    }
+
+    public interface IAggregatedBinder : IAggregatedBinderBase,
+        IServiceProviderProvider,
+        IBinder2
     {
     }
 
@@ -139,7 +150,7 @@ namespace Fact.Extensions.Validation
         /// <remarks>It's possible to have multiple binders associated to one field</remarks>
         public static IEnumerable<IField> Fields(this IAggregatedBinder binder)
         {
-            return binder.Binders.Select(x => x.Field).Distinct();
+            return binder.Providers.Select(x => x.Binder.Field).Distinct();
         }
     }
 }

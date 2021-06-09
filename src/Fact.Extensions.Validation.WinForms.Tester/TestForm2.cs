@@ -39,7 +39,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
         private void BinderManager_Validated1()
         {
-            var hasStatus = binderManager.Fields.SelectMany(x => x.Statuses).Any();
+            var hasStatus = binderManager.Fields().SelectMany(x => x.Statuses).Any();
 
             btnOK.Enabled = !hasStatus;
         }
@@ -47,7 +47,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         private void BinderManager_Validated()
         {
             lstStatus.Items.Clear();
-            var statuses = binderManager.Fields.
+            var statuses = binderManager.Fields().
                 Where(x => x.Statuses.Any()).
                 Select(x =>
                 {
