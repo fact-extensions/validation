@@ -49,7 +49,7 @@ namespace Fact.Extensions.Validation.Experimental
         event ProcessingDelegateAsync ProcessingAsync;
         event ProcessingDelegateAsync ProcessedAsync;
 
-        Task Process(CancellationToken ct = default);
+        Task Process(InputContext inputContext = default, CancellationToken ct = default);
     }
 
     public interface IBinder2 : IBinder, 
@@ -119,9 +119,10 @@ namespace Fact.Extensions.Validation.Experimental
         protected Context2 CreateContext(CancellationToken ct) =>
             new Context2(ct);
 
-        public async Task Process(CancellationToken ct = default)
+        public async Task Process(InputContext inputContext = default, CancellationToken ct = default)
         {
             Context2 context = CreateContext(ct);
+            context.InputContext = inputContext;
             context.Value = getter();
 
             // NOTE: Odd that following line doesn't compile now.

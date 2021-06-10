@@ -18,8 +18,8 @@ namespace Fact.Extensions.Validation.WinForms
     {
         readonly StyleManager styleManager = new StyleManager();
 
-        public BinderManager2(IServiceProvider services) //: base(services)
-            : base(new FieldStatus("test", null), services)
+        public BinderManager2(IServiceProvider services, string name) //: base(services)
+            : base(new FieldStatus(name, null), services)
         {
         }
 
@@ -59,7 +59,8 @@ namespace Fact.Extensions.Validation.WinForms
                 item.tracked.Value = control.Text;
                 await binder.Process();
 
-                FireFieldsProcessed(new[] { item });
+                // FIX: Passing null context is a no-no
+                FireFieldsProcessed(new[] { item }, null);
 
                 styleManager.ContentChanged(item);
 
@@ -100,11 +101,12 @@ namespace Fact.Extensions.Validation.WinForms
 
             var _item = (BinderManagerBase.Item)bp;
             var f = (FieldStatus<T>)bp.Binder.Field;   // DEBT: Sloppy cast
+            var inputContext = new InputContext { InitiatingEvent = InitiatingEvents.Keystroke };
             tracker.Updated += async (v, c) =>
             {
                 f.Value = v;
 
-                await aggregatedBinder.Process(cancellationToken);
+                await bp.Binder.Process(inputContext, cancellationToken);
 
                 styleManager.ContentChanged(_item);
             };

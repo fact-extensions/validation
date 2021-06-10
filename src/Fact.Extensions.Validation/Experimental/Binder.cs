@@ -39,9 +39,33 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+    // EXPERIMENTAL
+    public enum InitiatingEvents
+    {
+        Click,
+        Keystroke,
+        /// <summary>
+        /// Form load or reload
+        /// </summary>
+        Load,
+        /// <summary>
+        /// When we can't tell exactly why a control updated, but it did, use this
+        /// </summary>
+        ControlUpdate
+    }
+
+
     public class InputContext
     {
         public string FieldName { get; set; }
+
+        /// <summary>
+        /// What occurred to spur this processing chain in the first place
+        /// </summary>
+        /// <remarks>
+        /// EXPERIMENTAL
+        /// </remarks>
+        public InitiatingEvents InitiatingEvent { get; set; }
     }
 
 

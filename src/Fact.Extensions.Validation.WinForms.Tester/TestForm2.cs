@@ -28,7 +28,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
         private async void TestForm2_Load(object sender, EventArgs e)
         {
-            binderManager = new BinderManager2(Services);
+            binderManager = new BinderManager2(Services, "test");
 
             var fm = binderManager.BindText(txtEntry1);
 
@@ -40,8 +40,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             fb.Convert<int>()
                 .LessThan(5);
 
-            binderManager.FieldsProcessed += BinderManager_Validated;
-            binderManager.FieldsProcessed += BinderManager_Validated1;
+            binderManager.BindersProcessed += BinderManager_Validated;
+            binderManager.BindersProcessed += BinderManager_Validated1;
 
             await binderManager.Process();
         }
@@ -51,14 +51,14 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             Services = services;
         }
 
-        private void BinderManager_Validated1(IEnumerable<IBinderProvider> fields)
+        private void BinderManager_Validated1(IEnumerable<IBinderProvider> fields, Context2 context)
         {
             var hasStatus = binderManager.Fields().SelectMany(x => x.Statuses).Any();
 
             btnOK.Enabled = !hasStatus;
         }
 
-        private void BinderManager_Validated(IEnumerable<IBinderProvider> fields)
+        private void BinderManager_Validated(IEnumerable<IBinderProvider> fields, Context2 context)
         {
             lstStatus.Items.Clear();
             var statuses = binderManager.Fields().

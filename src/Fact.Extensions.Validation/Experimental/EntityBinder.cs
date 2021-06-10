@@ -66,7 +66,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
-    public delegate void FieldsProcessedDelegate(IEnumerable<IBinderProvider> fields);
+    public delegate void BindersProcessedDelegate(IEnumerable<IBinderProvider> binders, Context2 context);
 
     // TODO: Make an IEntityBinder so that we can do an IEntityBinder<T>
     public class AggregatedBinder : Binder2,
@@ -75,10 +75,10 @@ namespace Fact.Extensions.Validation.Experimental
         /// <summary>
         /// Occurs after interactive/discrete binder processing, whether it generated new status or not
         /// </summary>
-        public event FieldsProcessedDelegate FieldsProcessed;
+        public event BindersProcessedDelegate BindersProcessed;
 
-        protected void FireFieldsProcessed(IEnumerable<IBinderProvider> fields) =>
-            FieldsProcessed?.Invoke(fields);
+        protected void FireFieldsProcessed(IEnumerable<IBinderProvider> fields, Context2 context) =>
+            BindersProcessed?.Invoke(fields, context);
 
         List<IBinderProvider> items = new List<IBinderProvider>();
 
@@ -102,23 +102,42 @@ namespace Fact.Extensions.Validation.Experimental
             getter2 = () => null;
             Services = services;
 
+            // DEBT: Sloppy assigning a new InputContext during processing chain.  We do this so that the
+            // default input context is set even when one initiates aggregatedBinder.Process() with no arguments
+            ProcessingAsync += (f, c) =>
+            {
+                if (c.InputContext == null)
+                    c.InputContext = new InputContext { InitiatingEvent = InitiatingEvents.Load };
+                return new ValueTask();
+            };
+
             // TODO: Suppress FieldsProcessed-per-field firing when doing an overall process event.  Probably
             // best way to do that is via a specialized Context which also tracks processing source or similar
 
             ProcessedAsync += (f, c) =>
             {
+                // Filter out overall load/aggregated Process
+                if (c.InputContext?.InitiatingEvent == InitiatingEvents.Load)
+                    FireFieldsProcessed(items, c);
+
                 return new ValueTask();
             };
         }
 
         public void Add(IBinderProvider item)
         {
+            // DEBT: event is kind of more of a refresh, but Load will do for now as a blunt instrument
+            var inputContext = new InputContext { InitiatingEvent = InitiatingEvents.Load };
+
             items.Add(item);
             ProcessingAsync += async (field, context) => 
-                await item.Binder.Process(context.CancellationToken);
+                await item.Binder.Process(inputContext, context.CancellationToken);
             item.Binder.ProcessedAsync += (field, context) =>
             {
-                FireFieldsProcessed(new[] { item });
+                // Filter out overall load/aggregated Process
+                if(context.InputContext?.InitiatingEvent != InitiatingEvents.Load)
+                    FireFieldsProcessed(new[] { item }, context);
+
                 return new ValueTask();
             };
         }

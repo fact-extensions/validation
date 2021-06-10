@@ -170,7 +170,7 @@ namespace Fact.Extensions.Validation.xUnit
 
             var oce = await Assert.ThrowsAsync<TaskCanceledException>(async delegate
             {
-                await b.Process(cts.Token);
+                await b.Process(ct: cts.Token);
             });
 
             gotHere.Should().HaveCount(3);
