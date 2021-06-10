@@ -42,6 +42,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
             binderManager.FieldsProcessed += BinderManager_Validated;
             binderManager.FieldsProcessed += BinderManager_Validated1;
+
+            binderManager.Process();
         }
 
         public TestForm2(IServiceProvider services) : this()

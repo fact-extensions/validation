@@ -60,6 +60,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             this.lstStatus.Name = "lstStatus";
             this.lstStatus.Size = new System.Drawing.Size(776, 94);
             this.lstStatus.TabIndex = 2;
+            this.lstStatus.TabStop = false;
             // 
             // txtEntry2
             // 

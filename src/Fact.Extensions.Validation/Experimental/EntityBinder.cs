@@ -86,6 +86,14 @@ namespace Fact.Extensions.Validation.Experimental
 
         public IEnumerable<IBinderProvider> Providers => items;
 
+        internal class Context : Context2
+        {
+            internal Context(CancellationToken ct) : base(ct)
+            {
+
+            }
+        }
+
         public AggregatedBinder(IField field, IServiceProvider services = null) : base(field)
         {
             // DEBT: A little sloppy to lazy init our getter, however aggregated
@@ -93,8 +101,16 @@ namespace Fact.Extensions.Validation.Experimental
             // during Process call
             getter2 = () => null;
             Services = services;
+
+            // TODO: Suppress FieldsProcessed-per-field firing when doing an overall process event.  Probably
+            // best way to do that is via a specialized Context which also tracks processing source or similar
+
+            ProcessedAsync += (f, c) =>
+            {
+                return new ValueTask();
+            };
         }
-        
+
         public void Add(IBinderProvider item)
         {
             items.Add(item);

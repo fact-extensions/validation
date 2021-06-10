@@ -116,9 +116,12 @@ namespace Fact.Extensions.Validation.Experimental
         public event ProcessingDelegateAsync ProcessingAsync;
         public event ProcessingDelegateAsync ProcessedAsync;
 
+        protected Context2 CreateContext(CancellationToken ct) =>
+            new Context2(ct);
+
         public async Task Process(CancellationToken ct = default)
         {
-            var context = new Context2(ct);
+            Context2 context = CreateContext(ct);
             context.Value = getter();
 
             // NOTE: Odd that following line doesn't compile now.
