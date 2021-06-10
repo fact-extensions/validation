@@ -132,7 +132,7 @@ namespace Fact.Extensions.Validation.Experimental
             {
                 context.Sequential = true;
                 ValueTask task = d(field, context);
-                if (context.Abort) return;
+                if (context.Abort) break;
                 if (context.Sequential)
                     await task;
                 else

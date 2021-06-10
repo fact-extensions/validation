@@ -66,10 +66,20 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
+    public delegate void FieldsProcessedDelegate(IEnumerable<IField> fields);
+
     // TODO: Make an IEntityBinder so that we can do an IEntityBinder<T>
     public class AggregatedBinder : Binder2,
         IAggregatedBinder
     {
+        /// <summary>
+        /// Occurs after interactive/discrete binder processing, whether it generated new status or not
+        /// </summary>
+        public event FieldsProcessedDelegate FieldsProcessed;
+
+        protected void FireFieldsProcessed(IEnumerable<IField> fields) =>
+            FieldsProcessed?.Invoke(fields);
+
         List<IBinderProvider> items = new List<IBinderProvider>();
 
         public IServiceProvider Services { get; }
@@ -90,6 +100,11 @@ namespace Fact.Extensions.Validation.Experimental
             items.Add(item);
             ProcessingAsync += async (field, context) => 
                 await item.Binder.Process(context.CancellationToken);
+            item.Binder.ProcessedAsync += (field, context) =>
+            {
+                FireFieldsProcessed(new[] { item.Binder.Field });
+                return new ValueTask();
+            };
         }
     }
 

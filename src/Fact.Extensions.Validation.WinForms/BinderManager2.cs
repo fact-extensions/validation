@@ -16,11 +16,6 @@ namespace Fact.Extensions.Validation.WinForms
     public class BinderManager2 : AggregatedBinder
         //: BinderManagerBase
     {
-        /// <summary>
-        /// Occurs after interactive validation, whether it generated new status or not
-        /// </summary>
-        public event Action Validated;
-
         readonly StyleManager styleManager = new StyleManager();
 
         public BinderManager2(IServiceProvider services) //: base(services)
@@ -64,7 +59,7 @@ namespace Fact.Extensions.Validation.WinForms
                 item.tracked.Value = control.Text;
                 await binder.Process();
 
-                Validated?.Invoke();
+                FireFieldsProcessed(new[] { binder.Field });
 
                 styleManager.ContentChanged(item);
 
@@ -116,13 +111,6 @@ namespace Fact.Extensions.Validation.WinForms
 
             control.GotFocus += (s, e) => styleManager.FocusGained(_item);
             control.LostFocus += (s, e) => styleManager.FocusLost(_item);
-
-            // TODO: Need to fire off overall validation event OR have some external mechanism
-            // to aggregate all these binders' processed event
-            bp.Binder.ProcessedAsync += (v, c) =>
-            {
-                return new ValueTask();
-            };
 
             return bp;
         }

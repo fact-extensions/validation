@@ -40,8 +40,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             fb.Convert<int>()
                 .LessThan(5);
 
-            binderManager.Validated += BinderManager_Validated;
-            binderManager.Validated += BinderManager_Validated1;
+            binderManager.FieldsProcessed += BinderManager_Validated;
+            binderManager.FieldsProcessed += BinderManager_Validated1;
         }
 
         public TestForm2(IServiceProvider services) : this()
@@ -49,14 +49,14 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             Services = services;
         }
 
-        private void BinderManager_Validated1()
+        private void BinderManager_Validated1(IEnumerable<IField> fields)
         {
             var hasStatus = binderManager.Fields().SelectMany(x => x.Statuses).Any();
 
             btnOK.Enabled = !hasStatus;
         }
 
-        private void BinderManager_Validated()
+        private void BinderManager_Validated(IEnumerable<IField> fields)
         {
             lstStatus.Items.Clear();
             var statuses = binderManager.Fields().
