@@ -92,8 +92,10 @@ namespace Fact.Extensions.Validation.WinForms
             Action<Tracker<T>> initEvent)
         {
             var services = aggregatedBinder.Services;
-            var styleManager = services?.GetService<StyleManager>() ?? default;
-            var cancellationToken = services?.GetService<CancellationToken>() ?? default;
+            var styleManager = services.GetRequiredService<StyleManager>();
+            //var cancellationToken = services.GetService<CancellationToken>(); // Because it's a struct this doesn't work
+            // DEBT: Need to feed this cancellationtoken still
+            var cancellationToken = new CancellationToken();
             var tracker = new Tracker<T>(getter());
             initEvent(tracker);
             
@@ -107,14 +109,20 @@ namespace Fact.Extensions.Validation.WinForms
             {
                 f.Value = v;
 
-                // DEBT: Need to feed this cancellationtoken still
-                await aggregatedBinder.Process();
+                await aggregatedBinder.Process(cancellationToken);
 
                 styleManager.ContentChanged(_item);
             };
 
             control.GotFocus += (s, e) => styleManager.FocusGained(_item);
             control.LostFocus += (s, e) => styleManager.FocusLost(_item);
+
+            // TODO: Need to fire off overall validation event OR have some external mechanism
+            // to aggregate all these binders' processed event
+            bp.Binder.ProcessedAsync += (v, c) =>
+            {
+                return new ValueTask();
+            };
 
             return bp;
         }

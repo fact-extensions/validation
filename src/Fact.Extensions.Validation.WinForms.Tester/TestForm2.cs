@@ -13,7 +13,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
     public partial class TestForm2 : Form
     {
-        readonly BinderManager2 binderManager;
+        //readonly
+            BinderManager2 binderManager;
 
         public IServiceProvider Services { get; set; }
 
@@ -21,12 +22,23 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         {
             InitializeComponent();
 
-            binderManager = new BinderManager2(null);
+            // So that services can initialize
+            Load += TestForm2_Load;
+        }
+
+        private void TestForm2_Load(object sender, EventArgs e)
+        {
+            binderManager = new BinderManager2(Services);
 
             var fm = binderManager.BindText(txtEntry1);
 
             fm.Convert<int>().
                 GreaterThan(20);
+
+            var fb = binderManager.BindText2(txtEntry2);
+
+            fb.Convert<int>()
+                .LessThan(5);
 
             binderManager.Validated += BinderManager_Validated;
             binderManager.Validated += BinderManager_Validated1;

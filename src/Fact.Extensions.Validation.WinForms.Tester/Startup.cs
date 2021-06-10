@@ -9,7 +9,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
     {
         public static void ConfigureServices(IServiceCollection sc)
         {
-
+            sc.AddSingleton<StyleManager>();
         }
 
 
