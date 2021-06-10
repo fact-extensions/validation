@@ -22,11 +22,11 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         {
             InitializeComponent();
 
-            // So that services can initialize
+            // So that 'services' can initialize
             Load += TestForm2_Load;
         }
 
-        private void TestForm2_Load(object sender, EventArgs e)
+        private async void TestForm2_Load(object sender, EventArgs e)
         {
             binderManager = new BinderManager2(Services);
 
@@ -43,7 +43,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             binderManager.FieldsProcessed += BinderManager_Validated;
             binderManager.FieldsProcessed += BinderManager_Validated1;
 
-            binderManager.Process();
+            await binderManager.Process();
         }
 
         public TestForm2(IServiceProvider services) : this()
@@ -51,14 +51,14 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             Services = services;
         }
 
-        private void BinderManager_Validated1(IEnumerable<IField> fields)
+        private void BinderManager_Validated1(IEnumerable<IBinderProvider> fields)
         {
             var hasStatus = binderManager.Fields().SelectMany(x => x.Statuses).Any();
 
             btnOK.Enabled = !hasStatus;
         }
 
-        private void BinderManager_Validated(IEnumerable<IField> fields)
+        private void BinderManager_Validated(IEnumerable<IBinderProvider> fields)
         {
             lstStatus.Items.Clear();
             var statuses = binderManager.Fields().

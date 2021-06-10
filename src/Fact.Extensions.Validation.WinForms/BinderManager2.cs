@@ -59,7 +59,7 @@ namespace Fact.Extensions.Validation.WinForms
                 item.tracked.Value = control.Text;
                 await binder.Process();
 
-                FireFieldsProcessed(new[] { binder.Field });
+                FireFieldsProcessed(new[] { item });
 
                 styleManager.ContentChanged(item);
 
@@ -112,6 +112,14 @@ namespace Fact.Extensions.Validation.WinForms
             control.GotFocus += (s, e) => styleManager.FocusGained(_item);
             control.LostFocus += (s, e) => styleManager.FocusLost(_item);
 
+            // Aggregator-wide init of this particular field so that on any call to
+            // aggregatorBinder.Process() current field state style is exactly reflected
+            aggregatedBinder.ProcessingAsync += (_, c) =>
+            {
+                styleManager.Initialize(_item);
+                return new ValueTask();
+            };
+
             return bp;
         }
 
@@ -135,6 +143,8 @@ namespace Fact.Extensions.Validation.WinForms
     public class StyleManager : IStyleManager
     {
         BinderManagerBase.ColorOptions colorOptions = new BinderManagerBase.ColorOptions();
+
+        public void Initialize(BinderManagerBase.Item item) => ContentChanged(item);
 
         public void ContentChanged(BinderManagerBase.Item item)
         {

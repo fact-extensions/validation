@@ -66,7 +66,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
-    public delegate void FieldsProcessedDelegate(IEnumerable<IField> fields);
+    public delegate void FieldsProcessedDelegate(IEnumerable<IBinderProvider> fields);
 
     // TODO: Make an IEntityBinder so that we can do an IEntityBinder<T>
     public class AggregatedBinder : Binder2,
@@ -77,7 +77,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// </summary>
         public event FieldsProcessedDelegate FieldsProcessed;
 
-        protected void FireFieldsProcessed(IEnumerable<IField> fields) =>
+        protected void FireFieldsProcessed(IEnumerable<IBinderProvider> fields) =>
             FieldsProcessed?.Invoke(fields);
 
         List<IBinderProvider> items = new List<IBinderProvider>();
@@ -118,7 +118,7 @@ namespace Fact.Extensions.Validation.Experimental
                 await item.Binder.Process(context.CancellationToken);
             item.Binder.ProcessedAsync += (field, context) =>
             {
-                FireFieldsProcessed(new[] { item.Binder.Field });
+                FireFieldsProcessed(new[] { item });
                 return new ValueTask();
             };
         }
