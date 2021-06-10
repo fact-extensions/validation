@@ -90,5 +90,22 @@ namespace Fact.Extensions.Validation.xUnit
             var statuses = fields.SelectMany(f => f.Statuses).ToArray();
             statuses.Should().HaveCount(1);
         }
+
+        [Fact]
+        public async Task Test4()
+        {
+            var field = new FieldStatus("synthetic", null);
+            var ab = new AggregatedBinder(field);
+            string test1val = "test1 value";
+
+            ab.AddField("test1", () => test1val).StartsWith("test2");
+
+            ab.AddSummaryProcessor();
+
+            await ab.Process();
+
+            var statuses = ab.Fields().SelectMany(f => f.Statuses).ToArray();
+            statuses.Should().HaveCount(1);
+        }
     }
 }
