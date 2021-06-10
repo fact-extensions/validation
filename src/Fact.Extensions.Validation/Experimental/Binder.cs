@@ -66,6 +66,14 @@ namespace Fact.Extensions.Validation.Experimental
         /// EXPERIMENTAL
         /// </remarks>
         public InitiatingEvents InitiatingEvent { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// EXPERIMENTAL
+        /// </remarks>
+        public Interaction? InteractionLevel { get; set; }
     }
 
 
@@ -313,33 +321,34 @@ namespace Fact.Extensions.Validation.Experimental
         /// Defaults to true
         /// </summary>
         public bool Abort = false;
+    }
 
-        public enum Interaction
-        {
-            /// <summary>
-            /// For automated processes with no interaction at all
-            /// </summary>
-            None,
-            /// <summary>
-            /// For manually activated batch processes.  Similar to 'None' except there is the most
-            /// minimal level of user interaction
-            /// </summary>
-            Manual,
-            /// <summary>
-            /// For things like form submission, final button presses.  On the order of 11s+ expected interaction time
-            /// </summary>
-            Low,
-            /// <summary>
-            /// For things like overall field validation, focus gain/loss.
-            /// On the order of 1-10s expected interaction time
-            /// </summary>
-            Medium,
-            /// <summary>
-            /// For human real-time events, happening in the sub-second range.  Things like mouse clicks and
-            /// key presses.
-            /// </summary>
-            High
-        }
+
+    public enum Interaction
+    {
+        /// <summary>
+        /// For automated processes with no interaction at all
+        /// </summary>
+        None,
+        /// <summary>
+        /// For manually activated batch processes.  Similar to 'None' except there is the most
+        /// minimal level of user interaction
+        /// </summary>
+        Manual,
+        /// <summary>
+        /// For things like form submission, final button presses.  On the order of 11s+ expected interaction time
+        /// </summary>
+        Low,
+        /// <summary>
+        /// For things like overall field validation, focus gain/loss.
+        /// On the order of 1-10s expected interaction time
+        /// </summary>
+        Medium,
+        /// <summary>
+        /// For human real-time events, happening in the sub-second range.  Things like mouse clicks and
+        /// key presses.
+        /// </summary>
+        High
     }
 
 

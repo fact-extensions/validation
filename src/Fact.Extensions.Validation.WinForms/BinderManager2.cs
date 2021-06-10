@@ -101,7 +101,12 @@ namespace Fact.Extensions.Validation.WinForms
 
             var _item = (BinderManagerBase.Item)bp;
             var f = (FieldStatus<T>)bp.Binder.Field;   // DEBT: Sloppy cast
-            var inputContext = new InputContext { InitiatingEvent = InitiatingEvents.Keystroke };
+            // DEBT: Move InputContext creation elsewhere since we aren't sure it's a Keystroke etc here
+            var inputContext = new InputContext
+            {
+                InitiatingEvent = InitiatingEvents.Keystroke,
+                InteractionLevel = Interaction.High
+            };
             tracker.Updated += async (v, c) =>
             {
                 f.Value = v;
