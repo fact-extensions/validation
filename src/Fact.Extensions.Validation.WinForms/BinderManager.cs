@@ -70,7 +70,7 @@ namespace Fact.Extensions.Validation.WinForms
             {
                 if(hasStatus)
                 {
-                    tooltip.SetToolTip(item.control, "Has Status");
+                    tooltip.SetToolTip(item.Control, "Has Status");
                 }
             }
         }
@@ -135,7 +135,7 @@ namespace Fact.Extensions.Validation.WinForms
                 bool hasStatus = item.binder.Field.Statuses.Any();
 
                 // TODO: Need to account for per-field modified/not modified
-                item.control.BackColor = hasStatus ?
+                item.Control.BackColor = hasStatus ?
                     (initializing || !item.modified ? 
                         options.Color.InitialStatus : options.Color.UnfocusedStatus) : 
                     options.Color.ClearedStatus;
@@ -155,8 +155,8 @@ namespace Fact.Extensions.Validation.WinForms
         internal Binder<T> InternalBindText<T>(Item item, string name)
         {
             // FIX: this T object cast is bad
-            var field = new FieldStatus<T>(name, (T)(object)item.control.Text);
-            var binder = new Binder<T>(field, () => item.control.Text);
+            var field = new FieldStatus<T>(name, (T)(object)item.Control.Text);
+            var binder = new Binder<T>(field, () => item.Control.Text);
 
             // DEBT: Clumsy assignment
             item.binder = binder;

@@ -87,7 +87,7 @@ namespace Fact.Extensions.Validation.WinForms
         {
             bool hasStatus = item.Binder.Field.Statuses.Any();
 
-            item.control.BackColor = hasStatus ?
+            item.Control.BackColor = hasStatus ?
                 (item.IsModified ? colorOptions.FocusedStatus : colorOptions.InitialStatus) :
                 colorOptions.ClearedStatus;
         }
@@ -97,7 +97,7 @@ namespace Fact.Extensions.Validation.WinForms
         {
             bool hasStatus = item.Binder.Field.Statuses.Any();
 
-            item.control.BackColor = hasStatus ?
+            item.Control.BackColor = hasStatus ?
                 colorOptions.UnfocusedStatus :
                 colorOptions.ClearedStatus;
         }
@@ -107,7 +107,7 @@ namespace Fact.Extensions.Validation.WinForms
         {
             bool hasStatus = item.Binder.Field.Statuses.Any();
 
-            item.control.BackColor = hasStatus ?
+            item.Control.BackColor = hasStatus ?
                 (item.IsModified ? colorOptions.FocusedStatus : colorOptions.InitialStatus) :
                 colorOptions.ClearedStatus;
         }

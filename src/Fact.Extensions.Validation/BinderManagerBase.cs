@@ -78,9 +78,14 @@ namespace Fact.Extensions.Validation
 
     }
 
+    public interface IModified
+    {
+        bool IsModified { get; }
+    }
+
     public class BinderManagerBase : AggregatedBinderBase
     {
-        public new class ItemBase : AggregatedBinderBase.ItemBase
+        public new class ItemBase : AggregatedBinderBase.ItemBase, IModified
         {
             public event Action Initialize;
             // DEBT: Pretty sure we can deduce this at will based on an initial vs current value
@@ -104,12 +109,14 @@ namespace Fact.Extensions.Validation
 
         public class Item : ItemBase
         {
-            public readonly TSource control;
+            public TSource Control;
+
+
 
             public Item(IFluentBinder fluentBinder, TSource source) : 
                 base(fluentBinder.Binder, fluentBinder)
             {
-                this.control = source;
+                Control = source;
             }
         }
 
