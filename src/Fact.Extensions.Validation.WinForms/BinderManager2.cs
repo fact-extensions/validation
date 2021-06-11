@@ -13,75 +13,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Fact.Extensions.Validation.WinForms
 {
-    public class BinderManager2 : AggregatedBinder
-        //: BinderManagerBase
-    {
-        readonly StyleManager styleManager = new StyleManager();
-
-        public BinderManager2(IServiceProvider services, string name) //: base(services)
-            : base(new FieldStatus(name, null), services)
-        {
-        }
-
-
-        public FluentBinder2<T> Add<TControl, T>(IBinder2<T> binder, TControl control, 
-            //Func<TControl, T> getter, 
-            Tracker<T> tracker,
-            out BinderManagerBase.Item<T> item)
-            where TControl: Control
-        {
-            //binder.getter = () => getter(control);
-            //binder.getter2 = () => getter(control);
-            // DEBT: "initial value" needs more work, but coming along
-            var fb = new FluentBinder2<T>(binder, true);
-
-            item = new BinderManagerBase.Item<T>(fb, control, tracker);
-
-            Add(item);
-
-            BinderManagerBase.Item<T> item2 = item;
-
-            control.GotFocus += (s, e) => styleManager.FocusGained(item2);
-            control.LostFocus += (s, e) => styleManager.FocusLost(item2);
-
-
-            return fb;
-        }
-
-
-        public FluentBinder2<string> AddText(IBinder2<string> binder, Control control, Tracker<string> tracker)
-        {
-            //var fb = Add(binder, control, c => c.Text, out Item<string> item);
-            var fb = Add(binder, control, tracker, out BinderManagerBase.Item<string> item);
-
-            control.TextChanged += async (s, e) =>
-            {
-                item.tracked.Value = control.Text;
-                await binder.Process();
-
-                // FIX: Passing null context is a no-no
-                FireFieldsProcessed(new[] { item }, null);
-
-                styleManager.ContentChanged(item);
-
-                //OnEvaluate(item, hasStatus);
-            };
-            return fb;
-        }
-
-
-        public FluentBinder2<string> BindText(Control control)
-        {
-            var f = new FieldStatus<string>(control.Name, null);
-            var tracker = new Tracker<string>(control.Text);
-            var binder = new Binder2<string>(f, () => tracker.Value);
-            tracker.Updated += (v, c) => f.Value = v;
-
-            return AddText(binder, control, tracker);
-        }
-    }
-
-
     public static class AggregatedBinderExtensions
     {
         static IBinderProvider<T> Setup<T>(IAggregatedBinder aggregatedBinder, Control control, Func<T> getter, 
@@ -130,8 +61,7 @@ namespace Fact.Extensions.Validation.WinForms
             return bp;
         }
 
-        // UNFINISHED
-        public static IFluentBinder<string> BindText2(this IAggregatedBinder aggregatedBinder, Control control)
+        public static IFluentBinder<string> BindText(this IAggregatedBinder aggregatedBinder, Control control)
         {
             var bp = Setup<string>(aggregatedBinder, control,
                 () => control.Text,

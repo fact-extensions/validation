@@ -14,7 +14,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
     public partial class TestForm2 : Form
     {
         //readonly
-            BinderManager2 binderManager;
+            AggregatedBinder binderManager;
 
         public IServiceProvider Services { get; set; }
 
@@ -28,14 +28,15 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
         private async void TestForm2_Load(object sender, EventArgs e)
         {
-            binderManager = new BinderManager2(Services, "test");
+            var field = new FieldStatus("test", null);
+            binderManager = new AggregatedBinder(field, Services);
 
             var fm = binderManager.BindText(txtEntry1);
 
             fm.Convert<int>().
                 GreaterThan(20);
 
-            var fb = binderManager.BindText2(txtEntry2);
+            var fb = binderManager.BindText(txtEntry2);
 
             fb.Convert<int>()
                 .LessThan(5);
