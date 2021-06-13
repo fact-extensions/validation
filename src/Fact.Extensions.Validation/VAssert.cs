@@ -11,6 +11,29 @@ namespace Fact.Extensions.Validation
 {
     using Experimental;
 
+
+    public class ValidationException : Exception
+    {
+        public ValidationException(string message) : base(message)
+        {
+
+        }
+
+        public ValidationException() { }
+    }
+
+
+    public class AssertException : ValidationException
+    {
+        public AssertException(string message) : base(message)
+        {
+
+        }
+
+
+        public AssertException() { }
+    }
+
     /// <summary>
     /// Assertions across a bag of properties
     /// </summary>
@@ -26,6 +49,11 @@ namespace Fact.Extensions.Validation
         public async Task AssertAsync()
         {
             await aggregatedBinder.Process();
+            var statuses = aggregatedBinder.Fields().SelectMany(f => f.Statuses);
+            if(statuses.Any())
+            {
+                throw new AssertException();
+            }
             //aggregatedBinder.Bi
         }
     }

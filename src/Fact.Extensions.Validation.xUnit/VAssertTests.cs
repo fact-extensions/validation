@@ -23,7 +23,9 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var va = asserter.From(se1);
 
+            // DEBT: Already has RequireAttribute, so need a better test
             va.Where(x => x.Password1).Required();
+            //va.Where(x => x.Password2).Required();
 
             await va.AssertAsync();
         }
