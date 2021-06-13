@@ -14,11 +14,23 @@ namespace Fact.Extensions.Validation
     /// </summary>
     public class VAssert
     {
-        readonly IAggregatedBinder aggregatedBinder;
+        readonly IAggregatedBinderBase aggregatedBinder;
 
-        public VAssert(IAggregatedBinder aggregatedBinder)
+        public VAssert(IAggregatedBinderBase aggregatedBinder)
         {
             this.aggregatedBinder = aggregatedBinder;
+        }
+    }
+
+
+    public class VAssert<T> : VAssert
+    {
+        public Experimental.IEntityBinder<T> Binder { get; }
+
+        public VAssert(Experimental.IEntityBinder<T> entityBinder) :
+            base(entityBinder)
+        {
+            Binder = entityBinder;
         }
     }
 

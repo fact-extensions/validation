@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Fact.Extensions.Validation.xUnit
 {
-    public class Fixture
+    public class Fixture : IServiceProviderProvider
     {
         public IServiceProvider Services { get; }
 

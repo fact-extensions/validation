@@ -9,7 +9,12 @@ using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation.Experimental
 {
-    public abstract class PropertyBinderProvider : AggregatedBinderBase.ItemBase
+    public interface IPropertyProvider
+    {
+        PropertyInfo Property { get; }
+    }
+
+    public abstract class PropertyBinderProvider : AggregatedBinderBase.ItemBase, IPropertyProvider
     {
         public PropertyInfo Property { get; }
 
@@ -183,9 +188,20 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
-
-    public class EntityBinder<T> : EntityBinder
+    public interface IEntityBinder : IAggregatedBinderBase
     {
+        IEnumerable<PropertyBinderProvider> Binders { get; }
+    }
+
+    public interface IEntityBinder<T> : IEntityBinder
+    {
+    }
+
+
+    public class EntityBinder<T> : EntityBinder, IEntityBinder<T>
+    {
+        new public IEnumerable<PropertyBinderProvider> Binders => providers;
+
         public EntityBinder() : base(typeof(T))
         {
 
@@ -255,7 +271,7 @@ namespace Fact.Extensions.Validation.Experimental
             binder.Add(item);
         }
 
-        public static EntityBinder BindInput(this IAggregatedBinder binder, Type t, bool initValidation = false, 
+        public static EntityBinder BindInput(this IAggregatedBinderBase binder, Type t, bool initValidation = false, 
             EntityBinder eb = null)
         {
             //t.GetTypeInfo().GetProperties();
