@@ -16,9 +16,10 @@ namespace Fact.Extensions.Validation
     {
         public IEnumerable<IField> Fields { get; }
 
-        public ValidationException(string message) : base(message)
+        public ValidationException(string message, IEnumerable<IField> fields) : 
+            base(message)
         {
-
+            Fields = fields;
         }
 
         public ValidationException() { }
@@ -27,7 +28,8 @@ namespace Fact.Extensions.Validation
 
     public class AssertException : ValidationException
     {
-        public AssertException(string message) : base(message)
+        public AssertException(string message, IEnumerable<IField> fields) : 
+            base(message, fields)
         {
 
         }
@@ -54,7 +56,8 @@ namespace Fact.Extensions.Validation
             var statuses = aggregatedBinder.Fields().SelectMany(f => f.Statuses);
             if(statuses.Any())
             {
-                throw new AssertException();
+                var fields = aggregatedBinder.Fields().Where(f => f.Statuses.Any());
+                throw new AssertException("", fields);
             }
             //aggregatedBinder.Bi
         }
