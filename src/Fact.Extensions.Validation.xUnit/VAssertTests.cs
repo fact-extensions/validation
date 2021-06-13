@@ -1,6 +1,8 @@
 using System;
 using Xunit;
 
+using FluentAssertions;
+
 namespace Fact.Extensions.Validation.xUnit
 {
     using Experimental;
@@ -23,9 +25,7 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var va = asserter.From(se1);
 
-            // DEBT: Already has RequireAttribute, so need a better test
-            va.Where(x => x.Password1).Required();
-            //va.Where(x => x.Password2).Required();
+            va.Where(x => x.Password1).StartsWith("hello");
 
             await va.AssertAsync();
         }
@@ -37,7 +37,8 @@ namespace Fact.Extensions.Validation.xUnit
             {
                 Password1 = "hi2u"
             };
-            await DoAssert1(se1);
+
+            await Assert.ThrowsAsync<AssertException>(() => DoAssert1(se1));
         }
     }
 

@@ -14,6 +14,8 @@ namespace Fact.Extensions.Validation
 
     public class ValidationException : Exception
     {
+        public IEnumerable<IField> Fields { get; }
+
         public ValidationException(string message) : base(message)
         {
 
