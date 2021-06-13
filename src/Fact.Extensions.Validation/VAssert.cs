@@ -14,6 +14,12 @@ namespace Fact.Extensions.Validation
     /// </summary>
     public class VAssert
     {
+        readonly IAggregatedBinder aggregatedBinder;
+
+        public VAssert(IAggregatedBinder aggregatedBinder)
+        {
+            this.aggregatedBinder = aggregatedBinder;
+        }
     }
 
 
