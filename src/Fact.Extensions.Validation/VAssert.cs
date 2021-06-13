@@ -9,16 +9,24 @@ using System.Threading.Tasks;
 // they are pretty awesome, but also a bit wily so redoing them
 namespace Fact.Extensions.Validation
 {
+    using Experimental;
+
     /// <summary>
     /// Assertions across a bag of properties
     /// </summary>
     public class VAssert
     {
-        readonly IAggregatedBinderBase aggregatedBinder;
+        protected readonly IAggregatedBinder aggregatedBinder;
 
-        public VAssert(IAggregatedBinderBase aggregatedBinder)
+        public VAssert(IAggregatedBinder aggregatedBinder)
         {
             this.aggregatedBinder = aggregatedBinder;
+        }
+
+        public async Task AssertAsync()
+        {
+            await aggregatedBinder.Process();
+            //aggregatedBinder.Bi
         }
     }
 
@@ -27,10 +35,12 @@ namespace Fact.Extensions.Validation
     {
         public Experimental.IEntityBinder<T> Binder { get; }
 
-        public VAssert(Experimental.IEntityBinder<T> entityBinder) :
-            base(entityBinder)
+        public VAssert(T entity) :
+            base(new AggregatedBinder(new FieldStatus("test", null)))
         {
-            Binder = entityBinder;
+            // DEBT
+            var ag = (AggregatedBinder)aggregatedBinder;
+            Binder = ag.BindInput2(entity);
         }
     }
 

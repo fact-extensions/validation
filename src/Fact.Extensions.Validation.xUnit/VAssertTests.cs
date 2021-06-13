@@ -7,6 +7,7 @@ namespace Fact.Extensions.Validation.xUnit
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using System.Threading.Tasks;
 
     public class VAssertTests : IClassFixture<Fixture>
     {
@@ -18,17 +19,23 @@ namespace Fact.Extensions.Validation.xUnit
             this.services = fixture.Services;
         }
 
-        void DoAssert1(SyntheticEntity1 se1)
+        async Task DoAssert1(SyntheticEntity1 se1)
         {
             var va = asserter.From(se1);
 
             va.Where(x => x.Password1).Required();
+
+            await va.AssertAsync();
         }
 
         [Fact]
-        public void Test1()
+        public async Task Test1()
         {
-
+            var se1 = new SyntheticEntity1
+            {
+                Password1 = "hi2u"
+            };
+            await DoAssert1(se1);
         }
     }
 
@@ -44,7 +51,7 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var eb = new EntityBinder<T>();
             //b.BindInput(typeof(T), true, eb);
-            return new VAssert<T>(eb);
+            return new VAssert<T>(entity);
         }
 
 
