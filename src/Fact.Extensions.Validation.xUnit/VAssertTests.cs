@@ -21,11 +21,14 @@ namespace Fact.Extensions.Validation.xUnit
             this.services = fixture.Services;
         }
 
-        async Task DoAssert1(SyntheticEntity1 se1)
+        async Task DoAssert1(SyntheticEntity1 se1, int param1)
         {
             var va = asserter.From(se1);
 
             va.Where(x => x.Password1).StartsWith("hello");
+
+            // FIX: Problematic
+            //va.Where(() => param1).GreaterThan(5);
 
             await va.AssertAsync();
         }
@@ -38,7 +41,10 @@ namespace Fact.Extensions.Validation.xUnit
                 Password1 = "hi2u"
             };
 
-            await Assert.ThrowsAsync<AssertException>(() => DoAssert1(se1));
+            var ae = await Assert.ThrowsAsync<AssertException>(() => DoAssert1(se1, 4));
+
+            var fields = ae.Fields.ToArray();
+            //fields.Should().HaveCount(2);
         }
     }
 
@@ -58,16 +64,43 @@ namespace Fact.Extensions.Validation.xUnit
         }
 
 
+        public static IFluentBinder<T> Where<T>(this VAssert assert, Expression<Func<T>> fieldLambda)
+        {
+            var name = fieldLambda.Name;
+            //System.Linq.Expressions.Fi
+            //var body = fieldLambda.Body as FieldExpression;
+
+            //switch(body.me)
+
+            return null;
+        }
+
+
         public static IFluentBinder<T> Where<TEntity, T>(this VAssert<TEntity> assert,  
             Expression<Func<TEntity, T>> propertyLambda)
         {
             var name = propertyLambda.Name;
             var member = propertyLambda.Body as MemberExpression;
-            var properInfo = member.Member as PropertyInfo;
 
-            var p = assert.Binder.Binders.Single(x => x.Property == properInfo);
-            return ((PropertyBinderProvider<T>)p).FluentBinder;
+            switch(member.Member)
+            {
+                case PropertyInfo propertyInfo:
+                    var p = assert.Binder.Binders.Single(x => x.Property == propertyInfo);
+                    return ((PropertyBinderProvider<T>)p).FluentBinder;
 
+                case FieldInfo fieldInfo:
+                    // FIX: May need EntityBinder's value here
+                    return assert.AggregatedBinder.AddField(fieldInfo.Name, () =>
+                    {
+                        object v = fieldInfo.GetValue(null);
+                        return (T)v;
+                    });
+                    //var fv = ;
+                    //break;
+
+                default:
+                    return null;
+            }
         }
     }
 }
