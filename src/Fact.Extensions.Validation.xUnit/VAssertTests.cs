@@ -69,7 +69,12 @@ namespace Fact.Extensions.Validation.xUnit
             var name = fieldLambda.Name;
             //System.Linq.Expressions.Fi
             //var body = fieldLambda.Body as FieldExpression;
+            var member = fieldLambda.Body as MemberExpression;
+            var memberInfo = member.Member;
+            var f = memberInfo as FieldInfo;
+            //object value = f.GetValue(null);
 
+            //var ex2 = Expression.Field(body, fieldLambda.Name);
             //switch(body.me)
 
             return null;
