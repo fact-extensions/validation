@@ -28,6 +28,7 @@ namespace Fact.Extensions.Validation.xUnit
             va.Where(x => x.Password1).StartsWith("hello");
 
             // FIX: Problematic
+            // Need to do something like https://stackoverflow.com/questions/7220626/local-variable-and-expression-trees
             //va.Where(() => param1).GreaterThan(5);
 
             await va.AssertAsync();
