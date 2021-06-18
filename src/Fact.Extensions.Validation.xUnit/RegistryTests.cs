@@ -43,6 +43,7 @@ namespace Fact.Extensions.Validation.xUnit
             DateTimeOffset y2k = new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero);
             DateTimeOffset now = DateTimeOffset.Now;
 
+            //var fb2Converted = fb2.AsEpoch().ToDateTimeOffset().  // FIX: Doesn't work, look into this
             var fb2Converted = fb2.FromEpochToDateTimeOffset().
                 GreaterThan(y2k).LessThan(now).
                 Emit(dto => emittedDto = dto);

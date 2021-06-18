@@ -188,6 +188,16 @@ namespace Fact.Extensions.Validation.xUnit
 
             var statues = fb.Binder.Field.Statuses.ToArray();
             statues.Should().HaveCount(1);
+
+            var fb2 = ag.AddField("epoch2", () => 0);
+            var fb3 = fb2.AsEpoch();
+            var fb4 = fb3.ToDateTimeOffset();
+
+            await fb2.Binder.Process();
+
+            statues = fb2.Binder.Field.Statuses.ToArray();
+            statues.Should().HaveCount(0);
+            fb4.test1.Should().Be(DateTimeOffset.UnixEpoch);
         }
     }
 }

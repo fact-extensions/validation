@@ -369,6 +369,12 @@ namespace Fact.Extensions.Validation.Experimental
         public static FluentBinder2<DateTimeOffset> FromEpochToDateTimeOffset(this IFluentBinder<long> fb) =>
             FromEpochToDateTimeOffset<long>(fb);
 
+        public static FluentBinder2<DateTimeOffset> ToDateTimeOffset(this FluentBinder2<int, EpochTrait> fb) =>
+            FromEpochToDateTimeOffset<int>(fb);
+
+        public static FluentBinder2<DateTimeOffset> ToDateTimeOffset(this FluentBinder2<long, EpochTrait> fb) =>
+            FromEpochToDateTimeOffset<long>(fb);
+
         static bool FilterStatus(Status s)
             => s.Level != Status.Code.OK;
 
@@ -388,6 +394,29 @@ namespace Fact.Extensions.Validation.Experimental
             };
             return fb;
         }
+
+
+        public struct EpochTrait
+        {
+
+        }
+
+
+        public static FluentBinder2<T, TTrait> WithTrait<T, TTrait>(this IFluentBinder<T> fb,
+            TTrait trait = default(TTrait))
+        {
+            return new FluentBinder2<T, TTrait>(fb.Binder);
+        }
+
+
+        /// <summary>
+        /// Tags the fluent binder as a UNIX Epoch
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fb"></param>
+        /// <returns></returns>
+        public static FluentBinder2<int, EpochTrait> AsEpoch(this IFluentBinder<int> fb) =>
+            new FluentBinder2<int, EpochTrait>(fb.Binder, false);
     }
     
     public class ShimFieldBase2<T> : ShimFieldBase,
@@ -488,6 +517,19 @@ namespace Fact.Extensions.Validation.Experimental
                 Field = new ShimFieldBase2<T>(binder, statuses, () => test1);
 
             Initialize();
+        }
+    }
+
+
+    public class FluentBinder2<T, TTrait> : FluentBinder2<T>
+    {
+        TTrait Trait { get; }
+
+        public FluentBinder2(IBinder2 binder, bool initial = true, 
+            TTrait trait = default(TTrait)) : 
+            base(binder, initial)
+        {
+            Trait = trait;
         }
     }
 }
