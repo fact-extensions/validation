@@ -43,7 +43,6 @@ namespace Fact.Extensions.Validation.xUnit
             DateTimeOffset y2k = new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero);
             DateTimeOffset now = DateTimeOffset.Now;
 
-            //var fb2Converted = fb2.AsEpoch().ToDateTimeOffset().  // FIX: Doesn't work, look into this
             var fb2Converted = fb2.FromEpochToDateTimeOffset().
                 GreaterThan(y2k).LessThan(now).
                 Emit(dto => emittedDto = dto);
@@ -51,6 +50,24 @@ namespace Fact.Extensions.Validation.xUnit
             await fb2.Binder.Process();
 
             emittedDto.Should().BeAfter(y2k);
+        }
+
+        // FIX: Sloppiness with FluentBinder2.test1 is hurting us here
+        //[Fact]
+        public async Task Test3()
+        {
+            var field = new FieldStatus("root", null);
+            var ab = new AggregatedBinder(field);
+            var key = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\Windows NT\CurrentVersion");
+
+            var fb2 = ab.Add<int>(key, "InstallDate").AsEpoch().
+                ToDateTimeOffset().  // FIX: Doesn't work, look into this
+                GreaterThan(DateTimeOffset.UnixEpoch);
+
+            await fb2.Binder.Process();
+
+            var statuses = fb2.Field.Statuses.ToArray();
+            statuses.Should().BeEmpty();
         }
 #endif
     }

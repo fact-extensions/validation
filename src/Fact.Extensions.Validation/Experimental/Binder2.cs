@@ -380,7 +380,8 @@ namespace Fact.Extensions.Validation.Experimental
             {
                 // NOTE: We know we can safely do this because only the <int> and <long> overloads
                 // are permitted to call this method
-                var value = System.Convert.ToInt64(f.Value);
+                var value = System.Convert.ToInt64(fb.Field.Value);
+                
                 try
                 {
                     dt = DateTimeOffset.FromUnixTimeSeconds(value);
