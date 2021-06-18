@@ -141,12 +141,12 @@ namespace Fact.Extensions.Validation.Experimental
                 if (defaultValue != null && context.Value == null)
                 {
                     context.Value = defaultValue.Value;
-                    fb2.test1 = defaultValue.Value;
+                    fb2.InitialValue = defaultValue.Value;
                 }
                 else if (converter(fb.Field, out TTo converted))
                 {
                     context.Value = converted;
-                    fb2.test1 = converted;
+                    fb2.InitialValue = converted;
                 }
                 else
                 {
@@ -179,7 +179,7 @@ namespace Fact.Extensions.Validation.Experimental
                 if (f.Value == null && defaultValue != null)
                 {
                     context.Value = defaultValue.Value;
-                    fb2.test1 = defaultValue.Value;
+                    fb2.InitialValue = defaultValue.Value;
                     return new ValueTask();
                 }
 
@@ -189,7 +189,7 @@ namespace Fact.Extensions.Validation.Experimental
                         System.Convert.ChangeType(f.Value, t);
 
                     context.Value = converted;
-                    fb2.test1 = converted;
+                    fb2.InitialValue = converted;
                 }
                 catch (FormatException)
                 {
@@ -267,7 +267,8 @@ namespace Fact.Extensions.Validation.Experimental
 
         public static FluentBinder2<T, TTrait> WithTrait<T, TTrait>(this IFluentBinder<T> fb,
             TTrait trait = default(TTrait)) =>
-            new FluentBinder2<T, TTrait>(fb.Binder, false);
+            // DEBT: Naughty cast
+            new FluentBinder2<T, TTrait>((FluentBinder2<T>)fb);
 
 
         /// <summary>

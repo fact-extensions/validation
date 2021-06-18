@@ -197,7 +197,7 @@ namespace Fact.Extensions.Validation.xUnit
 
             statues = fb2.Binder.Field.Statuses.ToArray();
             statues.Should().HaveCount(0);
-            fb4.test1.Should().Be(DateTimeOffset.UnixEpoch);
+            fb4.InitialValue.Should().Be(DateTimeOffset.UnixEpoch);
         }
     }
 }

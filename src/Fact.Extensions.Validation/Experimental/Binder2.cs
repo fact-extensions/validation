@@ -184,8 +184,10 @@ namespace Fact.Extensions.Validation.Experimental
     {
         /// <summary>
         /// Rolling value loosely analoguous to Context.Value
+        /// This is the "runtime init" value preceded potentially by other FluentBinders
+        /// vs the "system init" value which we generally are uninterested in
         /// </summary>
-        internal T test1;
+        internal T InitialValue;
         
         readonly IBinder2 binder;
 
@@ -224,6 +226,17 @@ namespace Fact.Extensions.Validation.Experimental
             f.Add(statuses);
         }
 
+
+        public FluentBinder2(IFluentBinder<T> chained) :
+            this(chained.Binder, false)
+        {
+            binder.ProcessingAsync += (f, c) =>
+            {
+                InitialValue = (T)chained.Field.Value;
+                return new ValueTask();
+            };
+        }
+
         public FluentBinder2(IBinder2 binder, bool initial)
         {
             this.binder = binder;
@@ -232,7 +245,7 @@ namespace Fact.Extensions.Validation.Experimental
                 // DEBT: Needs refiniement
                 Field = new ShimFieldBase2<T>(binder, statuses, () => (T)binder.getter());
             else
-                Field = new ShimFieldBase2<T>(binder, statuses, () => test1);
+                Field = new ShimFieldBase2<T>(binder, statuses, () => InitialValue);
 
             Initialize();
         }
@@ -246,7 +259,7 @@ namespace Fact.Extensions.Validation.Experimental
                 // DEBT: Needs refiniement
                 Field = new ShimFieldBase2<T>(binder, statuses, binder.getter);
             else
-                Field = new ShimFieldBase2<T>(binder, statuses, () => test1);
+                Field = new ShimFieldBase2<T>(binder, statuses, () => InitialValue);
 
             Initialize();
         }
@@ -258,15 +271,15 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public TTrait Trait { get; }
 
+        public FluentBinder2(IFluentBinder<T> chained) : 
+            base(chained)
+        {
+        }
+
         public FluentBinder2(IBinder2 binder, bool initial = true, 
             TTrait trait = default(TTrait)) : 
             base(binder, initial)
         {
-            binder.ProcessingAsync += (f, c) =>
-            {
-                test1 = (T)c.Value;
-                return new ValueTask();
-            };
             Trait = trait;
         }
     }
