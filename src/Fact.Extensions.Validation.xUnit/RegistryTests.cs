@@ -5,6 +5,7 @@ namespace Fact.Extensions.Validation.xUnit
     using Experimental;
     using FluentAssertions;
     using Microsoft.Win32;
+    using System;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -30,6 +31,25 @@ namespace Fact.Extensions.Validation.xUnit
             
             var statuses = fb.Field.Statuses.ToArray();
             statuses.Should().HaveCount(0);
+
+            var fb2 = ab.Add<int>(key, "InstallDate");
+            fb2.Convert((IField<int> f, out DateTimeOffset dt) =>
+            {
+                dt = DateTimeOffset.FromUnixTimeSeconds(f.Value);
+                return true;
+            });
+
+            DateTimeOffset emittedDto = DateTimeOffset.MinValue;
+            DateTimeOffset y2k = new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero);
+            DateTimeOffset now = DateTimeOffset.Now;
+
+            var fb2Converted = fb2.FromEpochToDateTimeOffset().
+                GreaterThan(y2k).LessThan(now).
+                Emit(dto => emittedDto = dto);
+
+            await fb2.Binder.Process();
+
+            emittedDto.Should().BeAfter(y2k);
         }
 #endif
     }

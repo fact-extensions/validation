@@ -341,6 +341,21 @@ namespace Fact.Extensions.Validation.Experimental
             return fb2;
         }
 
+
+        public static IFluentBinder<DateTimeOffset> FromEpochToDateTimeOffset<T>(this IFluentBinder<T> fb)
+        {
+            var fbConverted = fb.Convert((IField<T> f, out DateTimeOffset dt) =>
+            {
+                //IField _f = f;
+                // DEBT: We should enforce this convertibility much higher up the chain, ideally at compile time
+                var value = System.Convert.ToInt64(f.Value);
+                //var value = (long)_f.Value;
+                dt = DateTimeOffset.FromUnixTimeSeconds(value);
+                return true;
+            }, $"Unable to convert to DateTimeOffset from {fb.Field.Value}");
+            return fbConverted;
+        }
+
         static bool FilterStatus(Status s)
             => s.Level != Status.Code.OK;
 
