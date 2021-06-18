@@ -204,6 +204,11 @@ namespace Fact.Extensions.Validation.Experimental
             string messageIfFalse, Status.Code level = Status.Code.Error) =>
             fb.IsTrue(predicate, () => new Status(level, messageIfFalse));
 
+        public static TFluentBinder IsTrue<TFluentBinder, T>(this TFluentBinder fb, Func<T, bool> predicate,
+            string messageIfFalse, Status.Code level = Status.Code.Error)
+            where TFluentBinder: IFluentBinder<T> =>
+            fb.IsTrue(predicate, () => new Status(level, messageIfFalse));
+
         public static IFluentBinder<T> IsTrueScalar<T>(this IFluentBinder<T> fb, Func<T, bool> predicate,
             FieldStatus.ComparisonCode code, T compareTo, string messageIfFalse = null,
             Status.Code level = Status.Code.Error) =>
@@ -215,9 +220,7 @@ namespace Fact.Extensions.Validation.Experimental
             Status.Code level = Status.Code.Error)
             where TFluentBinder: IFluentBinder<T>
             =>
-            // DEBT: Don't do this cast, just experimenting
-            (TFluentBinder)fb.IsTrue(predicate, () =>
-                new ScalarStatus(level, messageIfFalse, code, compareTo));
+            fb.IsTrue(predicate, () => new ScalarStatus(level, messageIfFalse, code, compareTo));
 
         public static IFluentBinder<T> IsTrueAsync<T>(this IFluentBinder<T> fb, Func<T, ValueTask<bool>> predicate, 
             string messageIfFalse, Status.Code level = Status.Code.Error, bool sequential = true)
