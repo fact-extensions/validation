@@ -11,7 +11,7 @@ using Xunit.Sdk;
 namespace Fact.Extensions.Validation.xUnit
 {
     using Experimental;
-    
+
     public class BinderTests
     {
         [Fact]
@@ -23,7 +23,7 @@ namespace Fact.Extensions.Validation.xUnit
             var fb = b.As();
 
             var fbInt = fb.Convert((string v, out int to) =>
-                int.TryParse(v, out to),"Cannot convert to integer");
+                int.TryParse(v, out to), "Cannot convert to integer");
 
             fbInt.IsTrue(v => v == 123, "Must be 123");
 
@@ -52,10 +52,10 @@ namespace Fact.Extensions.Validation.xUnit
             //fb2.Field.Value.Should().BeOfType<int>();
 
             b.Process();
-            
+
             fb2.Field.Value.Should().Be(123);
         }
-        
+
         [Fact]
         public void Compare1()
         {
@@ -65,7 +65,7 @@ namespace Fact.Extensions.Validation.xUnit
             var fb = b.As();
 
             var fb2 = fb.Convert<int>();
-                
+
             fb2.GreaterThan(100);
 
             b.Process();
@@ -99,12 +99,12 @@ namespace Fact.Extensions.Validation.xUnit
             var fb2 = fb.Convert<int>();
 
             b.Process();
-            
+
             var statuses = f.Statuses.ToArray();
             statuses.Should().HaveCount(1);
             //statuses[1].Description.Should().Be("Must be less than 122");
         }
-        
+
         [Fact]
         public void Emit1()
         {
@@ -121,12 +121,12 @@ namespace Fact.Extensions.Validation.xUnit
             var fb2 = fb.Convert<int>().Emit(v => value = v);
 
             b.Process();
-            
+
             var statuses = f.Statuses.ToArray();
             statuses.Should().HaveCount(1);
             //statuses[1].Description.Should().Be("Must be less than 122");
 
-            _value.Should().Be((string) f.Value);
+            _value.Should().Be((string)f.Value);
             value.Should().Be(0);
         }
 
@@ -145,14 +145,14 @@ namespace Fact.Extensions.Validation.xUnit
                 gotHere.Add(0);
                 tcs.SetResult(0);
             };
-            
+
             b.ProcessingAsync += async (field, context) =>
             {
                 gotHere.Add(1);
                 context.Sequential = false;
                 await Task.Delay(5000, context.CancellationToken);
             };
-            
+
             b.ProcessingAsync += async (field, context) =>
             {
                 gotHere.Add(2);
@@ -164,7 +164,7 @@ namespace Fact.Extensions.Validation.xUnit
                 gotHere.Add(3);
                 throw new XunitException("Should never reach here");
             };
-            
+
             Task t2 = tcs.Task.ContinueWith(t => cts.CancelAfter(TimeSpan.FromSeconds(0.5)),
                 cts.Token);
 
@@ -174,6 +174,20 @@ namespace Fact.Extensions.Validation.xUnit
             });
 
             gotHere.Should().HaveCount(3);
+        }
+
+        [Fact]
+        public async Task EpochConversionTest()
+        {
+            var ag = new AggregatedBinder(new FieldStatus("test", null));
+
+            var fb = ag.AddField("epoch", () => long.MinValue).
+                FromEpochToDateTimeOffset();
+
+            await fb.Binder.Process();
+
+            var statues = fb.Binder.Field.Statuses.ToArray();
+            statues.Should().HaveCount(1);
         }
     }
 }
