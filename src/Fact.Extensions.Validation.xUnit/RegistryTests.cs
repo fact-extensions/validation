@@ -53,7 +53,7 @@ namespace Fact.Extensions.Validation.xUnit
         }
 
         // FIX: Sloppiness with FluentBinder2.test1 is hurting us here
-        //[Fact]
+        [Fact]
         public async Task Test3()
         {
             var field = new FieldStatus("root", null);

@@ -266,10 +266,8 @@ namespace Fact.Extensions.Validation.Experimental
 
 
         public static FluentBinder2<T, TTrait> WithTrait<T, TTrait>(this IFluentBinder<T> fb,
-            TTrait trait = default(TTrait))
-        {
-            return new FluentBinder2<T, TTrait>(fb.Binder);
-        }
+            TTrait trait = default(TTrait)) =>
+            new FluentBinder2<T, TTrait>(fb.Binder, false);
 
 
         /// <summary>
@@ -279,6 +277,6 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="fb"></param>
         /// <returns></returns>
         public static FluentBinder2<int, EpochTrait> AsEpoch(this IFluentBinder<int> fb) =>
-            new FluentBinder2<int, EpochTrait>(fb.Binder, false);
+            fb.WithTrait<int, EpochTrait>();
     }
 }

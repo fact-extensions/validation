@@ -182,6 +182,9 @@ namespace Fact.Extensions.Validation.Experimental
 
     public class FluentBinder2<T> : IFluentBinder<T>
     {
+        /// <summary>
+        /// Rolling value loosely analoguous to Context.Value
+        /// </summary>
         internal T test1;
         
         readonly IBinder2 binder;
@@ -259,6 +262,11 @@ namespace Fact.Extensions.Validation.Experimental
             TTrait trait = default(TTrait)) : 
             base(binder, initial)
         {
+            binder.ProcessingAsync += (f, c) =>
+            {
+                test1 = (T)c.Value;
+                return new ValueTask();
+            };
             Trait = trait;
         }
     }

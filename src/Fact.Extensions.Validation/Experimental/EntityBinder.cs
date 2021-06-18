@@ -385,7 +385,10 @@ namespace Fact.Extensions.Validation.Experimental
         public static FluentBinder2<T> AddField<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter, 
             Func<IFluentBinder<T>, IBinderProvider> providerFactory)
         {
-            var f = new FieldStatus<T>(name, getter());
+            // default(T) because early init is not the same as runtime init
+            // early init is when system is setting up the rules
+            // runtime init is at the start of when pipeline processing actually occurs
+            var f = new FieldStatus<T>(name, default(T));
             var b = new Binder2<T>(f, getter);
             var fb = new FluentBinder2<T>(b);
             binder.Add(providerFactory(fb));
