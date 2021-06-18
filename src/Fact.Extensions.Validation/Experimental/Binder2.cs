@@ -180,8 +180,9 @@ namespace Fact.Extensions.Validation.Experimental
 
         public delegate bool tryConvertDelegate<TFrom, TTo>(TFrom from, out TTo to);
 
-        public static IFluentBinder<T> IsTrue<T>(this IFluentBinder<T> fb, Func<T, bool> predicate, 
+        public static TFluentBinder IsTrue<TFluentBinder, T>(this TFluentBinder fb, Func<T, bool> predicate, 
             Func<Status> getIsFalseStatus)
+            where TFluentBinder: IFluentBinder<T>
         {
             fb.Binder.ProcessingAsync += (field, context) =>
             {
@@ -194,6 +195,11 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
+        /*
+        public static IFluentBinder<T> IsTrue<T>(this IFluentBinder<T> fb, Func<T, bool> predicate,
+            Func<Status> getIsFalseStatus) =>
+            IsTrue<IFluentBinder<T>, T>(fb, predicate, getIsFalseStatus); */
+
         public static IFluentBinder<T> IsTrue<T>(this IFluentBinder<T> fb, Func<T, bool> predicate,
             string messageIfFalse, Status.Code level = Status.Code.Error) =>
             fb.IsTrue(predicate, () => new Status(level, messageIfFalse));
@@ -203,7 +209,16 @@ namespace Fact.Extensions.Validation.Experimental
             Status.Code level = Status.Code.Error) =>
             fb.IsTrue(predicate, () => 
                 new ScalarStatus(level, messageIfFalse, code, compareTo));
-        
+
+        public static TFluentBinder IsTrueScalar<TFluentBinder, T>(this TFluentBinder fb, Func<T, bool> predicate,
+            FieldStatus.ComparisonCode code, T compareTo, string messageIfFalse = null,
+            Status.Code level = Status.Code.Error)
+            where TFluentBinder: IFluentBinder<T>
+            =>
+            // DEBT: Don't do this cast, just experimenting
+            (TFluentBinder)fb.IsTrue(predicate, () =>
+                new ScalarStatus(level, messageIfFalse, code, compareTo));
+
         public static IFluentBinder<T> IsTrueAsync<T>(this IFluentBinder<T> fb, Func<T, ValueTask<bool>> predicate, 
             string messageIfFalse, Status.Code level = Status.Code.Error, bool sequential = true)
         {
@@ -218,7 +233,8 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static IFluentBinder<string> StartsWith(this IFluentBinder<string> fb, string mustStartWith)
+        public static TFluentBinder StartsWith<TFluentBinder>(this TFluentBinder fb, string mustStartWith)
+            where TFluentBinder: IFluentBinder<string>
         {
             fb.Binder.ProcessingAsync += (field, context) =>
             {
@@ -231,7 +247,8 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static IFluentBinder<string> Contains(this IFluentBinder<string> fb, string mustContain)
+        public static TFluentBinder Contains<TFluentBinder>(this TFluentBinder fb, string mustContain)
+            where TFluentBinder: IFluentBinder<string>
         {
             fb.Binder.ProcessingAsync += (field, context) =>
             {
@@ -243,7 +260,8 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
-        public static IFluentBinder<T> Required<T>(this IFluentBinder<T> fb)
+        public static TFluentBinder Required<TFluentBinder>(this TFluentBinder fb)
+            where TFluentBinder: IFluentBinder
         {
             fb.Binder.ProcessingAsync += (field, context) =>
             {
@@ -254,21 +272,32 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
-        public static IFluentBinder<T> LessThan<T>(this IFluentBinder<T> fb, T value,
+        public static TFluentBinder LessThan<TFluentBinder, T>(this TFluentBinder fb, T value,
             string errorDescription = null)
             where T : IComparable
+            where TFluentBinder : IFluentBinder<T>
         {
             return fb.IsTrueScalar(v => v.CompareTo(value) < 0,
                 FieldStatus.ComparisonCode.LessThan, value, errorDescription);
         }
 
         
-        public static IFluentBinder<T> GreaterThan<T>(this IFluentBinder<T> fb, T value)
+        public static TFluentBinder GreaterThan<TFluentBinder, T>(this TFluentBinder fb, T value)
             where T : IComparable
+            where TFluentBinder : IFluentBinder<T>
         {
             return fb.IsTrueScalar(v => v.CompareTo(value) > 0,
                 FieldStatus.ComparisonCode.GreaterThan, value);
         }
+
+        public static TFluentBinder GreaterThanOrEqualTo<TFluentBinder, T>(this TFluentBinder fb, T value)
+            where T : IComparable
+            where TFluentBinder : IFluentBinder<T>
+        {
+            return fb.IsTrueScalar(v => v.CompareTo(value) > 0,
+                FieldStatus.ComparisonCode.GreaterThan, value);
+        }
+
 
         public static FluentBinder2<TTo> Convert<T, TTo>(this IFluentBinder<T> fb, 
             tryConvertDelegate<IField<T>, TTo> converter, string cannotConvert = null, Optional<TTo> defaultValue = null)
@@ -369,10 +398,10 @@ namespace Fact.Extensions.Validation.Experimental
         public static FluentBinder2<DateTimeOffset> FromEpochToDateTimeOffset(this IFluentBinder<long> fb) =>
             FromEpochToDateTimeOffset<long>(fb);
 
-        public static FluentBinder2<DateTimeOffset> ToDateTimeOffset(this FluentBinder2<int, EpochTrait> fb) =>
+        public static FluentBinder2<DateTimeOffset> ToDateTimeOffset(this IFluentBinder<int, EpochTrait> fb) =>
             FromEpochToDateTimeOffset<int>(fb);
 
-        public static FluentBinder2<DateTimeOffset> ToDateTimeOffset(this FluentBinder2<long, EpochTrait> fb) =>
+        public static FluentBinder2<DateTimeOffset> ToDateTimeOffset(this IFluentBinder<long, EpochTrait> fb) =>
             FromEpochToDateTimeOffset<long>(fb);
 
         static bool FilterStatus(Status s)
@@ -451,6 +480,19 @@ namespace Fact.Extensions.Validation.Experimental
         new ShimFieldBase2<T> Field { get; }
     }
 
+
+    public interface ITrait<T>
+    {
+        T Trait { get; }
+    }
+
+    public interface IFluentBinder<T, TTrait> : IFluentBinder<T>,
+        ITrait<TTrait>
+    {
+
+    }
+
+
     public class FluentBinder2<T> : IFluentBinder<T>
     {
         internal T test1;
@@ -521,9 +563,10 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public class FluentBinder2<T, TTrait> : FluentBinder2<T>
+    public class FluentBinder2<T, TTrait> : FluentBinder2<T>,
+        IFluentBinder<T, TTrait>
     {
-        TTrait Trait { get; }
+        public TTrait Trait { get; }
 
         public FluentBinder2(IBinder2 binder, bool initial = true, 
             TTrait trait = default(TTrait)) : 
