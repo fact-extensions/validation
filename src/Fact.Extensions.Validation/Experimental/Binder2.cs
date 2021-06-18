@@ -270,7 +270,7 @@ namespace Fact.Extensions.Validation.Experimental
                 FieldStatus.ComparisonCode.GreaterThan, value);
         }
 
-        public static IFluentBinder<TTo> Convert<T, TTo>(this IFluentBinder<T> fb, 
+        public static FluentBinder2<TTo> Convert<T, TTo>(this IFluentBinder<T> fb, 
             tryConvertDelegate<IField<T>, TTo> converter, string cannotConvert = null, Optional<TTo> defaultValue = null)
         {
             var fb2 = new FluentBinder2<TTo>(fb.Binder, false);
@@ -298,7 +298,7 @@ namespace Fact.Extensions.Validation.Experimental
             return fb2;
         }
 
-        public static IFluentBinder<TTo> Convert<T, TTo>(this IFluentBinder<T> fb,
+        public static FluentBinder2<TTo> Convert<T, TTo>(this IFluentBinder<T> fb,
             tryConvertDelegate<T, TTo> converter, string cannotConvert, Optional<TTo> defaultValue = null)
         {
             return fb.Convert<T, TTo>((IField<T> field, out TTo converted) =>
@@ -342,7 +342,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        static IFluentBinder<DateTimeOffset> FromEpochToDateTimeOffset<T>(this IFluentBinder<T> fb)
+        static FluentBinder2<DateTimeOffset> FromEpochToDateTimeOffset<T>(this IFluentBinder<T> fb)
         {
             var fbConverted = fb.Convert((IField<T> f, out DateTimeOffset dt) =>
             {
@@ -363,10 +363,10 @@ namespace Fact.Extensions.Validation.Experimental
             return fbConverted;
         }
 
-        public static IFluentBinder<DateTimeOffset> FromEpochToDateTimeOffset(this IFluentBinder<int> fb) =>
+        public static FluentBinder2<DateTimeOffset> FromEpochToDateTimeOffset(this IFluentBinder<int> fb) =>
             FromEpochToDateTimeOffset<int>(fb);
 
-        public static IFluentBinder<DateTimeOffset> FromEpochToDateTimeOffset(this IFluentBinder<long> fb) =>
+        public static FluentBinder2<DateTimeOffset> FromEpochToDateTimeOffset(this IFluentBinder<long> fb) =>
             FromEpochToDateTimeOffset<long>(fb);
 
         static bool FilterStatus(Status s)
