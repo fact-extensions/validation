@@ -210,7 +210,7 @@ namespace Fact.Extensions.Validation.Experimental
             {
                 // NOTE: We know we can safely do this because only the <int> and <long> overloads
                 // are permitted to call this method
-                var value = System.Convert.ToInt64(fb.Field.Value);
+                var value = System.Convert.ToInt64(f.Value);
 
                 try
                 {
@@ -232,10 +232,10 @@ namespace Fact.Extensions.Validation.Experimental
         public static FluentBinder2<DateTimeOffset> FromEpochToDateTimeOffset(this IFluentBinder<long> fb) =>
             FromEpochToDateTimeOffset<long>(fb);
 
-        public static FluentBinder2<DateTimeOffset> ToDateTimeOffset(this IFluentBinder<int, EpochTrait> fb) =>
+        public static FluentBinder2<DateTimeOffset> ToDateTimeOffset(this IFluentBinder<int, Traits.Epoch> fb) =>
             FromEpochToDateTimeOffset<int>(fb);
 
-        public static FluentBinder2<DateTimeOffset> ToDateTimeOffset(this IFluentBinder<long, EpochTrait> fb) =>
+        public static FluentBinder2<DateTimeOffset> ToDateTimeOffset(this IFluentBinder<long, Traits.Epoch> fb) =>
             FromEpochToDateTimeOffset<long>(fb);
 
         static bool FilterStatus(Status s)
@@ -259,16 +259,9 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public struct EpochTrait
-        {
-
-        }
-
-
         public static FluentBinder2<T, TTrait> WithTrait<T, TTrait>(this IFluentBinder<T> fb,
             TTrait trait = default(TTrait)) =>
-            // DEBT: Naughty cast
-            new FluentBinder2<T, TTrait>((FluentBinder2<T>)fb);
+            new FluentBinder2<T, TTrait>(fb);
 
 
         /// <summary>
@@ -277,7 +270,16 @@ namespace Fact.Extensions.Validation.Experimental
         /// <typeparam name="T"></typeparam>
         /// <param name="fb"></param>
         /// <returns></returns>
-        public static FluentBinder2<int, EpochTrait> AsEpoch(this IFluentBinder<int> fb) =>
-            fb.WithTrait<int, EpochTrait>();
+        public static FluentBinder2<int, Traits.Epoch> AsEpoch(this IFluentBinder<int> fb) =>
+            fb.WithTrait<int, Traits.Epoch>();
+    }
+
+
+    namespace Traits
+    {
+        public struct Epoch
+        {
+
+        }
     }
 }
