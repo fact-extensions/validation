@@ -230,6 +230,19 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
+
+        public static IFluentBinder<string> Contains(this IFluentBinder<string> fb, string mustContain)
+        {
+            fb.Binder.ProcessingAsync += (field, context) =>
+            {
+                if (!((string)fb.Field.Value).Contains(mustContain))
+                    fb.Field.Error(FieldStatus.ComparisonCode.Unspecified, mustContain,
+                        $"Must start with: {mustContain}");
+                return new ValueTask();
+            };
+            return fb;
+        }
+
         public static IFluentBinder<T> Required<T>(this IFluentBinder<T> fb)
         {
             fb.Binder.ProcessingAsync += (field, context) =>
