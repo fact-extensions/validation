@@ -53,7 +53,15 @@ namespace Fact.Extensions.Validation.Experimental
 
     public static class RegistryExtensions
     {
-        public static void Add(this IRegistryBinder binder, string name) { }
+        public static FluentBinder2<T> Add<T>(this IRegistryBinder binder, string name)
+        {
+            Func<T> getter = () => (T)binder.Root.GetValue(name);
+            var field = new FieldStatus<T>(name, default(T));
+            var b = new Binder2<T>(field, getter);
+            var fluentBinder = new FluentBinder2<T>(b);
+            binder.Add(new RegistryBinder.Provider(fluentBinder));
+            return fluentBinder;
+        }
 
         public static FluentBinder2<T> Add<T>(this IAggregatedBinder binder, RegistryKey key, string name)
         {
