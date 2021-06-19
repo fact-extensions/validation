@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Win32;
 
 namespace Fact.Extensions.Validation.Experimental
@@ -12,8 +13,48 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+    public interface IRegistryBinder : IAggregatedBinderBase
+    {
+        RegistryKey Root { get; }
+    }
+
+
+    public class RegistryBinder : IRegistryBinder
+    {
+        public class Provider : AggregatedBinderBase.ItemBase
+        {
+            public Provider(IFluentBinder fb) : base(fb.Binder, fb)
+            {
+
+            }
+        }
+
+        readonly RegistryKey root;
+
+        public RegistryKey Root => root;
+
+        public RegistryBinder(RegistryKey key)
+        {
+            root = key;
+        }
+
+        protected readonly List<Provider> providers = new List<Provider>();
+
+        public IEnumerable<IBinderProvider> Providers => providers;
+
+        public void Add(IBinderProvider collected)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Add(Provider p) => providers.Add(p);
+    }
+
+
     public static class RegistryExtensions
     {
+        public static void Add(this IRegistryBinder binder, string name) { }
+
         public static FluentBinder2<T> Add<T>(this IAggregatedBinder binder, RegistryKey key, string name)
         {
             Func<T> getter = () =>
