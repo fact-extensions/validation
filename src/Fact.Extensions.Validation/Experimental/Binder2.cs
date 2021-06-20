@@ -58,6 +58,10 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public bool AbortOnNull { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+        /// <summary>
+        /// Strongly typed getter
+        /// NOTE: May be 'object' in circumstances where init time we don't commit to a type
+        /// </summary>
         public Func<T> getter2;
 
         Func<T> IBinderBase<T>.getter => getter2;
@@ -218,7 +222,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public FluentBinder2(IBinder2 binder, bool initial)
+        public FluentBinder2(IBinder2 binder, bool initial) : this(binder)
         {
             if (initial)
                 // DEBT: Needs refiniement

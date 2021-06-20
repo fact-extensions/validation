@@ -12,6 +12,17 @@ namespace Fact.Extensions.Validation.xUnit
     public class FluentBinderTests
     {
         [Fact]
+        public void NonTypedFluentBinder()
+        {
+            var field = new FieldStatus("test", null);
+            var binder = new Binder2(field);
+            binder.getter2 = () => "hi2u";
+            var fb = new FluentBinder2(binder, true);
+
+            fb.Required();
+        }
+
+        [Fact]
         public async Task EpochConversionTest()
         {
             var ag = new AggregatedBinder(new FieldStatus("test", null));
