@@ -16,6 +16,8 @@ namespace Fact.Extensions.Validation.xUnit
         public void Test1()
         {
             TestReg1.TryMe();
+            //var key = Registry.LocalMachine.OpenSubKey(Constants.Registry.Paths.WindowsVersion);
+            //key.GetValue
         }
 
 

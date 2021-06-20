@@ -76,6 +76,12 @@ namespace Fact.Extensions.Validation.Experimental
         public static RegistryBinder Open(this IRegistryBinder binder, string path) =>
             new RegistryBinder(binder.Root.OpenSubKey(path));
 
+        public static FluentBinder2 Add(this IAggregatedBinder binder, RegistryKey key, string name)
+        {
+            Func<object> getter = () => key.GetValue(name);
+            return binder.AddField(name, getter);
+        }
+
         public static FluentBinder2<T> Add<T>(this IAggregatedBinder binder, RegistryKey key, string name)
         {
             Func<T> getter = () =>
