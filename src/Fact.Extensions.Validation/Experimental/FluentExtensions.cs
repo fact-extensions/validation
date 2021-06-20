@@ -35,6 +35,22 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
+
+        public static TFluentBinder IsTrue<TFluentBinder>(this TFluentBinder fb, Func<object, bool> predicate,
+            Func<Status> getIsFalseStatus)
+            where TFluentBinder : IFluentBinder
+        {
+            fb.Binder.ProcessingAsync += (field, context) =>
+            {
+                IField f = fb.Field;
+                if (!predicate(f.Value))
+                    f.Add(getIsFalseStatus());
+
+                return new ValueTask();
+            };
+            return fb;
+        }
+
         /*
         public static IFluentBinder<T> IsTrue<T>(this IFluentBinder<T> fb, Func<T, bool> predicate,
             Func<Status> getIsFalseStatus) =>
@@ -59,6 +75,13 @@ namespace Fact.Extensions.Validation.Experimental
             FieldStatus.ComparisonCode code, T compareTo, string messageIfFalse = null,
             Status.Code level = Status.Code.Error)
             where TFluentBinder : IFluentBinder<T>
+            =>
+            fb.IsTrue(predicate, () => new ScalarStatus(level, messageIfFalse, code, compareTo));
+
+        public static TFluentBinder IsTrueScalar<TFluentBinder>(this TFluentBinder fb, Func<object, bool> predicate,
+            FieldStatus.ComparisonCode code, object compareTo, string messageIfFalse = null,
+            Status.Code level = Status.Code.Error)
+            where TFluentBinder : IFluentBinder
             =>
             fb.IsTrue(predicate, () => new ScalarStatus(level, messageIfFalse, code, compareTo));
 
@@ -117,7 +140,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public static TFluentBinder LessThan<TFluentBinder, T>(this TFluentBinder fb, T value,
             string errorDescription = null)
-            where T : IComparable
+            where T : IComparable<T>
             where TFluentBinder : IFluentBinder<T>
         {
             return fb.IsTrueScalar(v => v.CompareTo(value) < 0,
@@ -126,7 +149,7 @@ namespace Fact.Extensions.Validation.Experimental
 
 
         public static TFluentBinder GreaterThan<TFluentBinder, T>(this TFluentBinder fb, T value)
-            where T : IComparable
+            where T : IComparable<T>
             where TFluentBinder : IFluentBinder<T>
         {
             return fb.IsTrueScalar(v => v.CompareTo(value) > 0,
@@ -134,7 +157,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
         public static TFluentBinder GreaterThanOrEqualTo<TFluentBinder, T>(this TFluentBinder fb, T value)
-            where T : IComparable
+            where T : IComparable<T>
             where TFluentBinder : IFluentBinder<T>
         {
             return fb.IsTrueScalar(v => v.CompareTo(value) > 0,

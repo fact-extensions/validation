@@ -12,14 +12,20 @@ namespace Fact.Extensions.Validation.xUnit
     public class FluentBinderTests
     {
         [Fact]
-        public void NonTypedFluentBinder()
+        public async Task NonTypedFluentBinder()
         {
             var field = new FieldStatus("test", null);
             var binder = new Binder2(field);
             binder.getter2 = () => "hi2u";
             var fb = new FluentBinder2(binder, true);
 
-            fb.Required();
+            var fb2 = fb.Required().As<string>();
+
+            fb2.StartsWith("bye");
+
+            await fb.Binder.Process();
+
+            var statuses = fb.Field.Statuses.ToArray();
         }
 
         [Fact]
