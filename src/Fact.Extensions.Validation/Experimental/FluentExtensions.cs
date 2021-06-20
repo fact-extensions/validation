@@ -8,14 +8,14 @@ namespace Fact.Extensions.Validation.Experimental
 {
     public static class FluentExtensions
     {
-        public static FluentBinder2<T> Bind<T>(this IField<T> field, Func<T> getter)
+        public static FluentBinder2<T> Bind<T>(this IField field, Func<T> getter)
         {
             var b = new Binder2<T>(field, getter);
             var fb = new FluentBinder2<T>(b, true);
             return fb;
         }
 
-        public static FluentBinder2 Bind(this IField field, Func<object> getter)
+        public static FluentBinder2 BindNonTyped(this IField field, Func<object> getter)
         {
             var b = new Binder2(field, getter);
             var fb = new FluentBinder2(b, true);
@@ -328,6 +328,56 @@ namespace Fact.Extensions.Validation.Experimental
         /// <returns></returns>
         public static FluentBinder2<int, Traits.Epoch> AsEpoch(this IFluentBinder<int> fb) =>
             fb.WithTrait<int, Traits.Epoch>();
+
+
+        // EXPERIMENTAL
+        // Convert and assign on initialization only
+        public static FluentBinder2<TTo> Chain<T, TTo>(this IFluentBinder<T> fluentBinder, IBinder2 binder, tryConvertDelegate<IField<T>, TTo> convert,
+            Action<TTo> setter)
+        {
+            // TODO: Rather than check a flag each time, remove the delegate from the ProcessedAsync chain
+            bool initialized = false;
+            var fbChained = new FluentBinder2<TTo>(binder, true);
+            fluentBinder.Binder.ProcessedAsync += (f, c) =>
+            {
+                if (initialized) return new ValueTask();
+
+                // Do one time conversion + setter initialization of chained FluentBinder
+                if (convert(fluentBinder.Field, out TTo initialValue))
+                {
+                    fbChained.InitialValue = initialValue;
+                    setter(initialValue);
+                }
+                else
+                {
+                    // DEBT: Register error on fb<TTo> for conversion problem
+                }
+
+                return new ValueTask();
+            };
+            /*
+            binder.ProcessingAsync += (f, c) =>
+            {
+                if(!initialized)
+                {
+                    convert()
+                }
+                return new ValueTask();
+            }; */
+            //fluentBinder.Convert(convert)
+            return fbChained;
+        }
+
+
+        public static FluentBinder2<T> Chain<T>(this IFluentBinder<T> fluentBinder, IBinder2 binder, Action<T> setter)
+        {
+            return fluentBinder.Chain(binder,
+            (IField<T> f, out T v) =>
+            {
+                v = f.Value;
+                return true;
+            }, setter);
+        }
     }
 
 

@@ -11,13 +11,20 @@ namespace Fact.Extensions.Validation.xUnit
 {
     using Experimental;
     
-    public class FluentBinderTests
+    public class FluentBinderTests : IClassFixture<Fixture>
     {
+        readonly IServiceProvider services;
+
+        public FluentBinderTests(Fixture fixture)
+        {
+            services = fixture.Services;
+        }
+
         [Fact]
         public async Task NonTypedFluentBinder()
         {
             var field = new FieldStatus("test", null);
-            var fb = field.Bind(() => "hi2u");
+            var fb = field.BindNonTyped(() => "hi2u");
 
             var fb2 = fb.Required().
                 IsNotEqualTo("hi2u").
@@ -34,7 +41,7 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task EpochConversionTest()
         {
-            var ag = new AggregatedBinder(new FieldStatus("test", null));
+            var ag = new AggregatedBinder(new FieldStatus("test", null), services);
 
             var fb = ag.AddField("epoch", () => long.MinValue).
                 FromEpochToDateTimeOffset();
@@ -53,6 +60,27 @@ namespace Fact.Extensions.Validation.xUnit
             statues = fb2.Binder.Field.Statuses.ToArray();
             statues.Should().HaveCount(0);
             fb4.InitialValue.Should().Be(DateTimeOffset.UnixEpoch);
+        }
+
+
+        [Fact]
+        public async Task ChainTest()
+        {
+            var field = new FieldStatus("testSource", null);
+            var fb = field.Bind(() => "hi2u");
+            var field2 = new FieldStatus("testChained", null);
+            var binder = new Binder2(field2, () => field2.Value);
+            var fb2 = fb.Chain(binder, v => field2.Value = v);
+
+            //fb.InitialValue.Should().Be("hi2u");
+            //fb2.InitialValue.Should().BeNull();
+
+            await fb.Binder.Process();
+
+            // FIX: Technically we want InitialValue set here, but so far it actually only gets set during
+            // convert operations
+            //fb.InitialValue.Should().Be("hi2u");
+            fb2.InitialValue.Should().Be("hi2u");
         }
     }
 }
