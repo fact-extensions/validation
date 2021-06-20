@@ -179,18 +179,8 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-
-    public class FluentBinder2<T> : IFluentBinder<T>
+    public class FluentBinder2 : IFluentBinder
     {
-        /// <summary>
-        /// Rolling value loosely analoguous to Context.Value
-        /// This is the "runtime init" value preceded potentially by other FluentBinders
-        /// vs the "system init" value which we generally are uninterested in
-        /// </summary>
-        internal T InitialValue;
-        
-        readonly IBinder2 binder;
-
         /// <summary>
         /// 
         /// </summary>
@@ -201,46 +191,89 @@ namespace Fact.Extensions.Validation.Experimental
         /// </remarks>
         public bool AbortOnNull { get; set; } = true;
 
-        public IBinder2 Binder => binder;
-        public ShimFieldBase2<T> Field { get; }
+        public IBinder2 Binder { get; }
 
-        IField IFluentBinder.Field => Field;
+        public IField Field { get; protected set; }
 
-        readonly List<Status> statuses = new List<Status>();
+        public Type Type { get; protected set; }
 
-        void Initialize()
+        // DEBT: Field MUST be initialized by calling class
+        protected FluentBinder2(IBinder2 binder, Type type = null)
+        {
+            Binder = binder;
+            Type = type;
+        }
+
+
+        /*
+        public FluentBinder2(IBinder2 binder, bool initial)
+        {
+            if (initial)
+                // DEBT: Needs refiniement
+                Field = new ShimFieldBase2<T>(binder, statuses, () => (T)binder.getter());
+            else
+                Field = new ShimFieldBase2<T>(binder, statuses, () => InitialValue);
+
+            Initialize();
+        } */
+
+
+        protected readonly List<Status> statuses = new List<Status>();
+
+        protected void Initialize()
         {
             // This event handler is more or less a re-initializer for subsequent
             // process/validation calls
-            binder.ProcessingAsync += (field, context) =>
+            Binder.ProcessingAsync += (field, context) =>
             {
                 statuses.Clear();
                 // Doesn't quite work because some scenarios have parallel FluentBinders
                 //if (AbortOnNull && Field.Value == null)
-                    //context.Abort = true;
+                //context.Abort = true;
                 return new ValueTask();
             };
 
             // DEBT
-            var f = (IFieldStatusExternalCollector)binder.Field;
+            var f = (IFieldStatusExternalCollector)Binder.Field;
             f.Add(statuses);
         }
+    }
 
+
+
+    public class FluentBinder2<T> : FluentBinder2,
+        IFluentBinder<T>
+    {
+        /// <summary>
+        /// Rolling value loosely analoguous to Context.Value
+        /// This is the "runtime init" value preceded potentially by other FluentBinders
+        /// vs the "system init" value which we generally are uninterested in
+        /// </summary>
+        internal T InitialValue;
+        
+        public new  ShimFieldBase2<T> Field { get; }
+
+        new void Initialize()
+        {
+            base.Initialize();
+
+            // DEBT: Easy to get wrong
+            base.Field = Field;
+        }
 
         public FluentBinder2(IFluentBinder<T> chained) :
             this(chained.Binder, false)
         {
-            binder.ProcessingAsync += (f, c) =>
+            Binder.ProcessingAsync += (f, c) =>
             {
                 InitialValue = (T)chained.Field.Value;
                 return new ValueTask();
             };
         }
 
-        public FluentBinder2(IBinder2 binder, bool initial)
+        public FluentBinder2(IBinder2 binder, bool initial) : 
+            base(binder, typeof(T))
         {
-            this.binder = binder;
-
             if (initial)
                 // DEBT: Needs refiniement
                 Field = new ShimFieldBase2<T>(binder, statuses, () => (T)binder.getter());
@@ -251,10 +284,9 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public FluentBinder2(IBinder2<T> binder, bool initial = true)
+        public FluentBinder2(IBinder2<T> binder, bool initial = true) : 
+            base(binder, typeof(T))
         {
-            this.binder = binder;
-
             if (initial)
                 // DEBT: Needs refiniement
                 Field = new ShimFieldBase2<T>(binder, statuses, binder.getter);

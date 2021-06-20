@@ -71,6 +71,11 @@ namespace Fact.Extensions.Validation.Experimental
             return fluentBinder;
         }
 
+
+        // TODO: Consider consolidating with Fact.Extensions Taxonomy
+        public static RegistryBinder Open(this IRegistryBinder binder, string path) =>
+            new RegistryBinder(binder.Root.OpenSubKey(path));
+
         public static FluentBinder2<T> Add<T>(this IAggregatedBinder binder, RegistryKey key, string name)
         {
             Func<T> getter = () =>
