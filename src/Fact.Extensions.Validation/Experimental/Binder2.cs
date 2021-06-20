@@ -161,6 +161,19 @@ namespace Fact.Extensions.Validation.Experimental
 
 
     }
+
+    public class ShimFieldBase2 : ShimFieldBase, IField
+    {
+        readonly Func<object> getter;
+
+        public override object Value => getter();
+
+        internal ShimFieldBase2(IBinderBase binder, ICollection<Status> statuses, Func<object> getter) :
+            base(binder, statuses)
+        {
+            this.getter = getter;
+        }
+    }
     
     public class ShimFieldBase2<T> : ShimFieldBase,
         IField<T>
@@ -205,17 +218,17 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        /*
         public FluentBinder2(IBinder2 binder, bool initial)
         {
             if (initial)
                 // DEBT: Needs refiniement
-                Field = new ShimFieldBase2<T>(binder, statuses, () => (T)binder.getter());
+                Field = new ShimFieldBase2(binder, statuses, () => binder.getter());
             else
-                Field = new ShimFieldBase2<T>(binder, statuses, () => InitialValue);
+                throw new NotImplementedException();
+                //Field = new ShimFieldBase2<T>(binder, statuses, () => InitialValue);
 
             Initialize();
-        } */
+        }
 
 
         protected readonly List<Status> statuses = new List<Status>();
@@ -261,7 +274,7 @@ namespace Fact.Extensions.Validation.Experimental
             base.Field = Field;
         }
 
-        public FluentBinder2(IFluentBinder<T> chained) :
+        public FluentBinder2(IFluentBinder chained) :
             this(chained.Binder, false)
         {
             Binder.ProcessingAsync += (f, c) =>

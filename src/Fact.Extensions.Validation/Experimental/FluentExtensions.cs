@@ -8,6 +8,16 @@ namespace Fact.Extensions.Validation.Experimental
 {
     public static class FluentExtensions
     {
+        public static FluentBinder2<T> As<T>(this FluentBinder2 fb)
+        {
+            if (fb is FluentBinder2<T> fbTyped) return fbTyped;
+
+            // TODO: Check fb.Type and make sure this is a valid cast
+
+            fbTyped = new FluentBinder2<T>(fb);
+            return fbTyped;
+        }
+
         public delegate bool tryConvertDelegate<TFrom, TTo>(TFrom from, out TTo to);
 
         public static TFluentBinder IsTrue<TFluentBinder, T>(this TFluentBinder fb, Func<T, bool> predicate,
