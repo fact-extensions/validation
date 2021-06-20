@@ -79,7 +79,7 @@ namespace Fact.Extensions.Validation.xUnit
             var rb = new RegistryBinder(RegistryHive.LocalMachine, Constants.Registry.Paths.WindowsVersion);
             int installDate = 0;
 
-            var fb = rb.Add<int>("InstallDate");
+            var fb = rb.Add("InstallDate").As<int>();
             
             fb.Emit(v => installDate = v);
 
