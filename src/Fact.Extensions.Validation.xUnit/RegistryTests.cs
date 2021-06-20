@@ -52,7 +52,7 @@ namespace Fact.Extensions.Validation.xUnit
             emittedDto.Should().BeAfter(y2k);
         }
 
-        // FIX: Sloppiness with FluentBinder2.test1 is hurting us here
+        // FIX: Sloppiness with FluentBinder2.InitialValue is hurting us here
         [Fact]
         public async Task Test3()
         {
@@ -68,6 +68,22 @@ namespace Fact.Extensions.Validation.xUnit
 
             var statuses = fb2.Field.Statuses.ToArray();
             statuses.Should().BeEmpty();
+        }
+
+
+        [Fact]
+        public async Task Test4()
+        {
+            var rb = new RegistryBinder(RegistryHive.LocalMachine, Constants.Registry.Paths.WindowsVersion);
+            int installDate = 0;
+
+            var fb = rb.Add<int>("InstallDate");
+            
+            fb.Emit(v => installDate = v);
+
+            await fb.Binder.Process();
+
+            installDate.Should().BeGreaterThan(0);
         }
 #endif
     }

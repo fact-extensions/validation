@@ -38,16 +38,24 @@ namespace Fact.Extensions.Validation.Experimental
             root = key;
         }
 
+
+        public RegistryBinder(RegistryHive hive, string path)
+        {
+            var view = RegistryView.Default;
+            root = RegistryKey.OpenBaseKey(hive, view);
+            root = root.OpenSubKey(path);
+        }
+
+
         protected readonly List<Provider> providers = new List<Provider>();
 
         public IEnumerable<IBinderProvider> Providers => providers;
 
         public void Add(IBinderProvider collected)
         {
-            throw new NotImplementedException();
+            // DEBT: Problematic cast
+            providers.Add((Provider)collected);
         }
-
-        public void Add(Provider p) => providers.Add(p);
     }
 
 
