@@ -70,19 +70,19 @@ namespace Fact.Extensions.Validation.xUnit
         public void ConfirmPasswordTest2()
         {
             var entity = new GroupBinder();
-            var f1 = new FieldStatus("pass1", null);
-            var f2 = new FieldStatus("pass2", null);
-            var pass1 = new Binder<string>(f1);
+            var f1 = new FieldStatus<string>("pass1", null);
+            var f2 = new FieldStatus<string>("pass2", null);
+            var pass1 = new Binder2<string>(f1, () => f1.Value);
             entity.Add(pass1);
-            var pass2 = new Binder<string>(f2);
+            var pass2 = new Binder2<string>(f2, () => f2.Value);
             entity.Add(pass2);
             // Looks like we may not need context anymore...
             var inputContext = new InputContext()
             {
                 FieldName = "pass1"
             };
-            pass1.getter = () => "password1";
-            pass2.getter = () => "password2";
+            f1.Value = "password1";
+            f2.Value = "password2";
 
             entity.Validate += (b, context) =>
             {
@@ -173,63 +173,6 @@ namespace Fact.Extensions.Validation.xUnit
             f2.InternalStatuses.Should().BeEmpty();
             var _pass2 = (GroupBinder._Item)binder["pass2"];
             _pass2.statuses.Should().HaveCount(1);
-        }
-
-        [Fact]
-        public void ConversionTest()
-        {
-            var f = new FieldStatus<string>("field1", null);
-            var b = new Binder<string, int>(f);
-            string val = "123";
-            object output;
-            b.getter = () => val;
-            b.Finalize += v => output = v;
-            
-
-            b.Convert += (f, cea) =>
-            {
-                if (int.TryParse(f.Value, out int result))
-                    cea.Value = result;
-                else
-                    f.Error("Unable to convert to integer");
-            };
-
-            b.Evaluate("123");
-
-            f.Statuses.Should().BeEmpty();
-
-            b.Evaluate("xyz");
-
-            f.Statuses.Should().HaveCount(1);
-        }
-
-
-        [Fact]
-        public void ConversionTest3()
-        {
-            var f = new FieldStatus<string>("field1", null);
-            var b = new Binder<string, int>(f);
-            string val = "123";
-            object output;
-            b.getter = () => val;
-            b.Finalize += v => output = v;
-            
-
-            b.Convert += (f, cea) =>
-            {
-                if (int.TryParse(f.Value, out int result))
-                    cea.Value = result;
-                else
-                    f.Error("Unable to convert to integer");
-            };
-
-            b.Evaluate("123");
-
-            f.Statuses.Should().BeEmpty();
-
-            b.Evaluate("xyz");
-
-            f.Statuses.Should().HaveCount(1);
         }
     }
 }

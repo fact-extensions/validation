@@ -210,18 +210,6 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public interface IBinder<T> : IBinder
-    {
-        event FilterDelegate<T> Filter;
-        event Action<IField<T>> Validate;
-    }
-
-
-    public interface IBinder<T, TFinal> : IBinder<T>
-    {
-        event Action<TFinal> Finalize;
-    }
-
     public class BinderBaseBase
     {
         protected readonly IField field;
@@ -320,161 +308,12 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
     public delegate void FilterDelegate<T>(IField<T> field, Context context);
-
-    /// <summary>
-    /// Binder is a very fancy getter and IField status maintainer
-    /// </summary>
-    /// <typeparam name="T">Initial type, in field.Value</typeparam>
-    /// <typeparam name="TFinal">Final type, after conversions and commit</typeparam>
-    public class Binder<T, TFinal> : BinderBase,
-        IBinder<T, TFinal>,
-        IFieldStatusProvider2,
-        IFieldStatusCollector2
-    {
-        /// <summary>
-        /// When true, aborts validation processing when a null is seen (more or less treats a value as optional)
-        /// When false, ignores null and proceeds forward passing null through onto validation chain
-        /// </summary>
-        public bool AbortOnNull { get; set; } = true;
-
-        object converted;
-
-        // For exporting status
-        List<Status> Statuses = new List<Status>();
-
-        /// <summary>
-        /// Statuses tracked by this binder 1:1 with this tracked field
-        /// </summary>
-        List<Status> InternalStatuses = new List<Status>();
-
-        IEnumerable<Status> IFieldStatusProvider2.Statuses => Statuses;
-
-        public void Add(Status status) =>
-            Statuses.Add(status);
-
-        readonly new FieldStatus field;
-
-        public Binder(FieldStatus field, Func<object> getter = null) : base(field)
-        {
-            this.getter = getter;
-            this.field = field;
-            Attach();
-        }
-
-
-        void Attach()
-        {
-            field.Add(InternalStatuses);
-            //field.AddIfNotPresent(this);
-        }
-
-        public event Action<TFinal> Finalize;
-        /// <summary>
-        /// EXPERIMENTAL - may want all Validate to operate this way
-        /// </summary>
-        public event FilterDelegate<T> Filter;
-        /// <summary>
-        /// TODO: Rename to Validating
-        /// </summary>
-        public event Action<IField<T>> Validate;
-
-        /// <summary>
-        /// Can only convert from T to TFinal
-        /// If multiple conversions are needed, one must chain multiple binders
-        /// </summary>
-        public delegate void ConvertDelegate(IField<T> field, ConvertEventArgs<TFinal> eventArgs);
-
-        public event ConvertDelegate Convert;
-
-        public override IField Evaluate()
-        {
-            object value = getter();
-            field.Value = value;
-            var f = new ShimFieldBase<T>(this, InternalStatuses);
-
-            Statuses.Clear();
-            InternalStatuses.Clear();
-
-            if (AbortOnNull)
-            {
-                if (value == null) return f;
-
-                // DEBT: type specificity not welcome here.  What about 'null' integers, etc?
-                if (value is string sValue && string.IsNullOrWhiteSpace(sValue))
-                    return f;
-            }
-
-            if (Filter != null)
-            {
-                var context = new Context();
-                foreach (var d in Filter.GetInvocationList().OfType<FilterDelegate<T>>())
-                {
-                    d(f, context);
-
-                    if (context.Abort) return f;
-                }
-            }
-
-            Validate?.Invoke(f);
-
-            if (Convert != null)
-            {
-                converted = null;
-                var cea = new ConvertEventArgs<TFinal>();
-                // Easier to do with a ConvertContext to carry the obj around, or a manual list
-                // of delegates which we can abort if things go wrong
-                foreach (var d in Convert.GetInvocationList().OfType<ConvertDelegate>())
-                {
-                    if (cea.IsSet) break;
-                    d(f, cea);
-                }
-
-                if(cea.IsSet)
-                    converted = cea.Value;
-                if (typeof(T) == typeof(TFinal))
-                    converted = f.Value;
-                
-                // If convert chain reaches here without converting, it's the chain's responsibility
-                // to report errors along the way via f.Error etc
-                // Multi-type conversion not supported directly in one binder.  Either:
-                // - chain together multiple binders
-                // - store output somewhere other than cea.Value (you're on your own, but won't break validator)
-            }
-            else
-                // DEBT: Naming is all wrong here
-                this.converted = field.Value;
-
-            return f;
-        }
-    }
-
-    public class Binder<T> : Binder<T, T>
-    {
-        public Binder(FieldStatus field, Func<object> getter = null) : 
-            base(field, getter)
-        {
-
-        }
-    }
 }
 
 
 namespace Fact.Extensions.Validation
 {
     using Experimental;
-
-    public static class BinderExtensions
-    {
-        // DEBT: This stateful and non-stateful can't fully coexist and we'll have to choose one
-        // or the other eventually
-        public static void Evaluate<T>(this BinderBase binder, T value)
-        {
-            binder.getter = () => value;
-            binder.Evaluate();
-        }
-    }
-
-
 
     public static class GroupBinderExtensions
     {
