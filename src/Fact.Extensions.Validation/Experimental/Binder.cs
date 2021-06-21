@@ -212,8 +212,6 @@ namespace Fact.Extensions.Validation.Experimental
 
     public interface IBinder : IBinderBase
     {
-        void DoFinalize();
-
         // DEBT: May not want this here
         bool AbortOnNull { get; set; }
     }
@@ -243,8 +241,6 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
         public virtual IField Evaluate() { throw new NotImplementedException(); }
-
-        public virtual void DoFinalize() { throw new NotImplementedException(); }
     }
 
 
@@ -462,11 +458,6 @@ namespace Fact.Extensions.Validation.Experimental
                 this.converted = field.Value;
 
             return f;
-        }
-
-        public override void DoFinalize()
-        {
-            Finalize?.Invoke((TFinal)converted);
         }
     }
 

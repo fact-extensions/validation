@@ -18,26 +18,6 @@ namespace Fact.Extensions.Validation.xUnit
         }
 
         [Fact]
-        public void BinderTest()
-        {
-            var f = new FieldStatus("field1", null);
-            var b = new Binder<int>(f);
-
-            b.Validate += f =>
-            {
-                if(f.Value == 1)
-                    f.Error("You didn't do it right");
-            };
-
-            b.Evaluate(0);
-            b.Evaluate(1);
-
-            f.Statuses.Should().HaveCount(1).And.
-                Subject.First().Level.Should().Be(Status.Code.Error);
-        }
-
-
-        [Fact]
         public void ConfirmPasswordTest1()
         {
             var entity = new GroupBinder();
