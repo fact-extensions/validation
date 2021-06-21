@@ -88,9 +88,6 @@ namespace Fact.Extensions.Validation
         public new class ItemBase : AggregatedBinderBase.ItemBase, IModified
         {
             public event Action Initialize;
-            // DEBT: Pretty sure we can deduce this at will based on an initial vs current value
-            [Obsolete]
-            public bool modified;
             public virtual bool IsModified => false;
 
             public void DoInitialize() => Initialize?.Invoke();
@@ -142,12 +139,6 @@ namespace Fact.Extensions.Validation
                 tracked = tracker;
             }
         }
-
-        /// <summary>
-        /// A list of all tracked original/canonical fields
-        /// </summary>
-        public IEnumerable<IField> Fields =>
-            binders.Select(x => x.binder.Field);
     }
 
 
