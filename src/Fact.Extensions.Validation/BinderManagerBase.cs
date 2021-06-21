@@ -127,12 +127,6 @@ namespace Fact.Extensions.Validation
 
             IBinder2<T> IBinderProvider<T>.Binder => (IBinder2<T>)base.Binder;
 
-            public Item(IFluentBinder<T> fluentBinder, TSource source, T initialValue) :
-                this(fluentBinder, source, new Tracker<T>(initialValue))
-            {
-                tracked = new Tracker<T>(initialValue);
-            }
-
             public Item(IFluentBinder<T> fluentBinder, TSource source, Tracker<T> tracker) :
                 base(fluentBinder, source)
             {

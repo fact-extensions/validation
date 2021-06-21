@@ -69,8 +69,6 @@ namespace Fact.Extensions.Validation
             }
         }
 
-        public void Clear() => statuses.Clear();
-
         public void Add(Status status) =>
             statuses.Add(status);
 
@@ -235,41 +233,6 @@ namespace Fact.Extensions.Validation
                 return Prefix + "." + base.ToString();
             else
                 return base.ToString();
-        }
-    }
-}
-
-namespace Fact.Extensions.Validation
-{
-    public static class ErrorItemUtility
-    {
-        /// <summary>
-        /// Assign a prefix to this ExtendedErrorItem, and if it is not an extended errorItem, promote
-        /// it to one so that prefix may be assigned
-        /// </summary>
-        /// <param name="errorItem"></param>
-        /// <param name="prefix"></param>
-        /// <returns></returns>
-        public static void SetPrefix(ref FieldStatus errorItem, string prefix)
-        {
-            var _errorItem = errorItem as ExtendedFieldStatus;
-            if (_errorItem != null)
-                _errorItem.Prefix = prefix;
-            else
-                _errorItem = new ExtendedFieldStatus(errorItem) { Prefix = prefix };
-        }
-
-
-        /// <summary>
-        /// Return only fields which have an error status.  Some of the statuses in the field
-        /// may NOT be in error.
-        /// </summary>
-        /// <param name="errors"></param>
-        /// <returns>Enumeration of errors matching the criteria</returns>
-        public static IEnumerable<FieldStatus> OnlyErrors(this IEnumerable<FieldStatus> errors)
-        {
-            return errors.Where(x => 
-                x.Statuses.Any(y => y.Level == Status.Code.Error || y.Level == Status.Code.Exception));
         }
     }
 }
