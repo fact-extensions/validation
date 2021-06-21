@@ -239,38 +239,6 @@ namespace Fact.Extensions.Validation.xUnit
 
 
         [Fact]
-        public void FluentTest2()
-        {
-            var f = new FieldStatus<int>("field1", default(int));
-            var b = new Binder<int>(f);
-
-            b.Assert().
-                LessThan(10).
-                GreaterThan(6);
-
-            b.Evaluate(5);
-
-            f.Statuses.Should().HaveCount(1);
-        }
-
-
-        [Fact]
-        public void FluentTest3()
-        {
-            var f = new FieldStatus<string>("field1", null);
-            var b = new Binder<string>(f);
-
-            b.Assert().Required();
-
-            // DEBT: string cast needed so compiler can figure out which extension to use
-            // clearly not ideal
-            b.Evaluate((string)null);
-
-            f.Statuses.Should().HaveCount(1);
-        }
-
-
-        [Fact]
         public void ConversionTest2()
         {
             var field = new FieldStatus<string>("field1", "123");

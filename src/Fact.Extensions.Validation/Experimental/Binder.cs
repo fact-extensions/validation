@@ -572,16 +572,6 @@ namespace Fact.Extensions.Validation
         }
 
 
-        public static FluentBinder<T> GreaterThan<T>(this FluentBinder<T> fluent, T greaterThanValue, 
-            string description = "Must be greater than {0}")
-            where T: IComparable<T>
-        {
-            fluent.IsTrue(v => v.CompareTo(greaterThanValue) > 0, 
-                string.Format(description, greaterThanValue));
-            return fluent;
-        }
-
-
         public static FluentBinder<T> Required<T>(this FluentBinder<T> fluent)
         {
             fluent.Binder.AbortOnNull = false;
