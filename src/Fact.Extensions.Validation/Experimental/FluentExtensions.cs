@@ -17,7 +17,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public static FluentBinder2 BindNonTyped(this IField field, Func<object> getter)
         {
-            var b = new Binder2(field, getter);
+            var b = new Binder2<object>(field, getter);
             var fb = new FluentBinder2(b, true);
             return fb;
         }

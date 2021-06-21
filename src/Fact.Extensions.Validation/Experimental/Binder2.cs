@@ -68,7 +68,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public Func<object> getter => () => getter2();
 
-        public Binder2(IField field, Func<T> getter = null) : base(field)
+        public Binder2(IField field, Func<T> getter) : base(field)
         {
             this.getter2 = getter;
         }
@@ -139,7 +139,7 @@ namespace Fact.Extensions.Validation.Experimental
 
     public class Binder2 : Binder2<object>
     {
-        public Binder2(IField field, Func<object> getter = null) : 
+        public Binder2(IField field, Func<object> getter) : 
             base(field, getter)
         {
 

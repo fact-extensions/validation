@@ -106,10 +106,10 @@ namespace Fact.Extensions.Validation.xUnit
         }
 
         [Fact]
-        public void Emit1()
+        public async Task Emit1()
         {
             var f = new FieldStatus("field1", "123a");
-            var b = new Binder2(f, () => f.Value);
+            var b = new Binder2<object>(f, () => f.Value);
             int value = 0;
             string _value = null;
 
@@ -119,7 +119,7 @@ namespace Fact.Extensions.Validation.xUnit
 
             var fb2 = fb.Convert<int>().Emit(v => value = v);
 
-            b.Process();
+            await b.Process();
 
             var statuses = f.Statuses.ToArray();
             statuses.Should().HaveCount(1);

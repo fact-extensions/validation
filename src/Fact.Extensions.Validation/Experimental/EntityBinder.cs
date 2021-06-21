@@ -74,7 +74,7 @@ namespace Fact.Extensions.Validation.Experimental
     public delegate void BindersProcessedDelegate(IEnumerable<IBinderProvider> binders, Context2 context);
 
     // TODO: Make an IEntityBinder so that we can do an IEntityBinder<T>
-    public class AggregatedBinder : Binder2,
+    public class AggregatedBinder : Binder2<object>,
         IAggregatedBinder
     {
         /// <summary>
@@ -99,12 +99,12 @@ namespace Fact.Extensions.Validation.Experimental
             }
         }
 
-        public AggregatedBinder(IField field, IServiceProvider services = null) : base(field)
-        {
+        public AggregatedBinder(IField field, IServiceProvider services = null) :
             // DEBT: A little sloppy to lazy init our getter, however aggregated
             // binder may indeed not need to retrieve any value for context.Value
             // during Process call
-            getter2 = () => null;
+            base(field, () => null)
+        {
             Services = services;
 
             // DEBT: Sloppy assigning a new InputContext during processing chain.  We do this so that the
@@ -386,7 +386,7 @@ namespace Fact.Extensions.Validation.Experimental
             Func<IFluentBinder, IBinderProvider> providerFactory)
         {
             var f = new FieldStatus(name, null);
-            var b = new Binder2(f, getter);
+            var b = new Binder2<object>(f, getter);
             var fb = new FluentBinder2(b, true);
             binder.Add(providerFactory(fb));
             return fb;
