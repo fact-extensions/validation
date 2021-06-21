@@ -9,15 +9,15 @@ using Xunit;
 
 namespace Fact.Extensions.Validation.xUnit
 {
+    using Experimental;
+    
     public class FluentBinderTests
     {
         [Fact]
         public async Task NonTypedFluentBinder()
         {
             var field = new FieldStatus("test", null);
-            var binder = new Binder2(field);
-            binder.getter2 = () => "hi2u";
-            var fb = new FluentBinder2(binder, true);
+            var fb = field.Bind(() => "hi2u");
 
             var fb2 = fb.Required().As<string>();
 

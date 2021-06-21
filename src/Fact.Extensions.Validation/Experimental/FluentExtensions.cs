@@ -8,6 +8,20 @@ namespace Fact.Extensions.Validation.Experimental
 {
     public static class FluentExtensions
     {
+        public static FluentBinder2<T> Bind<T>(this IField<T> field, Func<T> getter)
+        {
+            var b = new Binder2<T>(field, getter);
+            var fb = new FluentBinder2<T>(b, true);
+            return fb;
+        }
+
+        public static FluentBinder2 Bind(this IField field, Func<object> getter)
+        {
+            var b = new Binder2(field, getter);
+            var fb = new FluentBinder2(b, true);
+            return fb;
+        }
+
         public static FluentBinder2<T> As<T>(this FluentBinder2 fb)
         {
             if (fb is FluentBinder2<T> fbTyped) return fbTyped;
