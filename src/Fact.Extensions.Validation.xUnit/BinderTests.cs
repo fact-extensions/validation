@@ -109,8 +109,7 @@ namespace Fact.Extensions.Validation.xUnit
         public void Emit1()
         {
             var f = new FieldStatus("field1", "123a");
-            var b = new Binder2(f);
-            b.getter2 = () => f.Value;
+            var b = new Binder2(f, () => f.Value);
             int value = 0;
             string _value = null;
 
@@ -134,8 +133,7 @@ namespace Fact.Extensions.Validation.xUnit
         public async Task AwaitedProcessor()
         {
             var f = new FieldStatus("field1", "123a");
-            var b = new Binder2(f);
-            b.getter2 = () => f.Value;
+            var b = new Binder2(f, () => f.Value);
             var cts = new CancellationTokenSource();
             var tcs = new TaskCompletionSource<int>();
             var gotHere = new HashSet<int>();

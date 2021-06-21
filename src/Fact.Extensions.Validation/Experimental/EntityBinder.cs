@@ -386,8 +386,7 @@ namespace Fact.Extensions.Validation.Experimental
             Func<IFluentBinder, IBinderProvider> providerFactory)
         {
             var f = new FieldStatus(name, null);
-            var b = new Binder2(f);
-            b.getter2 = getter;
+            var b = new Binder2(f, getter);
             var fb = new FluentBinder2(b, true);
             binder.Add(providerFactory(fb));
             return fb;
