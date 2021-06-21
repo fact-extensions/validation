@@ -481,10 +481,11 @@ namespace Fact.Extensions.Validation
         public static void DoValidate<T1, T2>(this GroupBinder binder, string fieldName1, string fieldName2,
             Action<Context2, IField<T1>, IField<T2>> handler)
         {
+            var field1 = (IField<T1>)binder[fieldName1];
+            var field2 = (IField<T2>)binder[fieldName2];
+
             binder.Validate += (gb, ctx) =>
             {
-                var field1 = (IField<T1>)gb[fieldName1];
-                var field2 = (IField<T2>)gb[fieldName2];
                 handler(ctx, field1, field2);
                 return new ValueTask();
             };
