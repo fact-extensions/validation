@@ -19,13 +19,16 @@ namespace Fact.Extensions.Validation.xUnit
             var field = new FieldStatus("test", null);
             var fb = field.Bind(() => "hi2u");
 
-            var fb2 = fb.Required().As<string>();
+            var fb2 = fb.Required().
+                IsEqualTo("hi2u").
+                As<string>();
 
             fb2.StartsWith("bye");
 
             await fb.Binder.Process();
 
             var statuses = fb.Field.Statuses.ToArray();
+            statuses.Should().HaveCount(1);
         }
 
         [Fact]

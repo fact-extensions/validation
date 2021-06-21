@@ -152,6 +152,16 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
+        public static TFluentBinder IsEqualTo<TFluentBinder>(this TFluentBinder fb, object compareTo)
+            where TFluentBinder : IFluentBinder =>
+            fb.IsTrueScalar(v => v.Equals(compareTo), FieldStatus.ComparisonCode.EqualTo,
+                $"Must be equal to: {compareTo}");
+
+        public static TFluentBinder IsNotEqualTo<TFluentBinder>(this TFluentBinder fb, object compareTo)
+            where TFluentBinder : IFluentBinder =>
+            fb.IsTrueScalar(v => !v.Equals(compareTo), FieldStatus.ComparisonCode.EqualTo,
+                $"Must not be equal to: {compareTo}");
+        
         public static TFluentBinder LessThan<TFluentBinder, T>(this TFluentBinder fb, T value,
             string errorDescription = null)
             where T : IComparable<T>
