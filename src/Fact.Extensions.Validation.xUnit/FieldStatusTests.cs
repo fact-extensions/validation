@@ -218,20 +218,6 @@ namespace Fact.Extensions.Validation.xUnit
 
 
         [Fact]
-        public void FluentTest1()
-        {
-            var f = new FieldStatus<string>("field1", null);
-            var b = new Binder<string>(f);
-
-            b.Assert().IsTrue(x => x == "hi", "Must be 'hi'");
-
-            b.Evaluate("howdy");
-
-            f.Statuses.Should().HaveCount(1);
-        }
-
-
-        [Fact]
         public void ConversionTest2()
         {
             var field = new FieldStatus<string>("field1", "123");

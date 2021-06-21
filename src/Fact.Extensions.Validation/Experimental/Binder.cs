@@ -89,19 +89,6 @@ namespace Fact.Extensions.Validation.Experimental
     /// </summary>
     public class GroupBinder : IFieldStatusCollector
     {
-        /// <summary>
-        /// Serves as a shim so that error registrations for this field associate to
-        /// the EntityBinder too
-        /// Also serves as a 1:1 holder for the underlying field binder
-        /// </summary>
-        internal class _Item<T> : ShimFieldBase<T>
-        {
-            internal _Item(IBinderBase binder) : 
-                base(binder, new List<Status>())
-            {
-            }
-        }
-
         internal class _Item : ShimFieldBase
         {
             internal _Item(IBinderBase binder) :
@@ -509,26 +496,6 @@ namespace Fact.Extensions.Validation
         }
 
 
-        public static FluentBinder<T> Assert<T>(this Binder<T> binder)
-        {
-            return new FluentBinder<T>(binder);
-        }
-
-        public static FluentBinder<T> IsTrue<T>(this FluentBinder<T> fluent, 
-            Func<T, bool> predicate, string description, bool abortlIfFalse = false)
-        {
-            fluent.Binder.Filter += (f, c) =>
-            {
-                if (!predicate(f.Value))
-                {
-                    f.Error(description);
-                    if (abortlIfFalse) c.Abort = true;
-                }
-            };
-            return fluent;
-        }
-
-
         public static void TryConvert<T, TFinal>(this IField<T> field,
             Func<T, IConvertValue<TFinal>, bool> converter, IConvertValue<TFinal> ctx, string err)
         {
@@ -550,17 +517,6 @@ namespace Fact.Extensions.Validation
                 handler(ctx, field1, field2);
                 return new ValueTask();
             };
-        }
-    }
-
-
-    public class FluentBinder<T>
-    {
-        public IBinder<T> Binder { get; }
-
-        public FluentBinder(IBinder<T> binder)
-        {
-            Binder = binder;
         }
     }
 }
