@@ -20,7 +20,7 @@ namespace Fact.Extensions.Validation.xUnit
             var fb = field.Bind(() => "hi2u");
 
             var fb2 = fb.Required().
-                IsEqualTo("hi2u").
+                IsNotEqualTo("hi2u").
                 As<string>();
 
             fb2.StartsWith("bye");
@@ -28,7 +28,7 @@ namespace Fact.Extensions.Validation.xUnit
             await fb.Binder.Process();
 
             var statuses = fb.Field.Statuses.ToArray();
-            statuses.Should().HaveCount(1);
+            statuses.Should().HaveCount(2);
         }
 
         [Fact]
