@@ -218,25 +218,6 @@ namespace Fact.Extensions.Validation.xUnit
 
 
         [Fact]
-        public void ConversionTest2()
-        {
-            var field = new FieldStatus<string>("field1", "123");
-            var ctx = new ConvertEventArgs<int>();
-
-            // Supposed to be for convenience, but just makes things more complicated
-            field.TryConvert((v, ctx) =>
-            {
-                if (int.TryParse(v, out var temp))
-                {
-                    ctx.Value = temp;
-                    return true;
-                }
-
-                return false;
-            }, ctx, "Cannot convert to integer");
-        }
-        
-        [Fact]
         public void ConversionTest3()
         {
             var f = new FieldStatus<string>("field1", null);

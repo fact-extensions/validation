@@ -494,15 +494,8 @@ namespace Fact.Extensions.Validation
             binder.getter = () => value;
             binder.Evaluate();
         }
-
-
-        public static void TryConvert<T, TFinal>(this IField<T> field,
-            Func<T, IConvertValue<TFinal>, bool> converter, IConvertValue<TFinal> ctx, string err)
-        {
-            if(!converter(field.Value, ctx))
-                field.Error(err);
-        }
     }
+
 
 
     public static class GroupBinderExtensions

@@ -324,7 +324,6 @@ namespace Fact.Extensions.Validation.Experimental
         /// <summary>
         /// Tags the fluent binder as a UNIX Epoch
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="fb"></param>
         /// <returns></returns>
         public static FluentBinder2<int, Traits.Epoch> AsEpoch(this IFluentBinder<int> fb) =>
