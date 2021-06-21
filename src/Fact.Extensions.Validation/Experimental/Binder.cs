@@ -6,39 +6,6 @@ using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation.Experimental
 {
-    public class FieldStatusCollection :
-        IFieldStatusCollector, IFieldStatusProvider2
-    {
-        List<FieldStatus> fields = new List<FieldStatus>();
-
-        public IEnumerable<Status> Statuses => fields.SelectMany(x => x.Statuses);
-
-        public bool IsValid => !fields.OnlyErrors().Any();
-
-        public void Append(string name, Status item)
-        {
-            FieldStatus field = fields.FirstOrDefault(x => x.Name == name);
-            if(field == null)
-            {
-                field = new FieldStatus(name, null);
-                fields.Add(field);
-            }
-            field.Add(item);
-        }
-    }
-
-
-    public class FieldStatusAggregator2 : IFieldStatusProvider2
-    {
-        List<IFieldStatusProvider2> providers = new List<IFieldStatusProvider2>();
-
-        public IEnumerable<Status> Statuses => 
-            providers.SelectMany(x => x.Statuses);
-
-        //public bool IsValid => providers.All(x => x.IsValid);
-    }
-
-
     // EXPERIMENTAL
     public enum InitiatingEvents
     {
@@ -562,69 +529,17 @@ namespace Fact.Extensions.Validation
         }
 
 
-        public static FluentBinder<T> LessThan<T>(this FluentBinder<T> fluent, T lessThanValue,
-            string description = "Must be less than {0}")
-            where T: IComparable<T>
-        {
-            fluent.IsTrue(v => v.CompareTo(lessThanValue) < 0, 
-                string.Format(description, lessThanValue));
-            return fluent;
-        }
-
-
-        public static FluentBinder<T> Required<T>(this FluentBinder<T> fluent)
-        {
-            fluent.Binder.AbortOnNull = false;
-            fluent.Binder.Filter += (f, c) =>
-            {
-                if (f.Value == null) f.Error("Field is required");
-            };
-            return fluent;
-        }
-
-
-        public static FluentBinder<string> Required(this FluentBinder<string> fluent, bool includeEmptyString = true)
-        {
-            fluent.Binder.AbortOnNull = false;
-            fluent.Binder.Filter += (f, c) =>
-            {
-                if (includeEmptyString)
-                    if (string.IsNullOrEmpty(f.Value)) f.Error("Field is required");
-                else
-                    if (f.Value == null) f.Error("Field is required");
-            };
-            return fluent;
-        }
-
         public static void TryConvert<T, TFinal>(this IField<T> field,
             Func<T, IConvertValue<TFinal>, bool> converter, IConvertValue<TFinal> ctx, string err)
         {
             if(!converter(field.Value, ctx))
                 field.Error(err);
         }
-
-
-        public static void TryConvert<T, TFinal>(this Binder<T, TFinal> binder,
-            Func<T, TFinal> converter)
-        {
-            
-        }
     }
 
 
     public static class GroupBinderExtensions
     {
-        public static void DoValidate<T>(this GroupBinder binder, string fieldName1, Action<Context2, IField<T>> handler)
-        {
-            binder.Validate += (gb, ctx) =>
-            {
-                var field1 = (IField<T>)gb[fieldName1];
-                handler(ctx, field1);
-                return new ValueTask();
-            };
-        }
-
-
         public static void DoValidate<T1, T2>(this GroupBinder binder, string fieldName1, string fieldName2,
             Action<Context2, IField<T1>, IField<T2>> handler)
         {

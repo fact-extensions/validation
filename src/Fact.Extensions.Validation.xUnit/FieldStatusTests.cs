@@ -18,13 +18,6 @@ namespace Fact.Extensions.Validation.xUnit
         }
 
         [Fact]
-        public void FieldStatusCollectionTest()
-        {
-            var fsc = new Experimental.FieldStatusCollection();
-        }
-
-
-        [Fact]
         public void BinderTest()
         {
             var f = new FieldStatus("field1", null);
