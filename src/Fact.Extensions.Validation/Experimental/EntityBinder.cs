@@ -43,7 +43,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public abstract void InitValidation();
             
-        public PropertyBinderProvider(IBinder binder, IFluentBinder fluentBinder,
+        public PropertyBinderProvider(IBinder2 binder, IFluentBinder fluentBinder,
             PropertyInfo property) : base(binder, fluentBinder)
         {
             Property = property;

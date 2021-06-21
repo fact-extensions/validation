@@ -62,14 +62,14 @@ namespace Fact.Extensions.Validation
         public class ItemBase : IBinderProvider
         {
             // DEBT: Due to InternalBindText clumsiness, have to make this non readonly
-            public IBinder binder;
+            public IBinder2 binder;
 
             public IFluentBinder FluentBinder { get; }
             
             // DEBT: Still transitioning to IBinder2, so clumsy here
-            public IBinder2 Binder => (IBinder2) binder;
+            public IBinder2 Binder => binder;
 
-            public ItemBase(IBinder binder, IFluentBinder fluentBinder)
+            public ItemBase(IBinder2 binder, IFluentBinder fluentBinder)
             {
                 this.binder = binder;
                 FluentBinder = fluentBinder;
@@ -92,7 +92,7 @@ namespace Fact.Extensions.Validation
 
             public void DoInitialize() => Initialize?.Invoke();
 
-            public ItemBase(IBinder binder, IFluentBinder fluentBinder) : 
+            public ItemBase(IBinder2 binder, IFluentBinder fluentBinder) : 
                 base(binder, fluentBinder)
             {
             }

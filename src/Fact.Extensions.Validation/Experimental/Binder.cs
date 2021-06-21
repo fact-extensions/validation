@@ -151,11 +151,6 @@ namespace Fact.Extensions.Validation.Experimental
         public IField this[string name] => fields[name];
 
         /// <summary>
-        /// List of original non-shimmed fields
-        /// </summary>
-        public IEnumerable<IField> Fields => fields.Values.Select(x => x.binder.Field);
-
-        /// <summary>
         /// TODO: Rename to Validating
         /// </summary>
         public event Func<GroupBinder, Context2, ValueTask> Validate;
@@ -199,8 +194,6 @@ namespace Fact.Extensions.Validation.Experimental
         IField Field { get; }
 
         Func<object> getter { get; }
-
-        IField Evaluate();
     }
 
 
@@ -374,12 +367,6 @@ namespace Fact.Extensions.Validation.Experimental
             field.Add(InternalStatuses);
             //field.AddIfNotPresent(this);
         }
-
-        // EXPERIMENTAL
-        public object Value => field.Value;
-
-        // EXPERIMENTAL
-        public object Converted => converted;
 
         public event Action<TFinal> Finalize;
         /// <summary>
