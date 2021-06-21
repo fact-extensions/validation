@@ -18,16 +18,17 @@ namespace Fact.Extensions.Validation.xUnit
         }
 
         [Fact]
-        public void ConfirmPasswordTest1()
+        public async Task ConfirmPasswordTest1()
         {
+            // NOTE: Sort of a broken test, since GroupBinder wants to run its own Validate
             var entity = new GroupBinder();
-            var f1 = new FieldStatus("pass1", null);
-            var f2 = new FieldStatus("pass2", null);
-            var pass1 = new Binder<string>(f1);
+            var f1 = new FieldStatus<string>("pass1", null);
+            var f2 = new FieldStatus<string>("pass2", null);
+            var pass1 = new Binder2<string>(f1, () => f1.Value);
             entity.Add(pass1);
-            var pass2 = new Binder<string>(f2);
+            var pass2 = new Binder2<string>(f2, () => f2.Value);
             entity.Add(pass2);
-            var validator = new Action<IField>(f =>
+            var validator = new ProcessingDelegate((f, c) =>
             {
                 var pass1str = (string)pass1.Field.Value;
                 var pass2str = (string)pass2.Field.Value;
@@ -47,16 +48,22 @@ namespace Fact.Extensions.Validation.xUnit
                 }
             });
 
-            pass1.Validate += validator;
-            pass2.Validate += validator;
+            pass1.Processing += validator;
+            pass2.Processing += validator;
 
-            pass1.Evaluate("password");
+            f1.Value = "password";
+            await pass1.Process();
+            //pass1.Evaluate("password");
 
             var statuses1 = pass1.Field.Statuses.ToArray();
             var statuses2 = pass2.Field?.Statuses.ToArray();
 
-            pass2.Evaluate("nonmatched");
-            pass2.Evaluate("password");
+            f2.Value = "nonmatched";
+            await pass2.Process();
+            f2.Value = "password";
+            await pass2.Process();
+            //pass2.Evaluate("nonmatched");
+            //pass2.Evaluate("password");
         }
 
         [Fact]

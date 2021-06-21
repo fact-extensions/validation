@@ -84,7 +84,7 @@ namespace Fact.Extensions.Validation.Experimental
         {
             remove
             {
-                throw new NotSupportedException("Must use ProcessingAsync propery");
+                throw new NotSupportedException("Must use ProcessingAsync property");
             }
             add
             {
