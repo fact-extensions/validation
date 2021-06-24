@@ -115,8 +115,8 @@ namespace Fact.Extensions.Validation.xUnit
             var entity = new GroupBinder();
             var f1 = new FieldStatus<string>("pass1", "password1");
             var f2 = new FieldStatus<string>("pass2", "password2");
-            BinderBase pass1 = entity.Add(f1);
-            BinderBase pass2 = entity.Add(f2);
+            IBinderBase pass1 = entity.Add(f1);
+            IBinderBase pass2 = entity.Add(f2);
 
             entity.Validate += (b, context) =>
             {
@@ -133,18 +133,18 @@ namespace Fact.Extensions.Validation.xUnit
             };
             entity.Evaluate(null);
 
-            var _pass1 = (GroupBinder._Item)entity["pass1"];
+            var _pass1 = (ShimFieldBase)entity["pass1"];
             f1.Statuses.Should().HaveCount(1);
             f1.InternalStatuses.Should().BeEmpty();
             _pass1.statuses.Should().HaveCount(1);
             f2.Statuses.Should().HaveCount(1);
             f2.InternalStatuses.Should().BeEmpty();
-            var _pass2 = (GroupBinder._Item)entity["pass2"];
+            var _pass2 = (ShimFieldBase)entity["pass2"];
             _pass2.statuses.Should().HaveCount(1);
         }
 
 
-        //[Fact]
+        [Fact]
         // FIX: Doesn't work yet because underlying shimmed group fields (_Item) isn't strongly
         // typed yet
         public void ConfirmPasswordTest4()
@@ -152,8 +152,8 @@ namespace Fact.Extensions.Validation.xUnit
             var binder = new GroupBinder();
             var f1 = new FieldStatus<string>("pass1", "password1");
             var f2 = new FieldStatus<string>("pass2", "password2");
-            BinderBase pass1 = binder.Add(f1);
-            BinderBase pass2 = binder.Add(f2);
+            IBinderBase pass1 = binder.Add(f1);
+            IBinderBase pass2 = binder.Add(f2);
 
             binder.DoValidate<string, string>("pass1", "pass2", (c, _pass1, _pass2) =>
             {
@@ -165,13 +165,13 @@ namespace Fact.Extensions.Validation.xUnit
             });
             binder.Evaluate(null);
 
-            var _pass1 = (GroupBinder._Item)binder["pass1"];
+            var _pass1 = (ShimFieldBase)binder["pass1"];
             f1.Statuses.Should().HaveCount(1);
             f1.InternalStatuses.Should().BeEmpty();
             _pass1.statuses.Should().HaveCount(1);
             f2.Statuses.Should().HaveCount(1);
             f2.InternalStatuses.Should().BeEmpty();
-            var _pass2 = (GroupBinder._Item)binder["pass2"];
+            var _pass2 = (ShimFieldBase)binder["pass2"];
             _pass2.statuses.Should().HaveCount(1);
         }
     }

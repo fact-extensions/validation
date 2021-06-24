@@ -118,28 +118,26 @@ namespace Fact.Extensions.Validation.Experimental
             fields.Add(binder.Field.Name, item);
         }
 
-        // FIX: Doesn't work yet because BinderBase doesn't convert to Binder
-        /*
-        public BinderBase<T> Add<T>(IField<T> field)
+        public Binder2<T> Add<T>(IField<T> field)
         {
-            var binder = new BinderBase<T>(field);
-            binder.getter = () => field.Value;
-            Add(binder);
+            // DEBT: Pretty sure we don't need a full powered Binder2 here
+            var binder = new Binder2<T>(field, () => field.Value);
+            Add2(binder);
             return binder;
         }
 
-        public void Add<T>(BinderBase<T> binder)
+        public void Add2<T>(IBinder2<T> binder)
         {
-            var item = new _Item<T>(binder);
+            var item = new ShimFieldBase<T>(binder, new List<Status>());
             // DEBT: Can't be doing this cast all the time.  It's safe for the moment
             var field = (IFieldStatusExternalCollector)binder.Field;
             field.Add(item.statuses);
             fields.Add(binder.Field.Name, item);
-        } */
+        }
 
         public void Clear()
         {
-            foreach (_Item item in fields.Values)
+            foreach (ShimFieldBase item in fields.Values)
                 item.statuses.Clear();
         }
 
@@ -162,7 +160,7 @@ namespace Fact.Extensions.Validation.Experimental
 
             Clear();
 
-            foreach(_Item item in fields.Values)
+            foreach(ShimFieldBase item in fields.Values)
             {
                 /* group is now distinct from one-off fields.  a 3rd party must 
                  * coordinate their validation together
