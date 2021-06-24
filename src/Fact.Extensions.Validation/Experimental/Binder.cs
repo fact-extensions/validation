@@ -57,9 +57,9 @@ namespace Fact.Extensions.Validation.Experimental
         public void Add(Status status) =>
             statuses.Add(status);
 
-        internal readonly IBinderBase binder;
+        protected readonly IBinderBase binder;
 
-        internal ShimFieldBase(IBinderBase binder, ICollection<Status> statuses)
+        protected ShimFieldBase(IBinderBase binder, ICollection<Status> statuses)
         {
             this.statuses = statuses;
             this.binder = binder;
