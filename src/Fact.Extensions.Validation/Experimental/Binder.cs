@@ -59,6 +59,9 @@ namespace Fact.Extensions.Validation.Experimental
 
         protected readonly IBinderBase binder;
 
+        // Clear only the locally shimmed in statuses - leave original field alone
+        public void ClearShim() => statuses.Clear();
+
         protected ShimFieldBase(IBinderBase binder, ICollection<Status> statuses)
         {
             this.statuses = statuses;
@@ -312,6 +315,7 @@ namespace Fact.Extensions.Validation.Experimental
 namespace Fact.Extensions.Validation
 {
     using Experimental;
+    using System.Linq.Expressions;
 
     public static class GroupBinderExtensions
     {
@@ -326,6 +330,74 @@ namespace Fact.Extensions.Validation
                 handler(ctx, field1, field2);
                 return new ValueTask();
             };
+        }
+
+
+        /// <summary>
+        /// Inspects lambda expression, retrieves PropertyBinderProvider associated with it
+        /// and creates a new ShimFieldBase<typeparamref name="T"/> associated to its binder
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="binder"></param>
+        /// <param name="fieldLambda"></param>
+        /// <returns></returns>
+        static ShimFieldBase<T> CreateShimField<TEntity, T>(this EntityBinder<TEntity> binder, 
+            Expression<Func<TEntity, T>> fieldLambda)
+        {
+            PropertyBinderProvider<T> field1 = binder.Get(fieldLambda);
+            var statuses = new List<Status>();
+            var field1shim = new ShimFieldBase<T>(field1.Binder, statuses);
+            // The following are causing the debugger to crash -- smells like a recursive situation
+            // DEBT: Naughty cast
+            ((IFieldStatusExternalCollector)field1.Binder.Field).Add(statuses);
+            return field1shim;
+        }
+
+        public static void GroupValidate<T, T1>(this EntityBinder<T> binder, IAggregatedBinder parent,
+            Expression<Func<T, T1>> field1Lambda,
+            Action<Context2, IField<T1>> handler)
+        {
+            // DEBT: Doesn't handle conversions, for that we'll need to pass in FluentBinders and likely
+            // that particular one won't want to be EntityBinder based
+            PropertyBinderProvider<T1> field1 = binder.Get(field1Lambda);
+            var field1shim = new ShimFieldBase<T1>(field1.Binder, new List<Status>());
+
+            parent.ProcessingAsync += (f, c) =>
+            {
+                // DEBT: Likely will want a GroupBinder (GroupBinder2?) so that we can do multiple ProcessingAsync
+                // with only one field1shim and one field1shim clear
+                field1shim.statuses.Clear();
+
+                handler(c, field1shim);
+
+                return new ValueTask();
+            };
+        }
+
+        public static void GroupValidate<T, T1, T2>(this EntityBinder<T> binder, IAggregatedBinder parent, 
+            Expression<Func<T, T1>> field1Lambda,
+            Expression<Func<T, T2>> field2Lambda,
+            Action<Context2, IField<T1>, IField<T2>> handler)
+        {
+            var field1 = binder.CreateShimField(field1Lambda);
+            var field2 = binder.CreateShimField(field2Lambda);
+
+            parent.ProcessingAsync += (f, c) =>
+            {
+                field1.ClearShim();
+                field2.ClearShim();
+
+                handler(c, field1, field2);
+
+                return new ValueTask();
+            };
+        }
+
+        public static void Test2<T, T1>(this IEntityBinder<T> binder, Expression<Func<T1>> fieldLambda,
+            Action<Context2, IField<T1>> handler)
+        {
+
         }
     }
 }

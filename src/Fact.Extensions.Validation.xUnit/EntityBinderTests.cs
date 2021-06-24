@@ -107,5 +107,38 @@ namespace Fact.Extensions.Validation.xUnit
             var statuses = ab.Fields().SelectMany(f => f.Statuses).ToArray();
             statuses.Should().HaveCount(1);
         }
+
+
+        [Fact]
+        public async Task Test5()
+        {
+            var ab = new AggregatedBinder(new FieldStatus("dummy", null));
+            var dummy = new SyntheticEntity1();
+            dummy.Password1 = "hi2u";
+            var eb = ab.BindInput2(dummy);
+
+            eb.GroupValidate(ab, e => e.Password1, e => e.Password2,
+                (c, pass1, pass2) =>
+            {
+                if(pass1.Value != pass2.Value)
+                {
+                    // NOTE: Abusing the scalar flavor so that we can observe the input values more easily below
+                    pass1.Error(FieldStatus.ComparisonCode.Unspecified, pass1.Value, "Passwords do not match");
+                    pass2.Error(FieldStatus.ComparisonCode.Unspecified, pass2.Value, "Passwords do not match");
+                }
+            });
+
+            await ab.Process();
+
+            var statuses = ab.Fields().SelectMany(f => f.Statuses).ToArray();
+            statuses.Should().HaveCount(2);
+
+            dummy.Password2 = dummy.Password1;
+
+            await ab.Process();
+
+            statuses = ab.Fields().SelectMany(f => f.Statuses).ToArray();
+            statuses.Should().HaveCount(0);
+        }
     }
 }

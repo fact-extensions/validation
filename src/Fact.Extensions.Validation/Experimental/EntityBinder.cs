@@ -261,6 +261,13 @@ namespace Fact.Extensions.Validation.Experimental
             return CreatePropertyItem2<T>(fieldBinder, property);
         }
 
+        /// <summary>
+        /// Creates PropertyBinderProvider
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="binder"></param>
+        /// <param name="property"></param>
+        /// <param name="initValidation"></param>
         static void InputHelper<T>(IAggregatedBinder binder, PropertyInfo property, bool initValidation)
         {
             var item = CreatePropertyItem<T>(binder, property);
@@ -290,6 +297,8 @@ namespace Fact.Extensions.Validation.Experimental
                 h.Invoke(null, new object[] { binder, property, initValidation });
             }
             
+            // DEBT: This one line makes binder and EntityBinder 1:1 -- fix this so that we can
+            // extract PropertyBinderProviders directly from prior h.Invoke
             foreach (var binderProvider in binder.Providers.OfType<PropertyBinderProvider>())
                 eb.Add(binderProvider);
 
