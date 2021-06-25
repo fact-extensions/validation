@@ -72,6 +72,11 @@ namespace Fact.Extensions.Validation.WinForms
 
             return bp.FluentBinder;
         }
+
+
+        public static IFluentBinder<string> BindText(this IAggregatedBinder aggregatedBinder, Control control,
+            string initialValue) =>
+            aggregatedBinder.BindText(control, () => initialValue);
     }
 
 

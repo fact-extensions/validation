@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Fact.Extensions.Validation.WinForms.Tester
@@ -26,20 +27,45 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             Load += TestForm2_Load;
         }
 
+        int? result1, result2;
+
+
         private async void TestForm2_Load(object sender, EventArgs e)
         {
+            var regLocation = @"Software\Fact\Extensions\Validation\Diagnostic\Test";
+            var reg = new RegistryBinder(Microsoft.Win32.RegistryHive.CurrentUser, regLocation, false);
+
+            var regValue1 = reg.Add("Value1").Required();
+            var regValue2 = reg.Add("Value2").Required().Convert<int>();
+            var regVersion = reg.Add("Version").
+                Convert<int>().GroupValidate(regValue2, (c, version, v2) =>
+                {
+                    // FIX: version.Value throws a null exception when registry key isn't present
+                    // NOTE: Also it seems a bit like this is running before the convert, but I can't be sure
+                    //if (version.Value > 2 && v2.Value > 10)
+                        //version.Error("Arbitrary error");
+
+                    return new ValueTask();
+                });
+
+            // regVersion.Convert<int>() flipping out
+            //foreach(var p in reg.Providers)
+                //await p.Binder.Process();
+
             var field = new FieldStatus("test", null);
             binderManager = new AggregatedBinder(field, Services);
 
             var fm = binderManager.BindText(txtEntry1);
 
             fm.Convert<int>().
-                GreaterThan(20);
+                GreaterThan(20).
+                Commit(v => result1 = v);
 
-            var fb = binderManager.BindText(txtEntry2, () => "0");
+            var fb = binderManager.BindText(txtEntry2, "0");
 
-            fb.Convert<int>()
-                .LessThan(5);
+            fb.Convert<int>().
+                LessThan(5).
+                Commit(v => result2 = v);
 
             binderManager.BindersProcessed += BinderManager_Validated;
             binderManager.BindersProcessed += BinderManager_Validated1;
@@ -72,8 +98,10 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             lstStatus.Items.AddRange(statuses);
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
+        private async void btnOK_Click(object sender, EventArgs e)
         {
+            await binderManager.Committer.DoCommit();
+
             DialogResult = DialogResult.OK;
         }
     }

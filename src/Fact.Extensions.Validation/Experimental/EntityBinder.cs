@@ -492,11 +492,11 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static void IsMatch<T1, T2>(this
+        public static IFluentBinder<T1> IsMatch<T1, T2>(this
             IFluentBinder<T1> fluentBinder1,
             IFluentBinder<T2> fluentBinder2)
         {
-            fluentBinder1.GroupValidate(fluentBinder2, (c, f1, f2) =>
+            return fluentBinder1.GroupValidate(fluentBinder2, (c, f1, f2) =>
             {
                 if(!f1.Value.Equals(f2))
                 {
@@ -509,7 +509,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static void GroupValidate<T1, T2>(this 
+        public static IFluentBinder<T1> GroupValidate<T1, T2>(this 
             IFluentBinder<T1> fluentBinder1,
             IFluentBinder<T2> fluentBinder2,
             Func<Context2, IField<T1>, IField<T2>, ValueTask> handler)
@@ -548,6 +548,8 @@ namespace Fact.Extensions.Validation.Experimental
 
             fluentBinder1.Binder.ProcessedAsync += processed;
             fluentBinder2.Binder.ProcessedAsync += processed;
+
+            return fluentBinder1;
         }
     }
 
