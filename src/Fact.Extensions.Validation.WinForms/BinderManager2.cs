@@ -15,7 +15,7 @@ namespace Fact.Extensions.Validation.WinForms
 {
     public static class AggregatedBinderExtensions
     {
-        static IBinderProvider<T> Setup<T>(IAggregatedBinder aggregatedBinder, Control control, Func<T> getter, 
+        static BinderManagerBase.Item<T> Setup<T>(IAggregatedBinder aggregatedBinder, Control control, Func<T> getter, 
             Action<Tracker<T>> initEvent)
         {
             var services = aggregatedBinder.Services;
@@ -26,7 +26,6 @@ namespace Fact.Extensions.Validation.WinForms
             var tracker = new Tracker<T>(getter());
             initEvent(tracker);
 
-            //IBinderProvider<T> bp
             var bp = aggregatedBinder.AddField2(control.Name,
                 () => tracker.Value,
                 _fb => new BinderManagerBase.Item<T>(_fb, control, tracker));
@@ -61,10 +60,18 @@ namespace Fact.Extensions.Validation.WinForms
             return bp;
         }
 
+
+        /// <summary>
+        /// Binds to Text property of control
+        /// </summary>
+        /// <param name="aggregatedBinder"></param>
+        /// <param name="control"></param>
+        /// <param name="initialGetter"></param>
+        /// <returns></returns>
         public static IFluentBinder<string> BindText(this IAggregatedBinder aggregatedBinder, Control control, 
             Func<string> initialGetter = null)
         {
-            var bp = Setup<string>(aggregatedBinder, control,
+            IBinderProvider<string> bp = Setup(aggregatedBinder, control,
                 () => control.Text,
                 tracker => control.TextChanged += (s, e) => tracker.Value = control.Text);
 
@@ -74,9 +81,35 @@ namespace Fact.Extensions.Validation.WinForms
         }
 
 
+        /// <summary>
+        /// Binds to Text property of control
+        /// </summary>
+        /// <param name="aggregatedBinder"></param>
+        /// <param name="control"></param>
+        /// <param name="initialValue"></param>
+        /// <returns></returns>
         public static IFluentBinder<string> BindText(this IAggregatedBinder aggregatedBinder, Control control,
             string initialValue) =>
             aggregatedBinder.BindText(control, () => initialValue);
+
+
+        /// <summary>
+        /// Auto-converting BindText, since native one is always string
+        /// </summary>
+        public static FluentBinder2<T> BindText<T>(this IAggregatedBinder aggregatedBinder, Control control) =>
+            aggregatedBinder.BindText(control).Convert<T>();
+
+        /// <summary>
+        /// Auto-converting BindText, since native one is always string
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="aggregatedBinder"></param>
+        /// <param name="control"></param>
+        /// <param name="initialValue"></param>
+        /// <returns></returns>
+        public static FluentBinder2<T> BindText<T>(this IAggregatedBinder aggregatedBinder, Control control,
+            T initialValue) =>
+            aggregatedBinder.BindText(control, initialValue.ToString()).Convert<T>();
     }
 
 

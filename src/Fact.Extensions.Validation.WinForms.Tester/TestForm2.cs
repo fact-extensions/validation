@@ -63,9 +63,9 @@ namespace Fact.Extensions.Validation.WinForms.Tester
                 GreaterThan(20).
                 Commit(v => result1 = v);
 
-            var fb = binderManager.BindText(txtEntry2, "0");
+            var fb = binderManager.BindText(txtEntry2, 0);
 
-            fb.Convert<int>().
+            fb.
                 LessThan(5).
                 Commit(v => result2 = v);
 
