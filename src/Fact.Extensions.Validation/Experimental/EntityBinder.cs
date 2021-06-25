@@ -490,8 +490,24 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        // EXPERIMENTAL
-        public static void GroupValidate<T1, T2>(this IAggregatedBinder aggregatedBinder, 
+        public static void IsMatch<T1, T2>(this
+            IFluentBinder<T1> fluentBinder1,
+            IFluentBinder<T2> fluentBinder2)
+        {
+            fluentBinder1.GroupValidate(fluentBinder2, (c, f1, f2) =>
+            {
+                if(!f1.Value.Equals(f2))
+                {
+                    f1.Error($"Must match field {f2.Name}");
+                    f2.Error($"Must match field {f1.Name}");
+                }
+
+                return new ValueTask();
+            });
+        }
+
+
+        public static void GroupValidate<T1, T2>(this 
             IFluentBinder<T1> fluentBinder1,
             IFluentBinder<T2> fluentBinder2,
             Func<Context2, IField<T1>, IField<T2>, ValueTask> handler)

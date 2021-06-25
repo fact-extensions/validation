@@ -91,17 +91,33 @@ namespace Fact.Extensions.Validation.xUnit
             var fb1 = ab.AddField("field1", () => "one");
             var fb2 = ab.AddField("field2", () => "two");
 
-            ab.GroupValidate(fb1, fb2, (c, field1, field2) =>
+            fb1.GroupValidate(fb2, (c, field1, field2) =>
             {
                 if(field1.Value != field2.Value)
                 {
-                    field1.Error("Can't match field2");
-                    field2.Error("Can't match field1");
+                    field1.Error("Must match field2");
+                    field2.Error("Must match field1");
                 }
                 return new ValueTask();
             });
 
             await fb1.Binder.Process();
+
+            var statuses1 = fb1.Binder.Field.Statuses.ToArray();
+            var statuses2 = fb2.Binder.Field.Statuses.ToArray();
+        }
+
+
+        [Fact]
+        public async Task GroupValidate2Test()
+        {
+            var ab = new AggregatedBinder(new FieldStatus("synthetic", null));
+            var fb1 = ab.AddField("field1", () => "one");
+            var fb2 = ab.AddField("field2", () => "two");
+
+            fb1.IsMatch(fb2);
+
+            await fb2.Binder.Process();
 
             var statuses1 = fb1.Binder.Field.Statuses.ToArray();
             var statuses2 = fb2.Binder.Field.Statuses.ToArray();

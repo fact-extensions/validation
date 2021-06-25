@@ -117,7 +117,7 @@ namespace Fact.Extensions.Validation.xUnit
             dummy.Password1 = "hi2u";
             var eb = ab.BindInput2(dummy);
 
-            eb.GroupValidate(ab, e => e.Password1, e => e.Password2,
+            eb.GroupValidate(e => e.Password1, e => e.Password2,
                 (c, pass1, pass2) =>
             {
                 if(pass1.Value != pass2.Value)
