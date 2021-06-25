@@ -401,10 +401,25 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static IFluentBinder<T> Commit<T>(this IFluentBinder<T> fluentBinder, Action<T> committer)
+        public static IFluentBinder<T> Commit<T>(this IFluentBinder<T> fluentBinder, Committer committer, Action<T> commit)
         {
+            committer.Committing += () =>
+            {
+                // DEBT: Naughty cast
+                var fb = (FluentBinder2<T>)fluentBinder;
+                //commit(fb.InitialValue);
+                // DEBT: We may prefer to use InitialValue, though fb.Field.Value is smart enough to get us the
+                // right thing
+                IField<T> f = fb.Field;
+                commit(f.Value);
+                return new ValueTask();
+            };
             return fluentBinder;
         }
+
+
+        public static IFluentBinder<T> Commit<T>(this IFluentBinder<T> fluentBinder, Action<T> commit) =>
+            fluentBinder.Commit(fluentBinder.Binder.Committer, commit);
     }
 
 

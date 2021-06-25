@@ -285,6 +285,10 @@ namespace Fact.Extensions.Validation.Experimental
         public FluentBinder2(IFluentBinder chained) :
             this(chained.Binder, false)
         {
+            // DEBT: Do runtime check immediately to verify we're dealing with a getter whose
+            // type is compatible with T.  Be warned though that this will be a too-early call to
+            // getter, so we'll want to make the runtime check skippable
+
             Binder.ProcessingAsync += (f, c) =>
             {
                 InitialValue = (T)chained.Field.Value;

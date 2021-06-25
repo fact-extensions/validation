@@ -195,6 +195,8 @@ namespace Fact.Extensions.Validation.Experimental
         IField Field { get; }
 
         Func<object> getter { get; }
+
+        Committer Committer { get; }
     }
 
 
@@ -227,7 +229,8 @@ namespace Fact.Extensions.Validation.Experimental
             this.field = field;
         }
 
-        public virtual IField Evaluate() { throw new NotImplementedException(); }
+        // Bringing back binder-level commit ability
+        public Committer Committer { get; } = new Committer();
     }
 
 

@@ -9,7 +9,7 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public event Func<ValueTask> Committing;
 
-        public async Task DoCommit()
+        public async ValueTask DoCommit()
         {
             if(Committing != null)
                 await Committing.Invoke();

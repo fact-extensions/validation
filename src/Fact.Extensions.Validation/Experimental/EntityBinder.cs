@@ -145,6 +145,8 @@ namespace Fact.Extensions.Validation.Experimental
 
                 return new ValueTask();
             };
+
+            Committer.Committing += item.Binder.Committer.DoCommit;
         }
     }
 

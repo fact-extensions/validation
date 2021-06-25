@@ -130,6 +130,8 @@ namespace Fact.Extensions.Validation.xUnit
             var ab = new AggregatedBinder(new FieldStatus("synthetic", null));
             string value1 = null;
             string value2 = null;
+            string committed1 = null;
+            string committed2 = null;
             var fb1 = ab.AddField("field1", () => value1);
             var fb2 = ab.AddField("field2", () => value2);
 
@@ -141,7 +143,15 @@ namespace Fact.Extensions.Validation.xUnit
 
             fb1.Field.Value.Should().Be("one");
 
+            fb1.Commit(v => committed1 = v);
+            fb2.Commit(v => committed2 = v);
+
             await ab.Process();
+
+            await ab.Committer.DoCommit();
+
+            committed1.Should().Be("one");
+            committed2.Should().Be("two");
         }
     }
 }
