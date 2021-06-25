@@ -71,35 +71,19 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
-    public delegate void BindersProcessedDelegate(IEnumerable<IBinderProvider> binders, Context2 context);
+    public delegate void BindersProcessedDelegate<TBinderProvider>(IEnumerable<TBinderProvider> binders, Context2 context);
 
-    // TODO: Make an IEntityBinder so that we can do an IEntityBinder<T>
-    public class AggregatedBinder : Binder2<object>,
-        IAggregatedBinder
+    public class AggregatedBinderBase2<TBinderProvider> : Binder2<object>,
+        IAggregatedBinderBase<TBinderProvider>
+        where TBinderProvider: IBinderProvider
     {
-        /// <summary>
-        /// Occurs after interactive/discrete binder processing, whether it generated new status or not
-        /// </summary>
-        public event BindersProcessedDelegate BindersProcessed;
-
-        protected void FireFieldsProcessed(IEnumerable<IBinderProvider> fields, Context2 context) =>
-            BindersProcessed?.Invoke(fields, context);
-
-        List<IBinderProvider> items = new List<IBinderProvider>();
+        readonly protected List<TBinderProvider> items = new List<TBinderProvider>();
 
         public IServiceProvider Services { get; }
 
-        public IEnumerable<IBinderProvider> Providers => items;
+        public IEnumerable<IBinderProvider> Providers => items.Cast<IBinderProvider>();
 
-        internal class Context : Context2
-        {
-            internal Context(CancellationToken ct) : base(ct)
-            {
-
-            }
-        }
-
-        public AggregatedBinder(IField field, IServiceProvider services = null) :
+        public AggregatedBinderBase2(IField field, IServiceProvider services = null) :
             // DEBT: A little sloppy to lazy init our getter, however aggregated
             // binder may indeed not need to retrieve any value for context.Value
             // during Process call
@@ -129,24 +113,51 @@ namespace Fact.Extensions.Validation.Experimental
             };
         }
 
-        public void Add(IBinderProvider item)
+        /// <summary>
+        /// Occurs after interactive/discrete binder processing, whether it generated new status or not
+        /// </summary>
+        public event BindersProcessedDelegate<TBinderProvider> BindersProcessed;
+
+        protected void FireFieldsProcessed(IEnumerable<TBinderProvider> fields, Context2 context) =>
+            BindersProcessed?.Invoke(fields, context);
+
+
+        public void Add(TBinderProvider item)
         {
             // DEBT: event is kind of more of a refresh, but Load will do for now as a blunt instrument
             var inputContext = new InputContext { InitiatingEvent = InitiatingEvents.Load };
 
             items.Add(item);
-            ProcessingAsync += async (field, context) => 
+            ProcessingAsync += async (field, context) =>
                 await item.Binder.Process(inputContext, context.CancellationToken);
             item.Binder.ProcessedAsync += (field, context) =>
             {
                 // Filter out overall load/aggregated Process
-                if(context.InputContext?.InitiatingEvent != InitiatingEvents.Load)
+                if (context.InputContext?.InitiatingEvent != InitiatingEvents.Load)
                     FireFieldsProcessed(new[] { item }, context);
 
                 return new ValueTask();
             };
 
             Committer.Committing += item.Binder.Committer.DoCommit;
+        }
+    }
+
+    // TODO: Make an IEntityBinder so that we can do an IEntityBinder<T>
+    public class AggregatedBinder : AggregatedBinderBase2<IBinderProvider>,
+        IAggregatedBinder
+    {
+        internal class Context : Context2
+        {
+            internal Context(CancellationToken ct) : base(ct)
+            {
+
+            }
+        }
+
+        public AggregatedBinder(IField field, IServiceProvider services = null) :
+            base(field, services)
+        {
         }
     }
 
@@ -407,9 +418,9 @@ namespace Fact.Extensions.Validation.Experimental
         public static FluentBinder2 AddField(this IAggregatedBinderCollector binder, string name, Func<object> getter) =>
             binder.AddField(name, getter, fb => new BinderManagerBase.ItemBase(fb.Binder, fb));
 
-
-        public static FluentBinder2<T> AddField<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter, 
-            Func<IFluentBinder<T>, IBinderProvider> providerFactory)
+        public static FluentBinder2<T> AddField<T, TBinderProvider>(this ICollector<TBinderProvider> binder, string name, Func<T> getter, 
+            Func<IFluentBinder<T>, TBinderProvider> providerFactory)
+            where TBinderProvider: IBinderProvider
         {
             // default(T) because early init is not the same as runtime init
             // early init is when system is setting up the rules
@@ -421,8 +432,10 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
-        public static IBinderProvider<T> AddField<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter,
-            Func<IFluentBinder<T>, IBinderProvider<T>> providerFactory)
+        public static TBinderProvider AddField2<T, TBinderProvider>(this IAggregatedBinderCollector binder, string name, 
+            Func<T> getter,
+            Func<IFluentBinder<T>, TBinderProvider> providerFactory)
+            where TBinderProvider: IBinderProvider<T>
         {
             var f = new FieldStatus<T>(name, default(T));
             var b = new Binder2<T>(f, getter);
@@ -468,7 +481,8 @@ namespace Fact.Extensions.Validation.Experimental
             }
         }
 
-        public static void AddSummaryProcessor(this AggregatedBinder aggregatedBinder)
+        public static void AddSummaryProcessor<TBinderProvider>(this AggregatedBinderBase2<TBinderProvider> aggregatedBinder)
+            where TBinderProvider: IBinderProvider
         {
             var sp = new SummaryProcessor();
             // DEBT: Do away with this cast
@@ -529,8 +543,39 @@ namespace Fact.Extensions.Validation.Experimental
                 if (!isProcessing)
                 {
                     isProcessing = true;
+
+                    // Need to clear out errors here, otherwise below if statements will fail out based on
+                    // previous processing errors found in this same group validator
                     field1.ClearShim();
                     field2.ClearShim();
+
+                    // DEBT: Force non-group binder processing to occur first so that conversions
+                    // and error discovery can happen.  We only call handler if dependend on fields
+                    // themselves have no errors.
+                    // NOTE: We get into double-validating here since inevitably an aggregated validate is going
+                    // to happen duplicating one of these below.  Consider adding a 'Generation' # on Binder to
+                    // know when we've already performed a validation for a particular sweep
+
+                    if (f == fluentBinder1.Binder.Field)
+                    {
+                        fluentBinder2.Binder.Process().Wait();
+                        if(fluentBinder2.Field.Statuses.Any())
+                        {
+                            c.Abort = true;
+                            return new ValueTask();
+                        }
+                    }
+
+                    if (f == fluentBinder2.Binder.Field)
+                    {
+                        fluentBinder1.Binder.Process().Wait();
+                        if (fluentBinder1.Field.Statuses.Any())
+                        {
+                            c.Abort = true;
+                            return new ValueTask();
+                        }
+                    }
+
                     return handler(c, field1, field2);
                 }
                 return new ValueTask();

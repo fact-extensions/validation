@@ -35,6 +35,12 @@ namespace Fact.Extensions.Validation
     {
     }
 
+    public interface IAggregatedBinderBase<TBinderProvider> :
+        IAggregatedBinderProvider,
+        ICollector<TBinderProvider>
+    {
+    }
+
     public interface IAggregatedBinder : IAggregatedBinderBase,
         IServiceProviderProvider,
         IBinder2

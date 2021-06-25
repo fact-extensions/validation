@@ -40,17 +40,19 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             var regVersion = reg.Add("Version").
                 Convert<int>().GroupValidate(regValue2, (c, version, v2) =>
                 {
-                    // FIX: version.Value throws a null exception when registry key isn't present
-                    // NOTE: Also it seems a bit like this is running before the convert, but I can't be sure
-                    //if (version.Value > 2 && v2.Value > 10)
-                        //version.Error("Arbitrary error");
+                    if (version.Value > 2 && v2.Value > 10)
+                        version.Error("Arbitrary error");
 
                     return new ValueTask();
                 });
 
+            // DEBT: Always have to add this after other Adds, but would rather not have to
+            reg.AddSummaryProcessor();
+
             // regVersion.Convert<int>() flipping out
-            //foreach(var p in reg.Providers)
-                //await p.Binder.Process();
+            await reg.Process();
+
+            var statuses = reg.Field.Statuses.ToArray();
 
             var field = new FieldStatus("test", null);
             binderManager = new AggregatedBinder(field, Services);

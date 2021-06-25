@@ -13,14 +13,16 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public interface IRegistryBinder : IAggregatedBinderBase
+    public interface IRegistryBinder : IAggregatedBinderBase<RegistryBinder.Provider>
     {
         RegistryKey Root { get; }
     }
 
 
     // DEBT: Wants to attach to a parent binder, since this isn't an aggregated binder of its own
-    public class RegistryBinder : IRegistryBinder
+    public class RegistryBinder : 
+        AggregatedBinderBase2<RegistryBinder.Provider>,
+        IRegistryBinder
     {
         public class Provider : AggregatedBinderBase.ItemBase
         {
@@ -34,13 +36,14 @@ namespace Fact.Extensions.Validation.Experimental
 
         public RegistryKey Root => root;
 
-        public RegistryBinder(RegistryKey key)
+        public RegistryBinder(RegistryKey key) : base(new FieldStatus("dummy", null))
         {
             root = key;
         }
 
 
-        public RegistryBinder(RegistryHive hive, string path)
+        public RegistryBinder(RegistryHive hive, string path) :
+            base(new FieldStatus("dummy", null))
         {
             var view = RegistryView.Default;
             root = RegistryKey.OpenBaseKey(hive, view);
@@ -49,22 +52,12 @@ namespace Fact.Extensions.Validation.Experimental
 
 
         // EXPERIMENTAL
-        public RegistryBinder(RegistryHive hive, string path, bool writeable)
+        public RegistryBinder(RegistryHive hive, string path, bool writeable) :
+            base(new FieldStatus("dummy", null))
         {
             var view = RegistryView.Default;
             root = RegistryKey.OpenBaseKey(hive, view);
             root = root.CreateSubKey(path, writeable);
-        }
-
-
-        protected readonly List<Provider> providers = new List<Provider>();
-
-        public IEnumerable<IBinderProvider> Providers => providers;
-
-        public void Add(IBinderProvider collected)
-        {
-            // DEBT: Problematic cast
-            providers.Add((Provider)collected);
         }
     }
 

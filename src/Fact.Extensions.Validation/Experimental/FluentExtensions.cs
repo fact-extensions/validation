@@ -254,6 +254,15 @@ namespace Fact.Extensions.Validation.Experimental
                     f.Error(FieldStatus.ComparisonCode.Unspecified, t, "Unable to convert to type {0}");
                     context.Abort = true;
                 }
+                catch(InvalidCastException)
+                {
+                    // DEBT: Would be far better to check for null before issuing conversion.  Not doing so
+                    // because some types can be null and the logic for determining that is a tiny bit involved
+                    // DEBT: Not a foregone conclusion that InvalidCastException is because we can't convert a value
+                    // type to null -- but probably that's why we get the exception
+                    f.Error(FieldStatus.ComparisonCode.IsNull, null, "Null not allowed here");
+                    context.Abort = true;
+                }
 
                 return new ValueTask();
             };

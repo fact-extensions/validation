@@ -25,12 +25,12 @@ namespace Fact.Extensions.Validation.WinForms
             var cancellationToken = new CancellationToken();
             var tracker = new Tracker<T>(getter());
             initEvent(tracker);
-            
-            IBinderProvider<T> bp = aggregatedBinder.AddField(control.Name, 
-                () => tracker.Value, 
+
+            //IBinderProvider<T> bp
+            var bp = aggregatedBinder.AddField2(control.Name,
+                () => tracker.Value,
                 _fb => new BinderManagerBase.Item<T>(_fb, control, tracker));
 
-            var _item = (BinderManagerBase.Item)bp;
             var f = (FieldStatus<T>)bp.Binder.Field;   // DEBT: Sloppy cast
             // DEBT: Move InputContext creation elsewhere since we aren't sure it's a Keystroke etc here
             var inputContext = new InputContext
@@ -44,17 +44,17 @@ namespace Fact.Extensions.Validation.WinForms
 
                 await bp.Binder.Process(inputContext, cancellationToken);
 
-                styleManager.ContentChanged(_item);
+                styleManager.ContentChanged(bp);
             };
 
-            control.GotFocus += (s, e) => styleManager.FocusGained(_item);
-            control.LostFocus += (s, e) => styleManager.FocusLost(_item);
+            control.GotFocus += (s, e) => styleManager.FocusGained(bp);
+            control.LostFocus += (s, e) => styleManager.FocusLost(bp);
 
             // Aggregator-wide init of this particular field so that on any call to
             // aggregatorBinder.Process() current field state style is exactly reflected
             aggregatedBinder.ProcessingAsync += (_, c) =>
             {
-                styleManager.Initialize(_item);
+                styleManager.Initialize(bp);
                 return new ValueTask();
             };
 
