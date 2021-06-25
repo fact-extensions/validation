@@ -488,6 +488,49 @@ namespace Fact.Extensions.Validation.Experimental
                 }
             };
         }
+
+
+        // EXPERIMENTAL
+        public static void GroupValidate<T1, T2>(this IAggregatedBinder aggregatedBinder, 
+            IFluentBinder<T1> fluentBinder1,
+            IFluentBinder<T2> fluentBinder2,
+            Func<Context2, IField<T1>, IField<T2>, ValueTask> handler)
+        {
+            var field1 = new ShimFieldBase<T1>(fluentBinder1.Binder, new List<Status>());
+            var field2 = new ShimFieldBase<T2>(fluentBinder2.Binder, new List<Status>());
+
+            ((IFieldStatusExternalCollector)fluentBinder1.Binder.Field).Add(field1.statuses);
+            ((IFieldStatusExternalCollector)fluentBinder2.Binder.Field).Add(field2.statuses);
+
+            // FIX: Want to make these MT safe
+            bool isProcessing = false;
+            bool isProcessed = false;
+
+            var processing = new ProcessingDelegateAsync((f, c) =>
+            {
+                if (!isProcessing)
+                {
+                    isProcessing = true;
+                    field1.ClearShim();
+                    field2.ClearShim();
+                    return handler(c, field1, field2);
+                }
+                return new ValueTask();
+            });
+
+            var processed = new ProcessingDelegateAsync((f, c) =>
+            {
+                isProcessing = false;
+                isProcessed = true;
+                return new ValueTask();
+            });
+
+            fluentBinder1.Binder.ProcessingAsync += processing;
+            fluentBinder2.Binder.ProcessingAsync += processing;
+
+            fluentBinder1.Binder.ProcessedAsync += processed;
+            fluentBinder2.Binder.ProcessedAsync += processed;
+        }
     }
 
 
