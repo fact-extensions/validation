@@ -122,5 +122,26 @@ namespace Fact.Extensions.Validation.xUnit
             var statuses1 = fb1.Binder.Field.Statuses.ToArray();
             var statuses2 = fb2.Binder.Field.Statuses.ToArray();
         }
+
+
+        [Fact]
+        public async Task InitializerTest()
+        {
+            var ab = new AggregatedBinder(new FieldStatus("synthetic", null));
+            string value1 = null;
+            string value2 = null;
+            var fb1 = ab.AddField("field1", () => value1);
+            var fb2 = ab.AddField("field2", () => value2);
+
+            fb1.Setter(v => value1 = v, () => "one");
+            fb2.Setter(v => value2 = v, () => "two");
+
+            value1.Should().Be("one");
+            value2.Should().Be("two");
+
+            fb1.Field.Value.Should().Be("one");
+
+            await ab.Process();
+        }
     }
 }

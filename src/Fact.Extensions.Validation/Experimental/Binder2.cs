@@ -68,6 +68,8 @@ namespace Fact.Extensions.Validation.Experimental
 
         public Func<object> getter => () => getter2();
 
+        public Action<T> setter { get; set; }
+
         public Binder2(IField field, Func<T> getter) : base(field)
         {
             this.getter2 = getter;

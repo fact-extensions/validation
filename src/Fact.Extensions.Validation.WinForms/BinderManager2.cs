@@ -61,11 +61,14 @@ namespace Fact.Extensions.Validation.WinForms
             return bp;
         }
 
-        public static IFluentBinder<string> BindText(this IAggregatedBinder aggregatedBinder, Control control)
+        public static IFluentBinder<string> BindText(this IAggregatedBinder aggregatedBinder, Control control, 
+            Func<string> initialGetter = null)
         {
             var bp = Setup<string>(aggregatedBinder, control,
                 () => control.Text,
                 tracker => control.TextChanged += (s, e) => tracker.Value = control.Text);
+
+            bp.FluentBinder.Setter(v => control.Text = v, initialGetter);
 
             return bp.FluentBinder;
         }

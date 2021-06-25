@@ -36,7 +36,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             fm.Convert<int>().
                 GreaterThan(20);
 
-            var fb = binderManager.BindText(txtEntry2);
+            var fb = binderManager.BindText(txtEntry2, () => "0");
 
             fb.Convert<int>()
                 .LessThan(5);

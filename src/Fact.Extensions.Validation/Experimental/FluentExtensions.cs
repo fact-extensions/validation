@@ -378,6 +378,33 @@ namespace Fact.Extensions.Validation.Experimental
                 return true;
             }, setter);
         }
+
+
+        /// <summary>
+        /// Configures optional setter to write back to validating source
+        /// </summary>
+        /// <typeparam name="TFluentBinder"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fluentBinder"></param>
+        /// <param name="setter"></param>
+        /// <param name="initialGetter"></param>
+        /// <returns></returns>
+        public static TFluentBinder Setter<TFluentBinder, T>(this TFluentBinder fluentBinder, Action<T> setter,
+            Func<T> initialGetter = null)
+            where TFluentBinder: IFluentBinder<T>
+        {
+            var binder = (IBinderBase<T>)fluentBinder.Binder;
+            binder.setter = setter;
+            if(initialGetter != null)
+                setter(initialGetter());
+            return fluentBinder;
+        }
+
+
+        public static IFluentBinder<T> Commit<T>(this IFluentBinder<T> fluentBinder, Action<T> committer)
+        {
+            return fluentBinder;
+        }
     }
 
 

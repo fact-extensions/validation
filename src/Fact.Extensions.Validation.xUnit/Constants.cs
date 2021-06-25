@@ -13,5 +13,10 @@ namespace Fact.Extensions.Validation.xUnit
                 public const string WindowsVersion = @"Software\Microsoft\Windows NT\CurrentVersion";
             }
         }
+
+
+        public static class Strings
+        {
+        }
     }
 }

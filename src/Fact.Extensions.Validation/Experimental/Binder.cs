@@ -201,6 +201,11 @@ namespace Fact.Extensions.Validation.Experimental
     public interface IBinderBase<T> : IBinderBase
     {
         new Func<T> getter { get; }
+
+        /// <summary>
+        /// Optional
+        /// </summary>
+        Action<T> setter { get; set; }
     }
 
 
