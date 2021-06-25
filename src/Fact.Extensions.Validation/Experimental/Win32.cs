@@ -88,7 +88,9 @@ namespace Fact.Extensions.Validation.Experimental
         public static FluentBinder2 Add(this IAggregatedBinder binder, RegistryKey key, string name)
         {
             Func<object> getter = () => key.GetValue(name);
-            return binder.AddField(name, getter);
+            var fb = binder.AddField(name, getter);
+            fb.Setter((object v) => key.SetValue(name, v)); // UNUSED
+            return fb;
         }
 
         public static FluentBinder2<T> Add<T>(this IAggregatedBinder binder, RegistryKey key, string name)
@@ -102,9 +104,11 @@ namespace Fact.Extensions.Validation.Experimental
                 T _v = (T)v;
                 return _v;
             };
-            return binder.AddField(name, getter);
+            var fb = binder.AddField(name, getter);
+            fb = fb.Setter((T v) => key.SetValue(name, v)); // UNUSED
             //var binder = new Binder2<T>()
             //var fb = new FluentBinder2<T>()
+            return fb;
         }
     }
 }

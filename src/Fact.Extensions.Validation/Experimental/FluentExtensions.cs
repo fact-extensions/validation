@@ -398,9 +398,12 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="setter"></param>
         /// <param name="initialGetter"></param>
         /// <returns></returns>
+        /// <remarks>
+        /// Be careful - no compile time enforcement of T
+        /// </remarks>
         public static TFluentBinder Setter<TFluentBinder, T>(this TFluentBinder fluentBinder, Action<T> setter,
             Func<T> initialGetter = null)
-            where TFluentBinder: IFluentBinder<T>
+            where TFluentBinder: IFluentBinder
         {
             var binder = (IBinderBase<T>)fluentBinder.Binder;
             binder.setter = setter;
