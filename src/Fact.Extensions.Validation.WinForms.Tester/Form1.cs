@@ -21,7 +21,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
         private void btnTestForm1_Click(object sender, EventArgs e)
         {
-            // NOTE: Phasing out
+            var form = new TestForm3(Services);
+            form.ShowDialog();
         }
 
         private void btnTestForm2_Click(object sender, EventArgs e)

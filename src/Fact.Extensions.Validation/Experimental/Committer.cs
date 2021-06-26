@@ -9,6 +9,11 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public event Func<ValueTask> Committing;
 
+
+        /// <summary>
+        /// Execute the queued up Committing events
+        /// </summary>
+        /// <returns></returns>
         public async ValueTask DoCommit()
         {
             if(Committing != null)

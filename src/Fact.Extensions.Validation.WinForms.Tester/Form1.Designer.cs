@@ -35,11 +35,11 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             // 
             // btnTestForm1
             // 
-            this.btnTestForm1.Location = new System.Drawing.Point(12, 12);
+            this.btnTestForm1.Location = new System.Drawing.Point(12, 72);
             this.btnTestForm1.Name = "btnTestForm1";
             this.btnTestForm1.Size = new System.Drawing.Size(75, 23);
             this.btnTestForm1.TabIndex = 0;
-            this.btnTestForm1.Text = "TestForm1";
+            this.btnTestForm1.Text = "TestForm3";
             this.btnTestForm1.UseVisualStyleBackColor = true;
             this.btnTestForm1.Click += new System.EventHandler(this.btnTestForm1_Click);
             // 

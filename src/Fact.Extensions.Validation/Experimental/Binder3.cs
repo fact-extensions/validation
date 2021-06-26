@@ -119,16 +119,18 @@ namespace Fact.Extensions.Validation.Experimental
 
 
     public class AggregatedBinderBase3<TBinderProvider> : Binder3Base,
-        IAggregatedBinderBase
+        IAggregatedBinderBase<TBinderProvider>
         where TBinderProvider: IBinderProvider
     {
         readonly List<TBinderProvider> providers = new List<TBinderProvider>();
 
         public IEnumerable<IBinderProvider> Providers => providers.Cast<IBinderProvider>();
 
-        // FIX: Naughty cast
-        public void Add(IBinderProvider collected) =>
-            providers.Add((TBinderProvider)collected);
+        public void Add(TBinderProvider collected)
+        {
+            providers.Add(collected);
+            Committer.Committing += collected.Binder.Committer.DoCommit;
+        }
 
         public AggregatedBinderBase3()
         {
@@ -142,18 +144,12 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
-
-    public static class AggregatedBinder3Extensions
+    /// <summary>
+    /// "v3" Aggregated Binder
+    /// </summary>
+    public class AggregatedBinder3 : AggregatedBinderBase3<IBinderProvider>,
+        IAggregatedBinderBase
     {
-        public static async Task Process<TAggregatedBinder>(this TAggregatedBinder aggregatedBinder, 
-            CancellationToken cancellationToken = default)
-            where TAggregatedBinder: IBinder3Base, IAggregatedBinderBase
-        {
-            // FIX: We want to pass this in
-            // DEBT: AggregatedBinder3 won't have field or initialvalue
-            var context = new Context2(null, null, cancellationToken);
 
-            await aggregatedBinder.Processor.ProcessAsync(context, cancellationToken);
-        }
     }
 }

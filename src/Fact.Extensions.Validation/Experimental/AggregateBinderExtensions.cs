@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation.Experimental
 {
@@ -37,5 +39,23 @@ namespace Fact.Extensions.Validation.Experimental
         /// <returns></returns>
         public static FluentBinder2<T> AddField3<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter) =>
             binder.AddField3(name, getter, fb => new BinderManagerBase.ItemBase(fb.Binder, fb));
+
+
+        public static async Task Process<TAggregatedBinder>(this TAggregatedBinder aggregatedBinder,
+            InputContext inputContext = null,
+            CancellationToken cancellationToken = default)
+            where TAggregatedBinder : IBinder3Base, IAggregatedBinderBase
+        {
+            // DEBT: AggregatedBinder3 won't have field or initialvalue
+            var context = new Context2(null, null, cancellationToken);
+            // DEBT: Pretty sloppy presumptions if InputContext not specified.  But, will do for now
+            context.InputContext = inputContext ?? new InputContext
+            {
+                InitiatingEvent = InitiatingEvents.Load,
+                InteractionLevel = Interaction.Low
+            };
+
+            await aggregatedBinder.Processor.ProcessAsync(context, cancellationToken);
+        }
     }
 }

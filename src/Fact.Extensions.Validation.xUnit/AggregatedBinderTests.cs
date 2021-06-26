@@ -16,7 +16,7 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task Test1()
         {
-            var ab = new AggregatedBinderBase3<IBinderProvider>();
+            var ab = new AggregatedBinder3();
 
             var fb = ab.AddField3("field1", () => 123);
 
