@@ -30,7 +30,7 @@ namespace Fact.Extensions.Validation.Experimental
             // NOTE: Odd that following line doesn't compile now.
             // Fortunately our scenario that's OK
             //Processing?.Invoke(field, context);
-            var delegates = ProcessingAsync.GetInvocationList();
+            var delegates = ProcessingAsync?.GetInvocationList() ?? System.Linq.Enumerable.Empty<object>();
 
             var nonsequential = new LinkedList<Task>();
 

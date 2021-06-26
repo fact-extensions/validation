@@ -434,6 +434,18 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
+
+        /// <summary>
+        /// Named AddField2 to not collide with the more core ICollection<typeparamref name="TBinderProvider"/> flavor
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TBinderProvider"></typeparam>
+        /// <param name="binder"></param>
+        /// <param name="name"></param>
+        /// <param name="getter"></param>
+        /// <param name="providerFactory"></param>
+        /// <param name="isNull"></param>
+        /// <returns></returns>
         public static TBinderProvider AddField2<T, TBinderProvider>(this IAggregatedBinderCollector binder, string name, 
             Func<T> getter,
             Func<IFluentBinder<T>, TBinderProvider> providerFactory,
@@ -451,6 +463,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public static FluentBinder2<T> AddField<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter) =>
             binder.AddField(name, getter, fb => new BinderManagerBase.ItemBase(fb.Binder, fb));
+
 
 
         public class SummaryProcessor

@@ -1,5 +1,7 @@
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,7 +10,12 @@ using System.Threading.Tasks;
 // itself has no field
 namespace Fact.Extensions.Validation.Experimental
 {
-    public class Binder3Base
+    public interface IBinder3Base
+    {
+        Processor<Context2> Processor { get; }
+    }
+
+    public class Binder3Base : IBinder3Base
     {
         public Processor<Context2> Processor { get; } = new Processor<Context2>();
 
@@ -107,6 +114,46 @@ namespace Fact.Extensions.Validation.Experimental
 
             // FIX: Doesn't play nice with AggregatedBinder itself it seems
             inputContext?.AlreadyRun?.Add(this);
+        }
+    }
+
+
+    public class AggregatedBinderBase3<TBinderProvider> : Binder3Base,
+        IAggregatedBinderBase
+        where TBinderProvider: IBinderProvider
+    {
+        readonly List<TBinderProvider> providers = new List<TBinderProvider>();
+
+        public IEnumerable<IBinderProvider> Providers => providers.Cast<IBinderProvider>();
+
+        // FIX: Naughty cast
+        public void Add(IBinderProvider collected) =>
+            providers.Add((TBinderProvider)collected);
+
+        public AggregatedBinderBase3()
+        {
+            Processor.ProcessingAsync += async (sender, context) =>
+            {
+                foreach(TBinderProvider provider in providers)
+                {
+                    await provider.Binder.Process(context.InputContext, context.CancellationToken);
+                }
+            };
+        }
+    }
+
+
+    public static class AggregatedBinder3Extensions
+    {
+        public static async Task Process<TAggregatedBinder>(this TAggregatedBinder aggregatedBinder, 
+            CancellationToken cancellationToken = default)
+            where TAggregatedBinder: IBinder3Base, IAggregatedBinderBase
+        {
+            // FIX: We want to pass this in
+            // DEBT: AggregatedBinder3 won't have field or initialvalue
+            var context = new Context2(null, null, cancellationToken);
+
+            await aggregatedBinder.Processor.ProcessAsync(context, cancellationToken);
         }
     }
 }
