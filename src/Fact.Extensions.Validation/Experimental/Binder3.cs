@@ -148,8 +148,22 @@ namespace Fact.Extensions.Validation.Experimental
     /// "v3" Aggregated Binder
     /// </summary>
     public class AggregatedBinder3 : AggregatedBinderBase3<IBinderProvider>,
-        IAggregatedBinderBase
+        IAggregatedBinderBase,
+        IBinder2ProcessorCore,
+        IServiceProviderProvider
     {
+        public IServiceProvider Services { get; }
 
+        public AggregatedBinder3(IServiceProvider services = null)
+        {
+            Services = services;
+        }
+
+        // DEBT: Temporary as we phase out v2
+        public event ProcessingDelegateAsync ProcessingAsync
+        {
+            add => Processor.ProcessingAsync += (sender, context) => value(null, context);
+            remove => new InvalidOperationException();
+        }
     }
 }

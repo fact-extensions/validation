@@ -31,7 +31,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
         void Initialize()
         {
-            var ab = new AggregatedBinder3();
+            var ab = new AggregatedBinder3(services);
 
             //ab.BindText
         }

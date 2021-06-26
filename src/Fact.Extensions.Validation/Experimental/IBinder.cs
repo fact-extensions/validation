@@ -8,9 +8,14 @@ using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation.Experimental
 {
-    public interface IBinder2Base
+    // DEBT: Stop-gap as we move to v3
+    public interface IBinder2ProcessorCore
     {
         event ProcessingDelegateAsync ProcessingAsync;
+    }
+
+    public interface IBinder2Base : IBinder2ProcessorCore
+    {
         event ProcessingDelegateAsync ProcessedAsync;
         event ProcessingDelegateAsync StartingAsync;
         event Action Aborting;

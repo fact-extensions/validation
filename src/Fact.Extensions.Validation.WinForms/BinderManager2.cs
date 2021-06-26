@@ -15,11 +15,12 @@ namespace Fact.Extensions.Validation.WinForms
 {
     public static class AggregatedBinderExtensions
     {
-        static BinderManagerBase.Item<T> Setup<T>(IAggregatedBinder aggregatedBinder, Control control,
+        static BinderManagerBase.Item<T> Setup<TAggregatedBinder, T>(TAggregatedBinder aggregatedBinder, Control control,
             Func<T> getter, 
             Action<Tracker<T>> initEvent,
             Func<InputContext> inputContextFactory,
             Func<T, bool> isNull = null)
+            where TAggregatedBinder: IAggregatedBinderBase, IBinder2ProcessorCore, IServiceProviderProvider
         {
             var services = aggregatedBinder.Services;
             var styleManager = services.GetRequiredService<StyleManager>();
@@ -66,8 +67,9 @@ namespace Fact.Extensions.Validation.WinForms
         /// <param name="control"></param>
         /// <param name="initialGetter"></param>
         /// <returns></returns>
-        public static IFluentBinder<string> BindText(this IAggregatedBinder aggregatedBinder, Control control, 
+        public static IFluentBinder<string> BindText<TAggregatedBinder>(this TAggregatedBinder aggregatedBinder, Control control, 
             Func<string> initialGetter = null)
+            where TAggregatedBinder : IAggregatedBinderBase, IBinder2ProcessorCore, IServiceProviderProvider
         {
             IBinderProvider<string> bp = Setup(aggregatedBinder, control,
                 () => control.Text,
