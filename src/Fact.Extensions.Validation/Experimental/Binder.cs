@@ -41,6 +41,12 @@ namespace Fact.Extensions.Validation.Experimental
         /// EXPERIMENTAL
         /// </remarks>
         public Interaction? InteractionLevel { get; set; }
+
+        // Tracks which binders have been run for this processing sweep, to avoid
+        // recursion.
+        // TODO: Do a binder cache mechanism which knows to look at getter's cached response
+        // and evaluate whether to use cached Statuses or re-process
+        public HashSet<IBinder2> AlreadyRun { get; } = new HashSet<IBinder2>();
     }
 
 
