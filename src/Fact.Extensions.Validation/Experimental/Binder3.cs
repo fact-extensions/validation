@@ -126,10 +126,27 @@ namespace Fact.Extensions.Validation.Experimental
 
         public IEnumerable<IBinderProvider> Providers => providers.Cast<IBinderProvider>();
 
-        public void Add(TBinderProvider collected)
+        /// <summary>
+        /// Occurs after interactive/discrete binder processing, whether it generated new status or not
+        /// </summary>
+        public event BindersProcessedDelegate<TBinderProvider> BindersProcessed;
+
+        protected void FireFieldsProcessed(IEnumerable<TBinderProvider> fields, Context2 context) =>
+            BindersProcessed?.Invoke(fields, context);
+
+        public void Add(TBinderProvider binderProvider)
         {
-            providers.Add(collected);
-            Committer.Committing += collected.Binder.Committer.DoCommit;
+            providers.Add(binderProvider);
+            Committer.Committing += binderProvider.Binder.Committer.DoCommit;
+
+            binderProvider.Binder.ProcessedAsync += (field, context) =>
+            {
+                // Filter out overall load/aggregated Process
+                if (context.InputContext?.InitiatingEvent != InitiatingEvents.Load)
+                    FireFieldsProcessed(new[] { binderProvider }, context);
+
+                return new ValueTask();
+            };
         }
 
         public AggregatedBinderBase3()
@@ -140,6 +157,15 @@ namespace Fact.Extensions.Validation.Experimental
                 {
                     await provider.Binder.Process(context.InputContext, context.CancellationToken);
                 }
+            };
+
+            Processor.ProcessedAsync += (_, c) =>
+            {
+                // Filter out overall load/aggregated Process
+                if (c.InputContext?.InitiatingEvent == InitiatingEvents.Load)
+                    FireFieldsProcessed(providers, c);
+
+                return new ValueTask();
             };
         }
     }

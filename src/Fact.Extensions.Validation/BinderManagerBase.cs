@@ -150,7 +150,7 @@ namespace Fact.Extensions.Validation
         /// <param name="binder"></param>
         /// <returns></returns>
         /// <remarks>It's possible to have multiple binders associated to one field</remarks>
-        public static IEnumerable<IField> Fields(this IAggregatedBinder binder)
+        public static IEnumerable<IField> Fields(this IAggregatedBinderProvider binder)
         {
             return binder.Providers.Select(x => x.Binder.Field).Distinct();
         }
