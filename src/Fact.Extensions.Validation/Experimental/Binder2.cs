@@ -79,11 +79,11 @@ namespace Fact.Extensions.Validation.Experimental
             this.getter2 = getter;
         }
 
-        public Binder2(IField<T> field, Func<T> getter = null) : base(field)
+
+        public Binder2(string name, Func<T> getter) : 
+            this(new FieldStatus<T>(name), getter)
         {
-            if (getter == null)
-                getter = () => field.Value;
-            this.getter2 = getter;
+
         }
 
         public event ProcessingDelegate Processing

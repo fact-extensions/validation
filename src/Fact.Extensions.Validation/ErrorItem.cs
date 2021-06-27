@@ -155,7 +155,7 @@ namespace Fact.Extensions.Validation
     {
         //public FieldStatus() : base() { }
 
-        public FieldStatus(string name, T value) :
+        public FieldStatus(string name, T value = default) :
             base(name, value)
         { }
 
