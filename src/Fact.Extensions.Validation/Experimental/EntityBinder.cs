@@ -538,7 +538,7 @@ namespace Fact.Extensions.Validation.Experimental
             bool isProcessing = false;
             bool isProcessed = false;
 
-            var processing = new ProcessingDelegateAsync((f, c) =>
+            var processing = new ProcessingDelegateAsync(async (f, c) =>
             {
                 if (!isProcessing)
                 {
@@ -558,27 +558,24 @@ namespace Fact.Extensions.Validation.Experimental
 
                     if (f == fluentBinder1.Binder.Field)
                     {
-                        fluentBinder2.Binder.Process().Wait();
+                        await fluentBinder2.Binder.Process(c.InputContext);
                         if(fluentBinder2.Field.Statuses.Any())
                         {
                             c.Abort = true;
-                            return new ValueTask();
                         }
                     }
 
                     if (f == fluentBinder2.Binder.Field)
                     {
-                        fluentBinder1.Binder.Process().Wait();
+                        await fluentBinder1.Binder.Process(c.InputContext);
                         if (fluentBinder1.Field.Statuses.Any())
                         {
                             c.Abort = true;
-                            return new ValueTask();
                         }
                     }
 
-                    return handler(c, field1, field2);
+                    await handler(c, field1, field2);
                 }
-                return new ValueTask();
             });
 
             var processed = new ProcessingDelegateAsync((f, c) =>
