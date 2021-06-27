@@ -173,7 +173,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public Task Evaluate(InputContext context, System.Threading.CancellationToken cancellationToken = default)
         {
-            var ctx = new Context2(cancellationToken);
+            var ctx = new Context2(null, cancellationToken);
             ctx.InputContext = context;
 
             Clear();

@@ -15,6 +15,8 @@ namespace Fact.Extensions.Validation.Experimental
         /// be converted as the pipeline is processed
         /// </summary>
         public object Value { get; set; }
+
+        public object InitialValue { get; }
         
         /// <summary>
         /// When true, signals Binder.Process that particular processor is completely
@@ -29,8 +31,10 @@ namespace Fact.Extensions.Validation.Experimental
         // Still experimental 
         public InputContext InputContext { get; set; }
 
-        public Context2(CancellationToken cancellationToken)
+        public Context2(object initialValue, CancellationToken cancellationToken)
         {
+            InitialValue = initialValue;
+            Value = initialValue;
             CancellationToken = cancellationToken;
         }
     }
@@ -101,14 +105,13 @@ namespace Fact.Extensions.Validation.Experimental
         public event ProcessingDelegateAsync ProcessingAsync;
         public event ProcessingDelegateAsync ProcessedAsync;
 
-        protected Context2 CreateContext(CancellationToken ct) =>
-            new Context2(ct);
+        protected Context2 CreateContext(object initialValue, CancellationToken ct) =>
+            new Context2(initialValue, ct);
 
         public async Task Process(InputContext inputContext = default, CancellationToken ct = default)
         {
-            Context2 context = CreateContext(ct);
+            Context2 context = CreateContext(getter(), ct);
             context.InputContext = inputContext;
-            context.Value = getter();
 
             // NOTE: Odd that following line doesn't compile now.
             // Fortunately our scenario that's OK
@@ -234,7 +237,7 @@ namespace Fact.Extensions.Validation.Experimental
         {
             if (initial)
                 // DEBT: Needs refiniement
-                Field = new ShimFieldBase2(binder.Field.Name, statuses, () => binder.getter());
+                Field = new ShimFieldBase2(binder.Field.Name, statuses, binder.getter);
             else
                 throw new NotImplementedException();
                 //Field = new ShimFieldBase2<T>(binder, statuses, () => InitialValue);
