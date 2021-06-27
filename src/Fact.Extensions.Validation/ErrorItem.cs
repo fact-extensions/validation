@@ -8,6 +8,14 @@ namespace Fact.Extensions.Validation
     public interface IEntity { }
 
     // TODO: Consider interacting with IDataErrorInfo interface, as per MS standard
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <remarks>
+    /// Fields take on two forms:
+    /// 1.  One that is always associated with a binder
+    /// 2.  One this is static for serialization purposes
+    /// </remarks>
     public class FieldStatus : 
         FieldBase,
         IComparable<FieldStatus>,
@@ -22,7 +30,7 @@ namespace Fact.Extensions.Validation
                 statuses.AddRange(copyFrom.statuses);
         }
 
-        public FieldStatus(string name, object value) :
+        public FieldStatus(string name, object value = null) :
             base(name)
         {
             this.value = value;
@@ -31,7 +39,7 @@ namespace Fact.Extensions.Validation
         object value;
 
         /// <summary>
-        /// Original value presented to engine at beginning of validation/conversion chain
+        /// Original value presented to engine at beginning of processing/validation/conversion chain
         /// </summary>
         public object Value
         {

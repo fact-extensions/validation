@@ -34,7 +34,7 @@ namespace Fact.Extensions.Validation.xUnit
 
             await fb.Binder.Process();
 
-            var statuses = fb.Field.Statuses.ToArray();
+            var statuses = field.Statuses.ToArray();
             statuses.Should().HaveCount(2);
         }
 

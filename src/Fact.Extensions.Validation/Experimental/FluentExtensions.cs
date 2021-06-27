@@ -8,6 +8,16 @@ namespace Fact.Extensions.Validation.Experimental
 {
     public static class FluentExtensions
     {
+        /// <summary>
+        /// From a field create a FluentBinder with a strong type association
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="getter"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// DEBT: Do some kind of runtime check here to help assert that indeed
+        /// presented IField is of type T
+        /// </remarks>
         public static FluentBinder2<T> Bind<T>(this IField field, Func<T> getter)
         {
             var b = new Binder2<T>(field, getter);
@@ -15,6 +25,13 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
+
+        /// <summary>
+        /// From a field create a FluentBinder without a strong type association
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="getter"></param>
+        /// <returns></returns>
         public static FluentBinder2 BindNonTyped(this IField field, Func<object> getter)
         {
             var b = new Binder2<object>(field, getter);

@@ -170,30 +170,34 @@ namespace Fact.Extensions.Validation.Experimental
 
     }
 
-    public class ShimFieldBase2 : ShimFieldBase, IField
+    public class ShimFieldBase2 : ShimFieldBaseBase, IField
     {
         readonly Func<object> getter;
 
-        public override object Value => getter();
+        public object Value => getter();
 
-        internal ShimFieldBase2(IBinderBase binder, ICollection<Status> statuses, Func<object> getter) :
-            base(binder, statuses)
+        public IEnumerable<Status> Statuses => statuses;
+
+        internal ShimFieldBase2(string name, ICollection<Status> statuses, Func<object> getter) :
+            base(name, statuses)
         {
             this.getter = getter;
         }
     }
     
-    public class ShimFieldBase2<T> : ShimFieldBase,
+    public class ShimFieldBase2<T> : ShimFieldBaseBase,
         IField<T>
     {
         readonly Func<T> getter;    // TODO: Maybe make this acquired direct from FluentBinder2
-        public override object Value => getter();
+        public object Value => getter();
 
         T IField<T>.Value => getter();
 
-        internal ShimFieldBase2(IBinderBase binder, ICollection<Status> statuses, 
+        public IEnumerable<Status> Statuses => statuses;
+
+        internal ShimFieldBase2(string name, ICollection<Status> statuses, 
             Func<T> getter) :
-            base(binder, statuses)
+            base(name, statuses)
         {
             this.getter = getter;
         }
@@ -230,7 +234,7 @@ namespace Fact.Extensions.Validation.Experimental
         {
             if (initial)
                 // DEBT: Needs refiniement
-                Field = new ShimFieldBase2(binder, statuses, () => binder.getter());
+                Field = new ShimFieldBase2(binder.Field.Name, statuses, () => binder.getter());
             else
                 throw new NotImplementedException();
                 //Field = new ShimFieldBase2<T>(binder, statuses, () => InitialValue);
@@ -299,11 +303,13 @@ namespace Fact.Extensions.Validation.Experimental
         public FluentBinder2(IBinder2 binder, bool initial) : 
             base(binder, typeof(T))
         {
+            string name = binder.Field.Name;
+
             if (initial)
                 // DEBT: Needs refiniement
-                Field = new ShimFieldBase2<T>(binder, statuses, () => (T)binder.getter());
+                Field = new ShimFieldBase2<T>(name, statuses, () => (T)binder.getter());
             else
-                Field = new ShimFieldBase2<T>(binder, statuses, () => InitialValue);
+                Field = new ShimFieldBase2<T>(name, statuses, () => InitialValue);
 
             Initialize();
         }
@@ -312,11 +318,13 @@ namespace Fact.Extensions.Validation.Experimental
         public FluentBinder2(IBinder2<T> binder, bool initial = true) : 
             base(binder, typeof(T))
         {
+            string name = binder.Field.Name;
+
             if (initial)
                 // DEBT: Needs refiniement
-                Field = new ShimFieldBase2<T>(binder, statuses, binder.getter);
+                Field = new ShimFieldBase2<T>(name, statuses, binder.getter);
             else
-                Field = new ShimFieldBase2<T>(binder, statuses, () => InitialValue);
+                Field = new ShimFieldBase2<T>(name, statuses, () => InitialValue);
 
             Initialize();
         }

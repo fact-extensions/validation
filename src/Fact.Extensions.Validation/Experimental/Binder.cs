@@ -50,29 +50,38 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public abstract class ShimFieldBase : IField
+    public class ShimFieldBaseBase
     {
         public string Name { get; }
 
-        public virtual object Value => binder.getter();
-
         readonly internal ICollection<Status> statuses;
 
-        public IEnumerable<Status> Statuses => binder.Field.Statuses;
-
-        public void Add(Status status) =>
-            statuses.Add(status);
-
-        protected readonly IBinderBase binder;
+        public ShimFieldBaseBase(string name, ICollection<Status> statuses)
+        {
+            Name = name;
+            this.statuses = statuses;
+        }
 
         // Clear only the locally shimmed in statuses - leave original field alone
         public void ClearShim() => statuses.Clear();
 
-        protected ShimFieldBase(IBinderBase binder, ICollection<Status> statuses)
+        public void Add(Status status) => statuses.Add(status);
+    }
+
+
+    public abstract class ShimFieldBase : ShimFieldBaseBase,
+        IField
+    {
+        public virtual object Value => binder.getter();
+
+        public IEnumerable<Status> Statuses => binder.Field.Statuses;
+
+        protected readonly IBinderBase binder;
+
+        protected ShimFieldBase(IBinderBase binder, ICollection<Status> statuses) :
+            base(binder.Field.Name, statuses)
         {
-            this.statuses = statuses;
             this.binder = binder;
-            Name = binder.Field.Name;
         }
 
     }
