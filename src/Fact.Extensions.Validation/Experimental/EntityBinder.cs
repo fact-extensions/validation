@@ -525,15 +525,41 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
+        /*
+         * Not quite ready yet- needs more support code cleanup first
+        async Task ProcessingHelper(IField processingField, params ShimField3[] fields)
+        {
+            foreach(var field in fields)
+                field.ClearShim();
+
+            foreach(var field in fields)
+            {
+            }
+        }*/
+
+
+        public class ShimField3<T> : ShimFieldBase2<T>, IBinderProvider
+        {
+            public IBinder2 Binder { get; }
+
+            public IFluentBinder FluentBinder { get; }
+
+            public ShimField3(IFluentBinder binder) :
+                base(binder.Field.Name, new List<Status>(), () => (T)binder.Field.Value)
+            {
+                Binder = binder.Binder;
+                FluentBinder = binder;
+            }
+        }
+
+
         public static IFluentBinder<T1> GroupValidate<T1, T2>(this 
             IFluentBinder<T1> fluentBinder1,
             IFluentBinder<T2> fluentBinder2,
             Func<Context2, IField<T1>, IField<T2>, ValueTask> handler)
         {
-            var field1 = new ShimFieldBase2<T1>(fluentBinder1.Binder.Field.Name, new List<Status>(), 
-                () => (T1) fluentBinder1.Field.Value);
-            var field2 = new ShimFieldBase2<T2>(fluentBinder2.Binder.Field.Name, new List<Status>(),
-                () => (T2) fluentBinder2.Field.Value);
+            var field1 = new ShimField3<T1>(fluentBinder1);
+            var field2 = new ShimField3<T2>(fluentBinder2);
 
             ((IFieldStatusExternalCollector)fluentBinder1.Binder.Field).Add(field1.statuses);
             ((IFieldStatusExternalCollector)fluentBinder2.Binder.Field).Add(field2.statuses);
@@ -563,18 +589,20 @@ namespace Fact.Extensions.Validation.Experimental
                     if (f == fluentBinder1.Binder.Field)
                     {
                         await fluentBinder2.Binder.Process(c.InputContext);
-                        if(fluentBinder2.Field.Statuses.Any())
+                        if(fluentBinder2.Binder.Field.Statuses.Any())
                         {
                             c.Abort = true;
+                            return;
                         }
                     }
 
                     if (f == fluentBinder2.Binder.Field)
                     {
                         await fluentBinder1.Binder.Process(c.InputContext);
-                        if (fluentBinder1.Field.Statuses.Any())
+                        if (fluentBinder1.Binder.Field.Statuses.Any())
                         {
                             c.Abort = true;
+                            return;
                         }
                     }
 

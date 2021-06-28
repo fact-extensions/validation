@@ -53,6 +53,8 @@ namespace Fact.Extensions.Validation.Experimental
     public class Binder2<T> : BinderBase, 
         IBinder2<T>
     {
+        // DEBT: Sometimes a text entry of "" means null, an int of 0, etc.
+        // we need a mechanism to account for that
         public bool AbortOnNull { get; set; } = true;
 
         /// <summary>
