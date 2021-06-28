@@ -53,7 +53,7 @@ namespace Fact.Extensions.Validation.Experimental
     public class Binder2<T> : BinderBase, 
         IBinder2<T>
     {
-        public bool AbortOnNull { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public bool AbortOnNull { get; set; } = true;
 
         /// <summary>
         /// Strongly typed getter
@@ -107,6 +107,9 @@ namespace Fact.Extensions.Validation.Experimental
             context.InputContext = inputContext;
 
             if (inputContext?.AlreadyRun?.Contains(this) == true)
+                return;
+
+            if (AbortOnNull && context.InitialValue == null)
                 return;
 
             // NOTE: Odd that following line doesn't compile now.

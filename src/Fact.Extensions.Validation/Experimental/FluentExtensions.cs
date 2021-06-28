@@ -160,6 +160,7 @@ namespace Fact.Extensions.Validation.Experimental
         public static TFluentBinder Required<TFluentBinder>(this TFluentBinder fb)
             where TFluentBinder : IFluentBinder
         {
+            fb.Binder.AbortOnNull = false;
             fb.Binder.ProcessingAsync += (field, context) =>
             {
                 if (fb.Field.Value == null)

@@ -91,6 +91,10 @@ namespace Fact.Extensions.Validation.Experimental
         {
             Services = services;
 
+            // Aggregated binders always have a null value, since they only exist to evaluate child fields
+            // This may change in the future, but for now, account for that
+            AbortOnNull = false;
+
             // DEBT: Sloppy assigning a new InputContext during processing chain.  We do this so that the
             // default input context is set even when one initiates aggregatedBinder.Process() with no arguments
             ProcessingAsync += (f, c) =>
@@ -616,6 +620,7 @@ namespace Fact.Extensions.Validation.Experimental
             // TODO: Look into evaluation order also as that may become a factor -- i.e. RequiredAttribute needs
             // to run first
             fb.AbortOnNull = false;
+            fb.Binder.AbortOnNull = false;
         }
         public override void Validate<T>(IField<T> field, Context2 context)
         {

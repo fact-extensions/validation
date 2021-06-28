@@ -219,7 +219,14 @@ namespace Fact.Extensions.Validation.Experimental
 
     public interface IBinder : IBinderBase
     {
-        // DEBT: May not want this here
+        /// <summary>
+        /// When true, bound value is basically optional and processing aborts immediately
+        /// when a null is seen.  When false, null is passed right on through the processing
+        /// chain.  Defaults to true
+        /// </summary>
+        /// <remarks>
+        /// DEBT: May not want this here
+        /// </remarks>
         bool AbortOnNull { get; set; }
     }
 
