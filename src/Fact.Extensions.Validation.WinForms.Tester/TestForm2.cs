@@ -87,10 +87,11 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             btnOK.Enabled = !hasStatus;
         }
 
-        private void BinderManager_Validated(IEnumerable<IBinderProvider> fields, Context2 context)
+        private void BinderManager_Validated(IEnumerable<IBinderProvider> binders, Context2 context)
         {
             lstStatus.Items.Clear();
-            var statuses = binderManager.Fields().
+            var fields2 = binderManager.Fields();
+            var statuses = fields2.
                 Where(x => x.Statuses.Any()).
                 Select(x =>
                 {

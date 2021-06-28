@@ -106,7 +106,7 @@ namespace Fact.Extensions.Validation.Experimental
             Context2 context = CreateContext(getter(), ct);
             context.InputContext = inputContext;
 
-            if (inputContext?.AlreadyRun.Contains(this) == true)
+            if (inputContext?.AlreadyRun?.Contains(this) == true)
                 return;
 
             // NOTE: Odd that following line doesn't compile now.
@@ -136,7 +136,7 @@ namespace Fact.Extensions.Validation.Experimental
                 await ProcessedAsync.Invoke(field, context);
 
             // FIX: Doesn't play nice with AggregatedBinder itself it seems
-            inputContext?.AlreadyRun.Add(this);
+            inputContext?.AlreadyRun?.Add(this);
         }
     }
 

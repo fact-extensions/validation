@@ -16,7 +16,7 @@ namespace Fact.Extensions.Validation.WinForms
     public static class AggregatedBinderExtensions
     {
         static BinderManagerBase.Item<T> Setup<T>(IAggregatedBinder aggregatedBinder, Control control, Func<T> getter, 
-            Action<Tracker<T>> initEvent)
+            Action<Tracker<T>> initEvent, Func<InputContext> inputContextFactory)
         {
             var services = aggregatedBinder.Services;
             var styleManager = services.GetRequiredService<StyleManager>();
@@ -31,17 +31,11 @@ namespace Fact.Extensions.Validation.WinForms
                 _fb => new BinderManagerBase.Item<T>(_fb, control, tracker));
 
             var f = (FieldStatus<T>)bp.Binder.Field;   // DEBT: Sloppy cast
-            // DEBT: Move InputContext creation elsewhere since we aren't sure it's a Keystroke etc here
-            var inputContext = new InputContext
-            {
-                InitiatingEvent = InitiatingEvents.Keystroke,
-                InteractionLevel = Interaction.High
-            };
             tracker.Updated += async (v, c) =>
             {
                 f.Value = v;
 
-                await bp.Binder.Process(inputContext, cancellationToken);
+                await bp.Binder.Process(inputContextFactory(), cancellationToken);
 
                 styleManager.ContentChanged(bp);
             };
@@ -73,7 +67,14 @@ namespace Fact.Extensions.Validation.WinForms
         {
             IBinderProvider<string> bp = Setup(aggregatedBinder, control,
                 () => control.Text,
-                tracker => control.TextChanged += (s, e) => tracker.Value = control.Text);
+                tracker => control.TextChanged += (s, e) => tracker.Value = control.Text,
+                () => new InputContext
+                {
+                    // NOTE: We have to make a new one for each keystroke since we have the
+                    // 'AlreadyRun' tracker which otherwise would need a reset
+                    InitiatingEvent = InitiatingEvents.Keystroke,
+                    InteractionLevel = Interaction.High
+                });
 
             bp.FluentBinder.Setter(v => control.Text = v, initialGetter);
 
