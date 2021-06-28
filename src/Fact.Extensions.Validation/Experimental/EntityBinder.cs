@@ -526,8 +526,10 @@ namespace Fact.Extensions.Validation.Experimental
             IFluentBinder<T2> fluentBinder2,
             Func<Context2, IField<T1>, IField<T2>, ValueTask> handler)
         {
-            var field1 = new ShimFieldBase<T1>(fluentBinder1.Binder, new List<Status>());
-            var field2 = new ShimFieldBase<T2>(fluentBinder2.Binder, new List<Status>());
+            var field1 = new ShimFieldBase2<T1>(fluentBinder1.Binder.Field.Name, new List<Status>(), 
+                () => (T1) fluentBinder1.Field.Value);
+            var field2 = new ShimFieldBase2<T2>(fluentBinder2.Binder.Field.Name, new List<Status>(),
+                () => (T2) fluentBinder2.Field.Value);
 
             ((IFieldStatusExternalCollector)fluentBinder1.Binder.Field).Add(field1.statuses);
             ((IFieldStatusExternalCollector)fluentBinder2.Binder.Field).Add(field2.statuses);
