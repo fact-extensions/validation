@@ -31,8 +31,12 @@ namespace Fact.Extensions.Validation.Experimental
         // Still experimental 
         public InputContext InputContext { get; set; }
 
-        public Context2(object initialValue, CancellationToken cancellationToken)
+        // EXPERIMENTAL putting this here -- same as IBinder.Field
+        public IField Field { get; }
+
+        public Context2(object initialValue, IField field, CancellationToken cancellationToken)
         {
+            Field = field;
             InitialValue = initialValue;
             Value = initialValue;
             CancellationToken = cancellationToken;
@@ -104,12 +108,14 @@ namespace Fact.Extensions.Validation.Experimental
                     };
             }
         }
+
+        public event ProcessingDelegateAsync StartingAsync;
         public event ProcessingDelegateAsync ProcessingAsync;
         public event ProcessingDelegateAsync ProcessedAsync;
-        public event Action Resetting;
+        public event Action Aborting;
 
         protected Context2 CreateContext(object initialValue, CancellationToken ct) =>
-            new Context2(initialValue, ct);
+            new Context2(initialValue, field, ct);
 
         public async Task Process(InputContext inputContext = default, CancellationToken ct = default)
         {
@@ -119,6 +125,9 @@ namespace Fact.Extensions.Validation.Experimental
 
             if (inputContext?.AlreadyRun?.Contains(this) == true)
                 return;
+
+            if (StartingAsync != null)
+                await StartingAsync(field, context);
 
             // NOTE: This had a serious issue where we abort before clearing out potentially
             // previous statuses/errors.  Just added 'Resetting' event hopefully we can augment
@@ -130,7 +139,7 @@ namespace Fact.Extensions.Validation.Experimental
             // continue to linger
             if (AbortOnNull && isNull(initialValue))
             {
-                Resetting?.Invoke();
+                Aborting?.Invoke();
                 if(ProcessedAsync != null)
                     await ProcessedAsync.Invoke(field, context);
                 return;
@@ -276,7 +285,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         protected void Initialize()
         {
-            Binder.Resetting += () =>
+            Binder.Aborting += () =>
             {
                 statuses.Clear();
             };

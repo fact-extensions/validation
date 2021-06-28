@@ -12,7 +12,7 @@ namespace Fact.Extensions.Validation.Experimental
     {
         event ProcessingDelegateAsync ProcessingAsync;
         event ProcessingDelegateAsync ProcessedAsync;
-        event Action Resetting;
+        event Action Aborting;
 
         Task Process(InputContext inputContext = default, CancellationToken ct = default);
     }

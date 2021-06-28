@@ -151,7 +151,7 @@ namespace Fact.Extensions.Validation.Experimental
     {
         internal class Context : Context2
         {
-            internal Context(CancellationToken ct) : base(null, ct)
+            internal Context(CancellationToken ct) : base(null, null, ct)
             {
 
             }
