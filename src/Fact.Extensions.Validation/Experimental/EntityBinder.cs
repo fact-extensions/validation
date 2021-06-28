@@ -436,11 +436,12 @@ namespace Fact.Extensions.Validation.Experimental
 
         public static TBinderProvider AddField2<T, TBinderProvider>(this IAggregatedBinderCollector binder, string name, 
             Func<T> getter,
-            Func<IFluentBinder<T>, TBinderProvider> providerFactory)
+            Func<IFluentBinder<T>, TBinderProvider> providerFactory,
+            Func<T, bool> isNull = default)
             where TBinderProvider: IBinderProvider<T>
         {
-            var f = new FieldStatus<T>(name, default(T));
-            var b = new Binder2<T>(f, getter);
+            var f = new FieldStatus<T>(name);
+            var b = new Binder2<T>(f, getter, isNull);
             var fb = new FluentBinder2<T>(b);
             var bp = providerFactory(fb);
             binder.Add(bp);

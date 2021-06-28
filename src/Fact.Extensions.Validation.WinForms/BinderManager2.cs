@@ -15,8 +15,11 @@ namespace Fact.Extensions.Validation.WinForms
 {
     public static class AggregatedBinderExtensions
     {
-        static BinderManagerBase.Item<T> Setup<T>(IAggregatedBinder aggregatedBinder, Control control, Func<T> getter, 
-            Action<Tracker<T>> initEvent, Func<InputContext> inputContextFactory)
+        static BinderManagerBase.Item<T> Setup<T>(IAggregatedBinder aggregatedBinder, Control control,
+            Func<T> getter, 
+            Action<Tracker<T>> initEvent,
+            Func<InputContext> inputContextFactory,
+            Func<T, bool> isNull = null)
         {
             var services = aggregatedBinder.Services;
             var styleManager = services.GetRequiredService<StyleManager>();
@@ -28,7 +31,8 @@ namespace Fact.Extensions.Validation.WinForms
 
             var bp = aggregatedBinder.AddField2(control.Name,
                 () => tracker.Value,
-                _fb => new BinderManagerBase.Item<T>(_fb, control, tracker));
+                _fb => new BinderManagerBase.Item<T>(_fb, control, tracker),
+                isNull);
 
             var f = (FieldStatus<T>)bp.Binder.Field;   // DEBT: Sloppy cast
             tracker.Updated += async (v, c) =>
@@ -74,7 +78,8 @@ namespace Fact.Extensions.Validation.WinForms
                     // 'AlreadyRun' tracker which otherwise would need a reset
                     InitiatingEvent = InitiatingEvents.Keystroke,
                     InteractionLevel = Interaction.High
-                });
+                },
+                v => string.IsNullOrWhiteSpace(v));
 
             bp.FluentBinder.Setter(v => control.Text = v, initialGetter);
 

@@ -67,11 +67,18 @@ namespace Fact.Extensions.Validation.Experimental
 
         public Func<object> getter => () => getter2();
 
+        readonly Func<T, bool> isNull;
+
         public Action<T> setter { get; set; }
 
-        public Binder2(IField field, Func<T> getter) : base(field)
+        static bool DefaultIsNull(T value) =>
+            Equals(value, default(T));
+
+        public Binder2(IField field, Func<T> getter, Func<T, bool> isNull = null) : 
+            base(field)
         {
             this.getter2 = getter;
+            this.isNull = isNull ?? DefaultIsNull;
         }
 
 
@@ -99,20 +106,35 @@ namespace Fact.Extensions.Validation.Experimental
         }
         public event ProcessingDelegateAsync ProcessingAsync;
         public event ProcessingDelegateAsync ProcessedAsync;
+        public event Action Resetting;
 
         protected Context2 CreateContext(object initialValue, CancellationToken ct) =>
             new Context2(initialValue, ct);
 
         public async Task Process(InputContext inputContext = default, CancellationToken ct = default)
         {
-            Context2 context = CreateContext(getter(), ct);
+            T initialValue = getter2();
+            Context2 context = CreateContext(initialValue, ct);
             context.InputContext = inputContext;
 
             if (inputContext?.AlreadyRun?.Contains(this) == true)
                 return;
 
-            if (AbortOnNull && context.InitialValue == null)
+            // NOTE: This had a serious issue where we abort before clearing out potentially
+            // previous statuses/errors.  Just added 'Resetting' event hopefully we can augment
+            // anyone listening with that event so that we can clear things out in this case.
+            // Feels clumsy though.  Might be better as a "StartProcessing" type event which
+            // would flow into the FluentBinder's initializer event pretty smoothly.  And
+            // in fact that would work better overall, otherwise aborts mid chain would
+            // never fire some later fluentbinders or similar and those statuses would
+            // continue to linger
+            if (AbortOnNull && isNull(initialValue))
+            {
+                Resetting?.Invoke();
+                if(ProcessedAsync != null)
+                    await ProcessedAsync.Invoke(field, context);
                 return;
+            }
 
             // NOTE: Odd that following line doesn't compile now.
             // Fortunately our scenario that's OK
@@ -148,8 +170,8 @@ namespace Fact.Extensions.Validation.Experimental
 
     public class Binder2 : Binder2<object>
     {
-        public Binder2(IField field, Func<object> getter) : 
-            base(field, getter)
+        public Binder2(IField field, Func<object> getter, Func<object, bool> isNull = null) : 
+            base(field, getter, isNull)
         {
 
         }
@@ -254,6 +276,11 @@ namespace Fact.Extensions.Validation.Experimental
 
         protected void Initialize()
         {
+            Binder.Resetting += () =>
+            {
+                statuses.Clear();
+            };
+
             // This event handler is more or less a re-initializer for subsequent
             // process/validation calls
             Binder.ProcessingAsync += (field, context) =>
