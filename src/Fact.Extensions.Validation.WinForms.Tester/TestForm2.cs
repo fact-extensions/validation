@@ -72,6 +72,11 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             binderManager.BindersProcessed += BinderManager_Validated;
             binderManager.BindersProcessed += BinderManager_Validated1;
 
+            var fb2 = binderManager.BindSelectedItem(lstEntry1);
+            var fb2str = fb2.Convert<string>().
+                Required().
+                StartsWith("Item");
+
             await binderManager.Process();
         }
 

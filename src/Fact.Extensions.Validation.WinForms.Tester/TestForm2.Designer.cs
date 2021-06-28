@@ -33,6 +33,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             this.txtEntry1 = new System.Windows.Forms.TextBox();
             this.lstStatus = new System.Windows.Forms.ListBox();
             this.txtEntry2 = new System.Windows.Forms.TextBox();
+            this.lstEntry1 = new System.Windows.Forms.ListBox();
             this.SuspendLayout();
             // 
             // btnOK
@@ -69,11 +70,25 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             this.txtEntry2.Size = new System.Drawing.Size(100, 23);
             this.txtEntry2.TabIndex = 3;
             // 
+            // lstEntry1
+            // 
+            this.lstEntry1.FormattingEnabled = true;
+            this.lstEntry1.ItemHeight = 15;
+            this.lstEntry1.Items.AddRange(new object[] {
+            "Hello World!",
+            "Item 1",
+            "Item 2"});
+            this.lstEntry1.Location = new System.Drawing.Point(118, 12);
+            this.lstEntry1.Name = "lstEntry1";
+            this.lstEntry1.Size = new System.Drawing.Size(120, 94);
+            this.lstEntry1.TabIndex = 4;
+            // 
             // TestForm2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.lstEntry1);
             this.Controls.Add(this.txtEntry2);
             this.Controls.Add(this.lstStatus);
             this.Controls.Add(this.txtEntry1);
@@ -91,5 +106,6 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         private System.Windows.Forms.TextBox txtEntry1;
         private System.Windows.Forms.ListBox lstStatus;
         private System.Windows.Forms.TextBox txtEntry2;
+        private System.Windows.Forms.ListBox lstEntry1;
     }
 }

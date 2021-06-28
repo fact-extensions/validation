@@ -82,6 +82,26 @@ namespace Fact.Extensions.Validation.WinForms
         }
 
 
+        public static IFluentBinder BindSelectedItem(this IAggregatedBinder aggregatedBinder, ListBox control,
+            Func<object> initialGetter = null)
+        {
+            IBinderProvider<object> bp = Setup(aggregatedBinder, control,
+                () => control.SelectedItem,
+                tracker => control.SelectedIndexChanged += (s, e) => tracker.Value = control.SelectedItem,
+                () => new InputContext
+                {
+                    // NOTE: We have to make a new one for each keystroke since we have the
+                    // 'AlreadyRun' tracker which otherwise would need a reset
+                    InitiatingEvent = InitiatingEvents.Keystroke,
+                    InteractionLevel = Interaction.High
+                });
+
+            bp.FluentBinder.Setter(v => control.SelectedItem = v, initialGetter);
+
+            return bp.FluentBinder;
+        }
+
+
         /// <summary>
         /// Binds to Text property of control
         /// </summary>

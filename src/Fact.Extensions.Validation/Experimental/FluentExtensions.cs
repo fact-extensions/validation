@@ -163,7 +163,10 @@ namespace Fact.Extensions.Validation.Experimental
             fb.Binder.ProcessingAsync += (field, context) =>
             {
                 if (fb.Field.Value == null)
+                {
                     fb.Field.Error("Value required");
+                    context.Abort = true;
+                }
                 return new ValueTask();
             };
             return fb;
