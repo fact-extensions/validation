@@ -417,6 +417,8 @@ namespace Fact.Extensions.Validation.Experimental
         /// <returns></returns>
         /// <remarks>
         /// Be careful - no compile time enforcement of T
+        /// Mainly so that we can experiment with Win32 Registry setters
+        /// Otherwise this could be IFluentBinder<typeparamref name="T"/> constrained
         /// </remarks>
         public static TFluentBinder Setter<TFluentBinder, T>(this TFluentBinder fluentBinder, Action<T> setter,
             Func<T> initialGetter = null)

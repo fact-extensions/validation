@@ -118,15 +118,6 @@ namespace Fact.Extensions.Validation.Experimental
         readonly Dictionary<string, ShimFieldBase> fields = new Dictionary<string, ShimFieldBase>();
 
         [Obsolete("Use typed T version instead")]
-        public BinderBase Add(IField field)
-        {
-            var binder = new BinderBase(field);
-            binder.getter = () => field.Value;
-            Add(binder);
-            return binder;
-        }
-
-        [Obsolete("Use typed T version instead")]
         public void Add(IBinderBase binder)
         {
             var item = new _Item(binder);
@@ -233,38 +224,19 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public class BinderBaseBase
+    public class BinderBase
     {
         protected readonly IField field;
 
         public IField Field => field;
 
-        public BinderBaseBase(IField field)
+        public BinderBase(IField field)
         {
             this.field = field;
         }
 
         // Bringing back binder-level commit ability
         public Committer Committer { get; } = new Committer();
-    }
-
-
-    public class BinderBase<T> : BinderBaseBase
-    {
-        // DEBT:
-        public Func<T> getter { get; set; }
-
-        public BinderBase(IField field) : base(field) { }
-    }
-
-
-    public class BinderBase : BinderBase<object>,
-        IBinderBase
-    {
-        public BinderBase(IField field) : base(field)
-        {
-
-        }
     }
 
 
