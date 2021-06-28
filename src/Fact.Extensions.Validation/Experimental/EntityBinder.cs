@@ -124,12 +124,10 @@ namespace Fact.Extensions.Validation.Experimental
 
         public void Add(TBinderProvider item)
         {
-            // DEBT: event is kind of more of a refresh, but Load will do for now as a blunt instrument
-            var inputContext = new InputContext { InitiatingEvent = InitiatingEvents.Load };
-
             items.Add(item);
             ProcessingAsync += async (field, context) =>
-                await item.Binder.Process(inputContext, context.CancellationToken);
+                // Aggregated binder we always have our "Load" style InputContext unless overriden somehow
+                await item.Binder.Process(context.InputContext, context.CancellationToken);
             item.Binder.ProcessedAsync += (field, context) =>
             {
                 // Filter out overall load/aggregated Process

@@ -143,7 +143,7 @@ namespace Fact.Extensions.Validation.Experimental
                 await ProcessedAsync.Invoke(field, context);
 
             // FIX: Doesn't play nice with AggregatedBinder itself it seems
-            //inputContext?.AlreadyRun.Add(this);
+            inputContext?.AlreadyRun.Add(this);
         }
     }
 
