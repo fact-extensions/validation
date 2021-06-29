@@ -43,9 +43,6 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
-    // EXPERIMENTAL, not used
-    public delegate ValueTask ProcessingDelegateAsync<TContext>(IField f, TContext context)
-        where TContext : Context2;
         
     public delegate void ProcessingDelegate(IField f, Context2 context);
     // ValueTask guidance here:
@@ -162,7 +159,11 @@ namespace Fact.Extensions.Validation.Experimental
             {
                 context.Sequential = true;
                 ValueTask task = d(field, context);
-                if (context.Abort) break;
+                if (context.Abort)
+                {
+                    Aborting?.Invoke();
+                    break;
+                }
                 if (context.Sequential)
                     await task;
                 else
