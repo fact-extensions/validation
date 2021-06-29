@@ -83,6 +83,13 @@ namespace Fact.Extensions.Validation.Experimental
                 return new ValueTask();
             };
         }
+
+
+        public FieldBinder(string fieldName, Func<T> getter, Action<T> setter = null) :
+            this(new FieldStatus(fieldName), getter, setter)
+        {
+            
+        }
         
         protected Context2 CreateContext(CancellationToken ct) =>
             new Context2(getter(), Field, ct);

@@ -109,24 +109,26 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task Convert3()
         {
-            var f = new FieldStatus<string>("field1");
-            var b = new Binder2<string>(f, () => "123");
+            //var b = new FieldBinder<string>("field1", () => "123");
 
-            var fb = b.As();
+            //var fb = b.As();
 
+            //var fb2 = fb.Convert<int>();
+            var fb = new FluentBinder2<string>("field1", () => "123");
             var fb2 = fb.Convert<int>();
+            var b = fb.Binder;
 
             fb2.GreaterThan(100);
 
             await b.Process();
 
-            f.Statuses.Should().BeEmpty();
+            b.Field.Statuses.Should().BeEmpty();
 
             fb2.GreaterThan(124);
 
             await b.Process();
 
-            f.Statuses.Should().HaveCount(1);
+            b.Field.Statuses.Should().HaveCount(1);
 
         }
 
