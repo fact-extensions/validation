@@ -105,6 +105,31 @@ namespace Fact.Extensions.Validation.xUnit
             //statuses[1].Description.Should().Be("Must be less than 122");
         }
 
+        // Testing "v3" Binder, largely the same as Convert1 test
+        [Fact]
+        public async Task Convert3()
+        {
+            var f = new FieldStatus<string>("field1");
+            var b = new Binder2<string>(f, () => "123");
+
+            var fb = b.As();
+
+            var fb2 = fb.Convert<int>();
+
+            fb2.GreaterThan(100);
+
+            await b.Process();
+
+            f.Statuses.Should().BeEmpty();
+
+            fb2.GreaterThan(124);
+
+            await b.Process();
+
+            f.Statuses.Should().HaveCount(1);
+
+        }
+
         [Fact]
         public async Task Emit1()
         {
