@@ -43,6 +43,10 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
+    // EXPERIMENTAL, not used
+    public delegate ValueTask ProcessingDelegateAsync<TContext>(IField f, TContext context)
+        where TContext : Context2;
+        
     public delegate void ProcessingDelegate(IField f, Context2 context);
     // ValueTask guidance here:
     // https://devblogs.microsoft.com/dotnet/understanding-the-whys-whats-and-whens-of-valuetask/
@@ -76,7 +80,9 @@ namespace Fact.Extensions.Validation.Experimental
         public Action<T> setter { get; set; }
 
         static bool DefaultIsNull(T value) =>
-            Equals(value, default(T));
+            // We don't want this at all, for example int of 0 is valid in all kinds of scenarios
+            //Equals(value, default(T));
+            value == null;
 
         public Binder2(IField field, Func<T> getter, Func<T, bool> isNull = null) : 
             base(field)
@@ -137,7 +143,7 @@ namespace Fact.Extensions.Validation.Experimental
             // in fact that would work better overall, otherwise aborts mid chain would
             // never fire some later fluentbinders or similar and those statuses would
             // continue to linger
-            if (AbortOnNull && isNull(initialValue))
+            if (context.Abort || (AbortOnNull && isNull(initialValue)))
             {
                 Aborting?.Invoke();
                 if(ProcessedAsync != null)
