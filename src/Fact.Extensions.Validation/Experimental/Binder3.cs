@@ -41,6 +41,13 @@ namespace Fact.Extensions.Validation.Experimental
         }
         
         
+        public event ProcessingDelegateAsync StartingAsync
+        {
+            add => Processor.StartingAsync += (_, context) => value(Field, context);
+            remove => throw new InvalidOperationException();
+        }
+        
+        
         public event Action Aborting
         {
             add => Processor.Aborting += value;

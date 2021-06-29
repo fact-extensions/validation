@@ -292,19 +292,11 @@ namespace Fact.Extensions.Validation.Experimental
 
         protected void Initialize()
         {
-            Binder.Aborting += () =>
-            {
-                statuses.Clear();
-            };
-
             // This event handler is more or less a re-initializer for subsequent
             // process/validation calls
-            Binder.ProcessingAsync += (field, context) =>
+            Binder.StartingAsync += (field, context) =>
             {
                 statuses.Clear();
-                // Doesn't quite work because some scenarios have parallel FluentBinders
-                //if (AbortOnNull && Field.Value == null)
-                //context.Abort = true;
                 return new ValueTask();
             };
 
