@@ -17,8 +17,7 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public void Test1()
         {
-            var f = new FieldStatus<string>("field1");
-            var b = new Binder2<string>(f, () => "123");
+            var b = new FieldBinder<string>("field1", () => "123");
 
             var fb = b.As();
 
@@ -33,14 +32,13 @@ namespace Fact.Extensions.Validation.xUnit
 
             b.Process();
 
-            f.Statuses.Should().HaveCount(1);
+            b.Field.Statuses.Should().HaveCount(1);
         }
 
         [Fact]
         public void Convert1()
         {
-            var f = new FieldStatus<string>("field1");
-            var b = new Binder2<string>(f, () => "123");
+            var b = new FieldBinder<string>("field1", () => "123");
 
             var fb = b.As();
 
@@ -60,7 +58,7 @@ namespace Fact.Extensions.Validation.xUnit
         public void Compare1()
         {
             var f = new FieldStatus<string>("field1");
-            var b = new Binder2<string>(f, () => "123");
+            var b = new FieldBinder<string>(f, () => "123");
 
             var fb = b.As();
 
@@ -92,7 +90,7 @@ namespace Fact.Extensions.Validation.xUnit
         public void Convert2()
         {
             var f = new FieldStatus<string>("field1");
-            var b = new Binder2<string>(f, () => "123a");
+            var b = new FieldBinder<string>(f, () => "123a");
 
             var fb = b.As();
 
@@ -114,7 +112,7 @@ namespace Fact.Extensions.Validation.xUnit
             //var fb = b.As();
 
             //var fb2 = fb.Convert<int>();
-            var fb = new FluentBinder2<string>("field1", () => "123");
+            var fb = new FluentBinder3<string>("field1", () => "123");
             var fb2 = fb.Convert<int>();
             var b = fb.Binder;
 
@@ -136,7 +134,7 @@ namespace Fact.Extensions.Validation.xUnit
         public async Task Emit1()
         {
             var f = new FieldStatus("field1", "123a");
-            var b = new Binder2<object>(f, () => f.Value);
+            var b = new FieldBinder<object>(f, () => f.Value);
             int value = 0;
             string _value = null;
 

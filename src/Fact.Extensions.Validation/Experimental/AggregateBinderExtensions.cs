@@ -37,7 +37,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="name"></param>
         /// <param name="getter"></param>
         /// <returns></returns>
-        public static FluentBinder2<T> AddField3<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter) =>
+        public static FluentBinder3<T> AddField3<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter) =>
             binder.AddField3(name, getter, fb => new BinderManagerBase.ItemBase(fb.Binder, fb));
 
 
