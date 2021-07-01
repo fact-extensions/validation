@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Fact.Extensions.Validation
+namespace Fact.Extensions.Validation.WinForms
 {
-    public static class BinderExtensions
+    public static class AggregatedBinder3Extensions
     {
     }
 }

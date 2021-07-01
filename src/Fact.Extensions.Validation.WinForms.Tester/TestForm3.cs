@@ -27,6 +27,10 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         public TestForm3(IServiceProvider services) : this()
         {
             this.services = services;
+
+            // FIX: v3 mode falls on its face
+            //AggregatedBinderExtensions.v3mode = true;
+
             aggregatedBinder = new AggregatedBinder3(services);
 
             Initialize();
