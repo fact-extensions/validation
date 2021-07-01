@@ -58,13 +58,6 @@ namespace Fact.Extensions.Validation.Experimental
 
 
     /// <summary>
-    /// Used only as a tag to distinguish that it is NOT IFluentBinder3
-    /// </summary>
-    public interface IFluentBinder2
-    {
-    }
-
-    /// <summary>
     /// Boilerplate for less-typed filter-only style binder
     /// </summary>
     public class Binder2<T> : BinderBase, 
@@ -261,7 +254,7 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public class FluentBinder2 : IFluentBinder, IFluentBinder2
+    public class FluentBinder2 : IFluentBinder
     {
         /// <summary>
         /// 
