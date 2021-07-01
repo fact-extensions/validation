@@ -93,7 +93,7 @@ namespace Fact.Extensions.Validation.Experimental
 
 
         public FieldBinder(string fieldName, Func<T> getter, Action<T> setter = null) :
-            this(new FieldStatus(fieldName), getter, setter)
+            this(new FieldStatus<T>(fieldName), getter, setter)
         {
             
         }
