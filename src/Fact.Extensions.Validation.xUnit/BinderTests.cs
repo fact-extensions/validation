@@ -157,16 +157,16 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task AwaitedProcessor()
         {
-            var f = new FieldStatus("field1", "123a");
-            var b = new Binder2(f, () => f.Value);
+            var b = new FieldBinder<object>("field1", () => "123a");
             var cts = new CancellationTokenSource();
             var tcs = new TaskCompletionSource<int>();
             var gotHere = new HashSet<int>();
 
-            b.Processing += (field, context) =>
+            b.Processor.ProcessingAsync += (_, context) =>
             {
                 gotHere.Add(0);
                 tcs.SetResult(0);
+                return new ValueTask();
             };
 
             b.ProcessingAsync += async (field, context) =>
@@ -193,7 +193,7 @@ namespace Fact.Extensions.Validation.xUnit
 
             var oce = await Assert.ThrowsAsync<TaskCanceledException>(async delegate
             {
-                await b.Process(ct: cts.Token);
+                await b.Process(cancellationToken: cts.Token);
             });
 
             gotHere.Should().HaveCount(3);

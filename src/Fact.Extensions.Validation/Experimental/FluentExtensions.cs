@@ -20,7 +20,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// </remarks>
         public static FluentBinder2<T> Bind<T>(this IField field, Func<T> getter)
         {
-            var b = new Binder2<T>(field, getter);
+            var b = new FieldBinder<T>(field, getter);
             var fb = new FluentBinder2<T>(b, true);
             return fb;
         }
@@ -34,7 +34,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// <returns></returns>
         public static FluentBinder2 BindNonTyped(this IField field, Func<object> getter)
         {
-            var b = new Binder2<object>(field, getter);
+            var b = new FieldBinder<object>(field, getter);
             var fb = new FluentBinder2(b, true);
             return fb;
         }

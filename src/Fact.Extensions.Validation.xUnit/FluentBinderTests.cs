@@ -69,7 +69,7 @@ namespace Fact.Extensions.Validation.xUnit
             var field = new FieldStatus("testSource", null);
             var fb = field.Bind(() => "hi2u");
             var field2 = new FieldStatus("testChained", null);
-            var binder = new Binder2(field2, () => field2.Value);
+            var binder = new FieldBinder<object>(field2, () => field2.Value);
             var fb2 = fb.Chain(binder, v => field2.Value = v);
 
             //fb.InitialValue.Should().Be("hi2u");

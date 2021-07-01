@@ -81,12 +81,6 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public Binder2(string name, Func<T> getter) : 
-            this(new FieldStatus<T>(name), getter)
-        {
-
-        }
-
         public event ProcessingDelegate Processing
         {
             remove
@@ -175,15 +169,6 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
-
-    public class Binder2 : Binder2<object>
-    {
-        public Binder2(IField field, Func<object> getter, Func<object, bool> isNull = null) : 
-            base(field, getter, isNull)
-        {
-
-        }
-    }
 
 
     public class Optional<T>
