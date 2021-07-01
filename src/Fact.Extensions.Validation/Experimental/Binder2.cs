@@ -243,16 +243,6 @@ namespace Fact.Extensions.Validation.Experimental
 
     public class FluentBinder2 : IFluentBinder
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <remarks>
-        /// Experimentally putting this here instead of inside binder itself.  That way, conversion chains can have
-        /// independent logic for whether to treat null as an exception or a silent pass
-        /// NOT FUNCTIONAL
-        /// </remarks>
-        public bool AbortOnNull { get; set; } = true;
-
         public IBinder2 Binder { get; }
 
         public IField Field { get; protected set; }

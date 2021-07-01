@@ -181,7 +181,7 @@ namespace Fact.Extensions.Validation.Experimental
         public BinderBase(IField field, Func<T> getter, Action<T> setter = null) : base(field)
         {
             getter2 = getter;
-            setter = setter;
+            this.setter = setter;
         }
     }
 

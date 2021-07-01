@@ -18,7 +18,6 @@ namespace Fact.Extensions.Validation.Experimental
     {
         event ProcessingDelegateAsync ProcessedAsync;
         event ProcessingDelegateAsync StartingAsync;
-        event Action Aborting;
 
         Task Process(InputContext inputContext = default, CancellationToken ct = default);
     }
@@ -37,8 +36,6 @@ namespace Fact.Extensions.Validation.Experimental
 
     public interface IFluentBinder
     {
-        // EXPERIMENTAL
-        bool AbortOnNull { get; set; }
 
         IBinder2 Binder { get; }
 

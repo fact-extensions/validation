@@ -659,7 +659,6 @@ namespace Fact.Extensions.Validation.Experimental
             // if there is a null.  However, arguably, they would be doing the job 'Required' is trying to do here
             // TODO: Look into evaluation order also as that may become a factor -- i.e. RequiredAttribute needs
             // to run first
-            fb.AbortOnNull = false;
             fb.Binder.AbortOnNull = false;
         }
         public override void Validate<T>(IField<T> field, Context2 context)
