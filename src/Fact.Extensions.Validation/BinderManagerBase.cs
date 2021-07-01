@@ -48,11 +48,14 @@ namespace Fact.Extensions.Validation
     }
 
 
-    public interface IBinderProvider
+    public interface IBinderProviderBase
+    {
+        IBinder2 Binder { get; }
+    }
+
+    public interface IBinderProvider : IBinderProviderBase
     {
         IFluentBinder FluentBinder { get; }
-
-        IBinder2 Binder { get; }
     }
 
 

@@ -153,5 +153,48 @@ namespace Fact.Extensions.Validation.xUnit
             committed1.Should().Be("one");
             committed2.Should().Be("two");
         }
+        
+                
+        
+        [Fact]
+        public async Task StringRequiredTest()
+        {
+            string value = null;
+            var fb = new FluentBinder3<string>("field1", () => value);
+            
+            await fb.Binder.Process();
+
+            var statuses = fb.Binder.Field.Statuses.ToArray();
+            statuses.Should().BeEmpty();
+
+            fb.Required3();
+
+            await fb.Binder.Process();
+
+            statuses = fb.Binder.Field.Statuses.ToArray();
+            statuses.Should().HaveCount(1);
+            
+            value = "hi2u";
+            
+            await fb.Binder.Process();
+
+            statuses = fb.Binder.Field.Statuses.ToArray();
+            statuses.Should().BeEmpty();
+        }
+
+
+        [Fact]
+        public async Task StringOptionalTest()
+        {
+            string value = null;
+            var fb = new FluentBinder3<string>("field1", () => value).
+                Optional().
+                IsEqualTo("hi2u");
+
+            await fb.Binder.Process();
+
+            var statuses = fb.Binder.Field.Statuses.ToArray();
+            statuses.Should().BeEmpty();
+        }
     }
 }

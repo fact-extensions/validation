@@ -117,6 +117,45 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
+    public interface IFluentBinder3 : IFluentBinder
+    {
+        IBinder3Base Binder { get; }
+    }
+
+
+    public interface IFluentBinder3<T> : IFluentBinder<T>,
+        IFluentBinder3
+    {
+        
+    }
+
+
+    public class FluentBinder3<T> : FluentBinder2<T>,
+        IFluentBinder3<T>
+    {
+        public new FieldBinder<T> Binder { get; }
+
+        IBinder3Base IFluentBinder3.Binder => Binder;
+        
+        public FluentBinder3(FieldBinder<T> binder, bool initial) :
+            base(binder, initial)
+        {
+            Binder = binder;
+            // DEBT: Eventually I think we're gonna phase this out for FluentBinder-level
+            Binder.AbortOnNull = false;
+        }
+
+
+        public FluentBinder3(string name, Func<T> getter) :
+            base(name, getter)
+        {
+            // DEBT: Stop gap while we upgrade to "v3" binder
+            Binder = (FieldBinder<T>) base.Binder;
+            // DEBT: Eventually I think we're gonna phase this out for FluentBinder-level
+            Binder.AbortOnNull = false;
+        }
+    }
+
 
     public class AggregatedBinderBase3<TBinderProvider> : Binder3Base,
         IAggregatedBinderBase<TBinderProvider>

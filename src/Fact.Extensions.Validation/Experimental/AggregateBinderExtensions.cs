@@ -18,12 +18,12 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="getter"></param>
         /// <param name="providerFactory"></param>
         /// <returns></returns>
-        public static FluentBinder2<T> AddField3<T, TBinderProvider>(this ICollector<TBinderProvider> binder, string name, Func<T> getter,
+        public static FluentBinder3<T> AddField3<T, TBinderProvider>(this ICollector<TBinderProvider> binder, string name, Func<T> getter,
             Func<IFluentBinder<T>, TBinderProvider> providerFactory)
             where TBinderProvider : IBinderProvider
         {
             var b = new FieldBinder<T>(name, getter);
-            var fb = new FluentBinder2<T>(b);
+            var fb = new FluentBinder3<T>(b, true);
             binder.Add(providerFactory(fb));
             return fb;
         }

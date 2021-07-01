@@ -25,7 +25,8 @@ namespace Fact.Extensions.Validation.xUnit
             var statuses = fb.Binder.Field.Statuses.ToArray();
             statuses.Should().HaveCount(0);
 
-            fb.GreaterThan(124);
+            fb.Required().
+                GreaterThan(124);
 
             await ab.Process();
 

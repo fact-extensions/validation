@@ -455,6 +455,44 @@ namespace Fact.Extensions.Validation.Experimental
 
         public static IFluentBinder<T> Commit<T>(this IFluentBinder<T> fluentBinder, Action<T> commit) =>
             fluentBinder.Commit(fluentBinder.Binder.Committer, commit);
+
+        // Temporarily named Required3 until we phase out "v2"
+        public static TFluentBinder Required3<TFluentBinder, T>(this TFluentBinder fluentBinder, Func<T, bool> isEmpty)
+            where TFluentBinder : IFluentBinder3<T>
+        {
+            fluentBinder.Binder.Processor.ProcessingAsync += (_, context) =>
+            {
+                var v = (T)fluentBinder.Field.Value;
+                
+                if(isEmpty(v))
+                    // DEBT: IsNull is wrong code here, since v may actually be empty string or similar
+                    fluentBinder.Field.Error(FieldStatus.ComparisonCode.IsNull, null, "Field is required");
+                
+                return new ValueTask();
+            };
+            return fluentBinder;
+        }
+
+
+        public static TFluentBinder Required3<TFluentBinder>(this TFluentBinder fluentBinder)
+            where TFluentBinder : IFluentBinder3<string> =>
+            fluentBinder.Required3<TFluentBinder, string>(string.IsNullOrWhiteSpace);
+
+        public static TFluentBinder Optional<TFluentBinder, T>(this TFluentBinder fluentBinder, Func<T, bool> isEmpty)
+            where TFluentBinder : IFluentBinder3<T>
+        {
+            fluentBinder.Binder.Processor.StartingAsync += (_, context) =>
+            {
+                var v = (T)fluentBinder.Field.Value;
+                if (isEmpty(v)) context.Abort = true;
+                return new ValueTask();
+            };
+            return fluentBinder;
+        }
+        
+        public static TFluentBinder Optional<TFluentBinder>(this TFluentBinder fluentBinder)
+            where TFluentBinder : IFluentBinder3<string> =>
+            fluentBinder.Optional<TFluentBinder, string>(string.IsNullOrWhiteSpace);
     }
 
 
