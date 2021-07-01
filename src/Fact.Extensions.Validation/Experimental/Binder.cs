@@ -247,6 +247,38 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+    public class BinderBase<T> : BinderBase, IBinderBase<T>
+        //: IBinderBase<T>
+    {
+        /// <summary>
+        /// Strongly typed getter
+        /// NOTE: May be 'object' in circumstances where init time we don't commit to a type
+        /// </summary>
+        /// <remarks>
+        /// TODO: Phase this into private/readonly
+        /// </remarks>
+        public Func<T> getter2;
+
+        public Func<T> getter => getter2;
+
+        Func<object> IBinderBase.getter => () => getter2();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// TODO: Phase this into readonly/private
+        /// </remarks>
+        public Action<T> setter { get; set; }
+        
+        public BinderBase(IField field, Func<T> getter, Action<T> setter = null) : base(field)
+        {
+            getter2 = getter;
+            setter = setter;
+        }
+    }
+
+
     public class Context
     {
         /// <summary>

@@ -60,26 +60,14 @@ namespace Fact.Extensions.Validation.Experimental
     /// <summary>
     /// Boilerplate for less-typed filter-only style binder
     /// </summary>
-    public class Binder2<T> : BinderBase, 
+    public class Binder2<T> : BinderBase<T>, 
         IBinder2<T>
     {
         // DEBT: Sometimes a text entry of "" means null, an int of 0, etc.
         // we need a mechanism to account for that
         public bool AbortOnNull { get; set; } = true;
 
-        /// <summary>
-        /// Strongly typed getter
-        /// NOTE: May be 'object' in circumstances where init time we don't commit to a type
-        /// </summary>
-        public Func<T> getter2;
-
-        Func<T> IBinderBase<T>.getter => getter2;
-
-        public Func<object> getter => () => getter2();
-
         readonly Func<T, bool> isNull;
-
-        public Action<T> setter { get; set; }
 
         static bool DefaultIsNull(T value) =>
             // We don't want this at all, for example int of 0 is valid in all kinds of scenarios
@@ -87,9 +75,8 @@ namespace Fact.Extensions.Validation.Experimental
             value == null;
 
         public Binder2(IField field, Func<T> getter, Func<T, bool> isNull = null) : 
-            base(field)
+            base(field, getter)
         {
-            this.getter2 = getter;
             this.isNull = isNull ?? DefaultIsNull;
         }
 
