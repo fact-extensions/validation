@@ -22,9 +22,10 @@ namespace Fact.Extensions.Validation.xUnit
             // entity (like a form input).  However, if you think about it, form controls also
             // aren't really fields either.  But there is this notion of a completely virtualized
             // entity that only exists as a bunch of getters from those controls.
-            var field = new FieldStatus("synthetic");
+            // NOTE: No longer heading that direction as we can see via AggregatedBinder3
+            //var field = new FieldStatus("synthetic");
 
-            var ab = new AggregatedBinder(field);
+            var ab = new AggregatedBinder3();
             var inputEntity = new SyntheticEntity1();
             var outputEntity = new SyntheticEntity1();
 
@@ -48,9 +49,7 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task Test2()
         {
-            var field = new FieldStatus("synthetic");
-
-            var eb = new AggregatedBinder(field);
+            var eb = new AggregatedBinder3();
 
             eb.AddField<string>(nameof(SyntheticEntity1.Password1), () => null);
             eb.AddField<string>(nameof(SyntheticEntity1.Password2), () => null);
@@ -66,8 +65,7 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task Test3()
         {
-            var field = new FieldStatus("synthetic");
-            var ab = new AggregatedBinder(field);
+            var ab = new AggregatedBinder3();
 
             var inputEntity = new SyntheticEntity1
             {
@@ -112,7 +110,7 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task Test5()
         {
-            var ab = new AggregatedBinder(new FieldStatus("dummy"));
+            var ab = new AggregatedBinder3();
             var dummy = new SyntheticEntity1();
             dummy.Password1 = "hi2u";
             var eb = ab.BindInput2(dummy);

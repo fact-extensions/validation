@@ -396,11 +396,9 @@ namespace Fact.Extensions.Validation.Experimental
             binder.BindOutput(typeof(T), instance);
 
 
-        public static EntityBinder<T> BindInput2<T>(this AggregatedBinder binder, T t, bool initValidation = false)
+        public static EntityBinder<T> BindInput2<T>(this IAggregatedBinderBase binder, T t, bool initValidation = false)
         {
             var eb = new EntityBinder<T>();
-            // DEBT: Still sloppy assigning getter like this
-            binder.getter2 = () => t;
             binder.BindInput(typeof(T), initValidation, eb);
             return eb;
         }
