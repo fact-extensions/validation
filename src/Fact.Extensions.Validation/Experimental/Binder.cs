@@ -98,100 +98,7 @@ namespace Fact.Extensions.Validation.Experimental
         { 
         }
     }
-
-
-    /// <summary>
-    /// Like an abstract entity, distinct binders are added to this so that they
-    /// all may interact with each other as a group.  Need not be a "flat" structure
-    /// like a simple POCO
-    /// </summary>
-    public class GroupBinder : IFieldStatusCollector
-    {
-        internal class _Item : ShimFieldBase
-        {
-            internal _Item(IBinderBase binder) :
-                base(binder, new List<Status>())
-            {
-            }
-        }
-
-        readonly Dictionary<string, ShimFieldBase> fields = new Dictionary<string, ShimFieldBase>();
-
-        [Obsolete("Use typed T version instead")]
-        public void Add(IBinderBase binder)
-        {
-            var item = new _Item(binder);
-            // DEBT: Can't be doing this cast all the time.  It's safe for the moment
-            var field = (IFieldStatusExternalCollector)binder.Field;
-            field.Add(item.statuses);
-            fields.Add(binder.Field.Name, item);
-        }
-
-        public Binder2<T> Add<T>(IField<T> field)
-        {
-            // DEBT: Pretty sure we don't need a full powered Binder2 here
-            var binder = new Binder2<T>(field, () => field.Value);
-            Add2(binder);
-            return binder;
-        }
-
-        public void Add2<T>(IBinder2<T> binder)
-        {
-            var item = new ShimFieldBase<T>(binder, new List<Status>());
-            // DEBT: Can't be doing this cast all the time.  It's safe for the moment
-            var field = (IFieldStatusExternalCollector)binder.Field;
-            field.Add(item.statuses);
-            fields.Add(binder.Field.Name, item);
-        }
-
-        public void Clear()
-        {
-            foreach (ShimFieldBase item in fields.Values)
-                item.statuses.Clear();
-        }
-
-        /// <summary>
-        /// Returns shimmed field
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public IField this[string name] => fields[name];
-
-        /// <summary>
-        /// TODO: Rename to Validating
-        /// </summary>
-        public event Func<GroupBinder, Context2, ValueTask> Validate;
-
-        public Task Evaluate(InputContext context, System.Threading.CancellationToken cancellationToken = default)
-        {
-            var ctx = new Context2(null, null, cancellationToken);
-            ctx.InputContext = context;
-
-            Clear();
-
-            foreach(ShimFieldBase item in fields.Values)
-            {
-                /* group is now distinct from one-off fields.  a 3rd party must 
-                 * coordinate their validation together
-                IBinder binder = item.binder;
-                object _uncommitted = binder.getter();
-                binder.Field.Value = _uncommitted;
-                    binder.Evaluate(_uncommitted); */
-            }
-
-            // DEBT: Decompose and run them one at a time just like Binder2 so that async is respected
-            // Do this by making a common base class or at least a common helper method
-            Validate?.Invoke(this, ctx);
-
-            return Task.CompletedTask;
-        }
-
-        // Recommended to use shims instead
-        public void Append(string fieldName, Status status)
-        {
-            fields[fieldName].Add(status);
-        }
-    }
+    
 
     public interface IBinderBase
     {
@@ -353,19 +260,6 @@ namespace Fact.Extensions.Validation
 
     public static class GroupBinderExtensions
     {
-        public static void DoValidate<T1, T2>(this GroupBinder binder, string fieldName1, string fieldName2,
-            Action<Context2, IField<T1>, IField<T2>> handler)
-        {
-            var field1 = (IField<T1>)binder[fieldName1];
-            var field2 = (IField<T2>)binder[fieldName2];
-
-            binder.Validate += (gb, ctx) =>
-            {
-                handler(ctx, field1, field2);
-                return new ValueTask();
-            };
-        }
-
 
         public static void GroupValidate<T, T1, T2>(this EntityBinder<T> binder, //IAggregatedBinder parent, 
             Expression<Func<T, T1>> field1Lambda,
