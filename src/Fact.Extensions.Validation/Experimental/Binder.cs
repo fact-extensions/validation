@@ -254,7 +254,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// When false, evaluation halts completely (catestrophic failure)
         /// Defaults to true
         /// </summary>
-        public bool Abort = false;
+        public bool Abort { get; set; } = false;
     }
 
 

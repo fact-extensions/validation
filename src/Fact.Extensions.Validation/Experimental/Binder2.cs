@@ -8,7 +8,20 @@ using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation.Experimental
 {
-    public class Context2 : Context
+    public interface IContext
+    {
+        bool Abort { get; }
+        
+        /// <summary>
+        /// When true, signals Binder.Process that particular processor is completely
+        /// awaited before next processor runs.  When false, particular process is
+        /// treated fully asynchronously and the next processor begins evaluation in
+        /// parallel.  Defaults to true 
+        /// </summary>
+        bool Sequential { get; set; }
+    }
+    
+    public class Context2 : Context, IContext
     {
         /// <summary>
         /// Current value, which starts as populated by the binder's getter but may
@@ -18,12 +31,6 @@ namespace Fact.Extensions.Validation.Experimental
 
         public object InitialValue { get; }
         
-        /// <summary>
-        /// When true, signals Binder.Process that particular processor is completely
-        /// awaited before next processor runs.  When false, particular process is
-        /// treated fully asynchronously and the next processor begins evaluation in
-        /// parallel.  Defaults to true 
-        /// </summary>
         public bool Sequential { get; set; }
         
         public CancellationToken CancellationToken { get; }
@@ -50,7 +57,12 @@ namespace Fact.Extensions.Validation.Experimental
     public delegate ValueTask ProcessingDelegateAsync(IField f, Context2 context);
 
 
-
+    /// <summary>
+    /// Used only as a tag to distinguish that it is NOT IFluentBinder3
+    /// </summary>
+    public interface IFluentBinder2
+    {
+    }
 
     /// <summary>
     /// Boilerplate for less-typed filter-only style binder
@@ -249,7 +261,7 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public class FluentBinder2 : IFluentBinder
+    public class FluentBinder2 : IFluentBinder, IFluentBinder2
     {
         /// <summary>
         /// 

@@ -119,7 +119,7 @@ namespace Fact.Extensions.Validation.Experimental
 
     public interface IFluentBinder3 : IFluentBinder
     {
-        IBinder3Base Binder { get; }
+        new IBinder3Base Binder { get; }
     }
 
 

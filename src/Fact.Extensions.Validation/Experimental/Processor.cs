@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 // EXPERIMENTAL, not used
 namespace Fact.Extensions.Validation.Experimental
 {
-    public delegate ValueTask ProcessingDelegateAsync<TContext>(object sender, TContext context)
-        where TContext : Context2;
+    public delegate ValueTask ProcessingDelegateAsync<TContext>(object sender, TContext context);
 
     public interface IProcessor<TContext>
     {
@@ -15,7 +14,7 @@ namespace Fact.Extensions.Validation.Experimental
     }
     
     public class Processor<TContext>
-        where TContext: Context2
+        where TContext: IContext
     {
         public event ProcessingDelegateAsync<TContext> StartingAsync;
         public event ProcessingDelegateAsync<TContext> ProcessingAsync;
