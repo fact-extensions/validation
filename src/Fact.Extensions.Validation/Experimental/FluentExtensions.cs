@@ -135,7 +135,7 @@ namespace Fact.Extensions.Validation.Experimental
         {
             fb.Binder.ProcessingAsync += (field, context) =>
             {
-                if (!((string)fb.Field.Value).StartsWith(mustStartWith))
+                if (!fb.Field.Value.StartsWith(mustStartWith))
                     fb.Field.Error(FieldStatus.ComparisonCode.Unspecified, mustStartWith,
                         $"Must start with: {mustStartWith}");
                 return new ValueTask();
@@ -149,7 +149,7 @@ namespace Fact.Extensions.Validation.Experimental
         {
             fb.Binder.ProcessingAsync += (field, context) =>
             {
-                if (!((string)fb.Field.Value).Contains(mustContain))
+                if (!fb.Field.Value.Contains(mustContain))
                     fb.Field.Error(FieldStatus.ComparisonCode.Unspecified, mustContain,
                         $"Must start with: {mustContain}");
                 return new ValueTask();
@@ -462,9 +462,7 @@ namespace Fact.Extensions.Validation.Experimental
         {
             fluentBinder.Binder.Processor.ProcessingAsync += (_, context) =>
             {
-                var v = (T)fluentBinder.Field.Value;
-                
-                if(isEmpty(v))
+                if(isEmpty(fluentBinder.Field.Value))
                     // DEBT: IsNull is wrong code here, since v may actually be empty string or similar
                     fluentBinder.Field.Error(FieldStatus.ComparisonCode.IsNull, null, "Field is required");
                 
@@ -483,8 +481,7 @@ namespace Fact.Extensions.Validation.Experimental
         {
             fluentBinder.Binder.Processor.StartingAsync += (_, context) =>
             {
-                var v = (T)fluentBinder.Field.Value;
-                if (isEmpty(v)) context.Abort = true;
+                if (isEmpty(fluentBinder.Field.Value)) context.Abort = true;
                 return new ValueTask();
             };
             return fluentBinder;

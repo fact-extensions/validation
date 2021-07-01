@@ -234,9 +234,9 @@ namespace Fact.Extensions.Validation.Experimental
         IField<T>
     {
         readonly Func<T> getter;    // TODO: Maybe make this acquired direct from FluentBinder2
-        public object Value => getter();
+        object IField.Value => getter();
 
-        T IField<T>.Value => getter();
+        public T Value => getter();
 
         public IEnumerable<Status> Statuses => statuses;
 
