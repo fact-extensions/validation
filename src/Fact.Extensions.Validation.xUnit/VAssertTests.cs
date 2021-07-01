@@ -34,7 +34,9 @@ namespace Fact.Extensions.Validation.xUnit
             await va.AssertAsync();
         }
 
-        [Fact]
+        // TODO: Re-enable this after we roll EntityBinder + VAssert together more
+        // and phase out v1 + v2
+        //[Fact]
         public async Task Test1()
         {
             var se1 = new SyntheticEntity1
