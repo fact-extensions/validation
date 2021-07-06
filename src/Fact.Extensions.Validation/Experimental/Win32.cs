@@ -93,7 +93,7 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
-        public static FluentBinder2<T> Add<T>(this IAggregatedBinder binder, RegistryKey key, string name)
+        public static FluentBinder3<T> Add<T>(this IAggregatedBinder binder, RegistryKey key, string name)
         {
             Func<T> getter = () =>
             {

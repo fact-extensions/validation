@@ -412,16 +412,16 @@ namespace Fact.Extensions.Validation.Experimental
         public static FluentBinder2 AddField(this IAggregatedBinderCollector binder, string name, Func<object> getter) =>
             binder.AddField(name, getter, fb => new BinderManagerBase.ItemBase(fb.Binder, fb));
 
-        public static FluentBinder2<T> AddField<T, TBinderProvider>(this ICollector<TBinderProvider> binder, string name, Func<T> getter, 
+        public static FluentBinder3<T> AddField<T, TBinderProvider>(this ICollector<TBinderProvider> binder, string name, Func<T> getter, 
             Func<IFluentBinder<T>, TBinderProvider> providerFactory)
             where TBinderProvider: IBinderProvider
         {
             // default(T) because early init is not the same as runtime init
             // early init is when system is setting up the rules
             // runtime init is at the start of when pipeline processing actually occurs
-            var f = new FieldStatus<T>(name, default(T));
-            var b = new Binder2<T>(f, getter);
-            var fb = new FluentBinder2<T>(b);
+            var f = new FieldStatus<T>(name);
+            var b = new FieldBinder<T>(f, getter);
+            var fb = new FluentBinder3<T>(b, true);
             binder.Add(providerFactory(fb));
             return fb;
         }
@@ -453,7 +453,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static FluentBinder2<T> AddField<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter) =>
+        public static FluentBinder3<T> AddField<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter) =>
             binder.AddField(name, getter, fb => new BinderManagerBase.ItemBase(fb.Binder, fb));
 
 
@@ -646,17 +646,11 @@ namespace Fact.Extensions.Validation.Experimental
 
     public class RequiredAttribute : ValidationAttribute
     {
-        public override void Configure<T>(IFluentBinder<T> fb)
-        {
-            // We're gonna handle aborting on null ourselves
-            // DEBT: There could be conditions where other validators come first and want to see
-            // if there is a null.  However, arguably, they would be doing the job 'Required' is trying to do here
-            // TODO: Look into evaluation order also as that may become a factor -- i.e. RequiredAttribute needs
-            // to run first
-            fb.Binder.AbortOnNull = false;
-        }
         public override void Validate<T>(IField<T> field, Context2 context)
         {
+            // DEBT: Need a much more robust "required" assessor than merely checking null
+            // thing is, we'll likely need an IServiceProvider with a factory to generate
+            // checkers
             if (field.Value == null)
             {
                 field.Error(FieldStatus.ComparisonCode.IsNull, null, "Must not be null");
