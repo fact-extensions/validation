@@ -20,6 +20,12 @@ namespace Fact.Extensions.Validation.Experimental
     {
     }
 
+
+    public interface IFieldBinder : IBinder3Base, IBinder2Base, IBinderBase
+    {
+
+    }
+
     public class Binder3Base : IBinder3Base
     {
         public Processor<Context2> Processor { get; } = new Processor<Context2>();
@@ -33,7 +39,8 @@ namespace Fact.Extensions.Validation.Experimental
         public Committer Committer { get; } = new Committer();
     }
     
-    public class FieldBinder<T> : Binder3Base, 
+    public class FieldBinder<T> : Binder3Base,
+        IFieldBinder,
         IBinder2<T>
     {
         public bool AbortOnNull { get; set; } = true;
@@ -124,7 +131,7 @@ namespace Fact.Extensions.Validation.Experimental
 
     public interface IFluentBinder3 : IFluentBinder
     {
-        new IBinder3Base Binder { get; }
+        new IFieldBinder Binder { get; }
     }
 
 
@@ -138,9 +145,9 @@ namespace Fact.Extensions.Validation.Experimental
     public class FluentBinder3<T> : FluentBinder2,
         IFluentBinder3<T>
     {
-        public new FieldBinder<T> Binder { get; }
+        //public new FieldBinder<T> Binder { get; }
 
-        IBinder3Base IFluentBinder3.Binder => Binder;
+        public new IFieldBinder Binder { get; }
 
         public new ShimFieldBase2<T> Field { get; }
 
@@ -149,7 +156,7 @@ namespace Fact.Extensions.Validation.Experimental
         {
             Binder = binder;
             // DEBT: Eventually I think we're gonna phase this out for FluentBinder-level
-            Binder.AbortOnNull = false;
+            binder.AbortOnNull = false;
 
             if (initial)
                 // DEBT: Needs refiniement
