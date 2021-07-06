@@ -45,6 +45,8 @@ namespace Fact.Extensions.Validation.xUnit
             var fb = ab.AddField3("field1", () => value1);
             var fb2 = ab.AddField3("field2", () => value2);
 
+            // FIX: Not going to FluentBinder3 Required, so "null" check is weak
+
             fb.
                 Required().
                 Convert<int>().GreaterThan(10);

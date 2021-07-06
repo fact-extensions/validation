@@ -43,7 +43,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public event ProcessingDelegateAsync ProcessedAsync
         {
-            add => Processor.ProcessingAsync += (sender, context) => value(Field, context);
+            add => Processor.ProcessedAsync += (sender, context) => value(Field, context);
             remove => throw new InvalidOperationException();
         }
         
