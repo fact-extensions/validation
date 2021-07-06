@@ -43,7 +43,12 @@ namespace Fact.Extensions.Validation.Experimental
         IFieldBinder,
         IBinder2<T>
     {
-        public bool AbortOnNull { get; set; } = true;
+        // Phasing AbortOnNull out at FieldBinder level
+        public bool AbortOnNull
+        {
+            get => false;
+            set => throw new InvalidOperationException("Only Binder2 supports AbortOnNull");
+        }
 
         public IField Field { get; }
         
@@ -155,8 +160,6 @@ namespace Fact.Extensions.Validation.Experimental
             base(binder, typeof(T))
         {
             Binder = binder;
-            // DEBT: Eventually I think we're gonna phase this out for FluentBinder-level
-            binder.AbortOnNull = false;
 
             if (initial)
                 // DEBT: Needs refiniement

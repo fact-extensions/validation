@@ -32,10 +32,10 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="field"></param>
         /// <param name="getter"></param>
         /// <returns></returns>
-        public static FluentBinder2 BindNonTyped(this IField field, Func<object> getter)
+        public static FluentBinder3<object> BindNonTyped(this IField field, Func<object> getter)
         {
             var b = new FieldBinder<object>(field, getter);
-            var fb = new FluentBinder2(b, true);
+            var fb = new FluentBinder3<object>(b, true);
             return fb;
         }
 
