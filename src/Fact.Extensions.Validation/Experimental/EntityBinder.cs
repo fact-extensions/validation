@@ -252,28 +252,22 @@ namespace Fact.Extensions.Validation.Experimental
             PropertyBinderProvider.InitValidation(fluentBinder, property);
         }
 
-        static PropertyBinderProvider<T> CreatePropertyItem2<T>(IBinder2 binder, PropertyInfo property)
+        static PropertyBinderProvider<T> CreatePropertyItem2<T>(FieldBinder<T> binder, PropertyInfo property)
         {
-            FluentBinder2<T> fb;
-
-            // DEBT: Want, but maybe can't have, IBinder2<T> through and through
-            if (binder is IBinder2<T> typedBinder)
-                fb = new FluentBinder2<T>(typedBinder, true);
-            else
-                fb = new FluentBinder2<T>(binder, true);
+            var fb = new FluentBinder3<T>(binder, true);
 
             var item = new PropertyBinderProvider<T>(fb, property);
 
             return item;
         }
 
-        static PropertyBinderProvider<T> CreatePropertyItem<T>(IBinder2 aggregatedBinder, PropertyInfo property)
+        static PropertyBinderProvider<T> CreatePropertyItem<T>(IBinderBase aggregatedBinder, PropertyInfo property)
         {
             var field = new FieldStatus<T>(property.Name, default(T));
             Func<T> getter = () => (T)property.GetValue(aggregatedBinder.getter());
-            var fieldBinder = new Binder2<T>(field, getter);
+            var fieldBinder = new FieldBinder<T>(field, getter);
 
-            return CreatePropertyItem2<T>(fieldBinder, property);
+            return CreatePropertyItem2(fieldBinder, property);
         }
 
         /// <summary>
