@@ -37,8 +37,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             var regLocation = @"Software\Fact\Extensions\Validation\Diagnostic\Test";
             var reg = new RegistryBinder(Microsoft.Win32.RegistryHive.CurrentUser, regLocation, false);
 
-            var regValue1 = reg.Add("Value1").Required();
-            var regValue2 = reg.Add("Value2").Required().Convert<int>();
+            var regValue1 = reg.Add("Value1").Required3((object v) => v == null);
+            var regValue2 = reg.Add("Value2").Required3((object v) => v == null).Convert<int>();
             var regVersion = reg.Add("Version").
                 Convert<int>().GroupValidate(regValue2, (c, version, v2) =>
                 {

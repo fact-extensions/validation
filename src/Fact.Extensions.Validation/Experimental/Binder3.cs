@@ -187,6 +187,16 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+    public class FluentBinder3<T, TTrait> : FluentBinder3<T>
+    {
+        public FluentBinder3(FieldBinder<T> binder, bool initial) : 
+            base(binder, initial)
+        {
+
+        }
+    }
+
+
     public class AggregatedBinderBase3<TBinderProvider> : Binder3Base,
         IAggregatedBinderBase<TBinderProvider>
         where TBinderProvider: IBinderProvider

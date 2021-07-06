@@ -75,7 +75,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static FluentBinder2 Add(this IRegistryBinder binder, string name)
+        public static FluentBinder3<object> Add(this IRegistryBinder binder, string name)
         {
             return binder.AddField(name, () => binder.Root.GetValue(name), fb => new RegistryBinder.Provider(fb));
         }
@@ -85,7 +85,7 @@ namespace Fact.Extensions.Validation.Experimental
         public static RegistryBinder Open(this IRegistryBinder binder, string path) =>
             new RegistryBinder(binder.Root.OpenSubKey(path));
 
-        public static FluentBinder2 Add(this IAggregatedBinder binder, RegistryKey key, string name)
+        public static FluentBinder3<object> Add(this IAggregatedBinder binder, RegistryKey key, string name)
         {
             Func<object> getter = () => key.GetValue(name);
             var fb = binder.AddField(name, getter);
