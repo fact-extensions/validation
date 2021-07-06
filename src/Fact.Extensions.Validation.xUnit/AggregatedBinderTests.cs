@@ -33,5 +33,41 @@ namespace Fact.Extensions.Validation.xUnit
             statuses = fb.Binder.Field.Statuses.ToArray();
             statuses.Should().HaveCount(1);
         }
+
+
+        [Fact]
+        public async Task Test2()
+        {
+            var ab = new AggregatedBinder3();
+            string value1 = "";
+            string value2 = "4";
+
+            var fb = ab.AddField3("field1", () => value1);
+            var fb2 = ab.AddField3("field2", () => value2);
+
+            fb.
+                Required().
+                Convert<int>().GreaterThan(10);
+
+            fb2.
+                Required().
+                Convert<int>().LessThan(5);
+
+            await fb.Binder.Process();
+            await fb2.Binder.Process();
+
+            var statuses = ab.Fields().SelectMany(x => x.Statuses).ToArray();
+
+            statuses.Should().HaveCount(1);
+
+            value1 = "11";
+
+            await fb.Binder.Process();
+            await fb2.Binder.Process();
+
+            statuses = ab.Fields().SelectMany(x => x.Statuses).ToArray();
+
+            statuses.Should().HaveCount(0);
+        }
     }
 }
