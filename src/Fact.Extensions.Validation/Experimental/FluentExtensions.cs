@@ -462,10 +462,13 @@ namespace Fact.Extensions.Validation.Experimental
         {
             fluentBinder.Binder.Processor.ProcessingAsync += (_, context) =>
             {
-                if(isEmpty(fluentBinder.Field.Value))
+                if (isEmpty(fluentBinder.Field.Value))
+                {
                     // DEBT: IsNull is wrong code here, since v may actually be empty string or similar
                     fluentBinder.Field.Error(FieldStatus.ComparisonCode.IsNull, null, "Field is required");
-                
+                    context.Abort = true;
+                }
+
                 return new ValueTask();
             };
             return fluentBinder;

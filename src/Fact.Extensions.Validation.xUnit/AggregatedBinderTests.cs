@@ -48,11 +48,11 @@ namespace Fact.Extensions.Validation.xUnit
             // FIX: Not going to FluentBinder3 Required, so "null" check is weak
 
             fb.
-                Required().
+                Required3().
                 Convert<int>().GreaterThan(10);
 
             fb2.
-                Required().
+                Required3().
                 Convert<int>().LessThan(5);
 
             await fb.Binder.Process();
