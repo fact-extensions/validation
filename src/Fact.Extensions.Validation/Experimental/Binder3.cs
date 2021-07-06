@@ -10,9 +10,14 @@ using System.Threading.Tasks;
 // itself has no field
 namespace Fact.Extensions.Validation.Experimental
 {
-    public interface IBinder3Base
+    public interface IProcessorProvider<TContext>
+        where TContext: IContext
     {
-        Processor<Context2> Processor { get; }
+        Processor<TContext> Processor { get; }
+    }
+
+    public interface IBinder3Base : IProcessorProvider<Context2>
+    {
     }
 
     public class Binder3Base : IBinder3Base
@@ -130,29 +135,40 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public class FluentBinder3<T> : FluentBinder2<T>,
+    public class FluentBinder3<T> : FluentBinder2,
         IFluentBinder3<T>
     {
         public new FieldBinder<T> Binder { get; }
 
         IBinder3Base IFluentBinder3.Binder => Binder;
-        
+
+        public new ShimFieldBase2<T> Field { get; }
+
         public FluentBinder3(FieldBinder<T> binder, bool initial) :
-            base(binder, initial)
+            base(binder, typeof(T))
         {
             Binder = binder;
             // DEBT: Eventually I think we're gonna phase this out for FluentBinder-level
             Binder.AbortOnNull = false;
+
+            if (initial)
+                // DEBT: Needs refiniement
+                Field = new ShimFieldBase2<T>(binder.Field.Name, statuses, () => binder.getter());
+            else
+            {
+                T initialValue = binder.getter();
+                Field = new ShimFieldBase2<T>(binder.Field.Name, statuses, () => initialValue);
+            }
+
+            base.Field = Field;
+
+            Initialize();
         }
 
 
         public FluentBinder3(string name, Func<T> getter) :
-            base(name, getter)
+            this(new FieldBinder<T>(name, getter), true)
         {
-            // DEBT: Stop gap while we upgrade to "v3" binder
-            Binder = (FieldBinder<T>) base.Binder;
-            // DEBT: Eventually I think we're gonna phase this out for FluentBinder-level
-            Binder.AbortOnNull = false;
         }
     }
 

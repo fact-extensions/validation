@@ -440,12 +440,10 @@ namespace Fact.Extensions.Validation.Experimental
         {
             committer.Committing += () =>
             {
-                // DEBT: Naughty cast
-                var fb = (FluentBinder2<T>)fluentBinder;
                 //commit(fb.InitialValue);
                 // DEBT: We may prefer to use InitialValue, though fb.Field.Value is smart enough to get us the
                 // right thing
-                IField<T> f = fb.Field;
+                IField<T> f = fluentBinder.Field;
                 commit(f.Value);
                 return new ValueTask();
             };
