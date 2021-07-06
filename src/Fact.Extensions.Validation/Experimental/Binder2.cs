@@ -225,19 +225,6 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public FluentBinder2(IBinder2 binder, bool initial) : this(binder)
-        {
-            if (initial)
-                // DEBT: Needs refiniement
-                Field = new ShimFieldBase2<object>(binder.Field.Name, statuses, binder.getter);
-            else
-                throw new NotImplementedException();
-                //Field = new ShimFieldBase2<T>(binder, statuses, () => InitialValue);
-
-            Initialize();
-        }
-
-
         protected readonly List<Status> statuses = new List<Status>();
 
         protected void Initialize()

@@ -398,18 +398,18 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static FluentBinder2 AddField(this IAggregatedBinderCollector binder, string name, Func<object> getter,
+        public static FluentBinder3<object> AddField(this IAggregatedBinderCollector binder, string name, Func<object> getter,
             Func<IFluentBinder, IBinderProvider> providerFactory)
         {
             var f = new FieldStatus(name, null);
-            var b = new Binder2<object>(f, getter);
-            var fb = new FluentBinder2(b, true);
+            var b = new FieldBinder<object>(f, getter);
+            var fb = new FluentBinder3<object>(b, true);
             binder.Add(providerFactory(fb));
             return fb;
         }
 
 
-        public static FluentBinder2 AddField(this IAggregatedBinderCollector binder, string name, Func<object> getter) =>
+        public static FluentBinder3<object> AddField(this IAggregatedBinderCollector binder, string name, Func<object> getter) =>
             binder.AddField(name, getter, fb => new BinderManagerBase.ItemBase(fb.Binder, fb));
 
         public static FluentBinder3<T> AddField<T, TBinderProvider>(this ICollector<TBinderProvider> binder, string name, Func<T> getter, 

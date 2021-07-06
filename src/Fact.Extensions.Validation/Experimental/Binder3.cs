@@ -150,11 +150,15 @@ namespace Fact.Extensions.Validation.Experimental
     public class FluentBinder3<T> : FluentBinder2,
         IFluentBinder3<T>
     {
-        //public new FieldBinder<T> Binder { get; }
-
         public new IFieldBinder Binder { get; }
 
         public new ShimFieldBase2<T> Field { get; }
+
+        /*
+        public FluentBinder3(IFluentBinder<T> chained) :
+            base(chained)
+        {
+        } */
 
         public FluentBinder3(FieldBinder<T> binder, bool initial) :
             base(binder, typeof(T))
