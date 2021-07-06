@@ -192,21 +192,6 @@ namespace Fact.Extensions.Validation.Experimental
 
     }
 
-    public class ShimFieldBase2 : ShimFieldBaseBase, IField
-    {
-        readonly Func<object> getter;
-
-        public object Value => getter();
-
-        public IEnumerable<Status> Statuses => statuses;
-
-        internal ShimFieldBase2(string name, ICollection<Status> statuses, Func<object> getter) :
-            base(name, statuses)
-        {
-            this.getter = getter;
-        }
-    }
-    
     public class ShimFieldBase2<T> : ShimFieldBaseBase,
         IField<T>
     {
@@ -214,8 +199,6 @@ namespace Fact.Extensions.Validation.Experimental
         object IField.Value => getter();
 
         public T Value => getter();
-
-        public IEnumerable<Status> Statuses => statuses;
 
         internal ShimFieldBase2(string name, ICollection<Status> statuses, 
             Func<T> getter) :
@@ -246,7 +229,7 @@ namespace Fact.Extensions.Validation.Experimental
         {
             if (initial)
                 // DEBT: Needs refiniement
-                Field = new ShimFieldBase2(binder.Field.Name, statuses, binder.getter);
+                Field = new ShimFieldBase2<object>(binder.Field.Name, statuses, binder.getter);
             else
                 throw new NotImplementedException();
                 //Field = new ShimFieldBase2<T>(binder, statuses, () => InitialValue);

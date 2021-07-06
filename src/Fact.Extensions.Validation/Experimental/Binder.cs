@@ -56,6 +56,8 @@ namespace Fact.Extensions.Validation.Experimental
 
         readonly internal ICollection<Status> statuses;
 
+        public IEnumerable<Status> Statuses => statuses;
+
         public ShimFieldBaseBase(string name, ICollection<Status> statuses)
         {
             Name = name;
@@ -68,37 +70,6 @@ namespace Fact.Extensions.Validation.Experimental
         public void Add(Status status) => statuses.Add(status);
     }
 
-
-    public abstract class ShimFieldBase : ShimFieldBaseBase,
-        IField
-    {
-        public virtual object Value => binder.getter();
-
-        public IEnumerable<Status> Statuses => binder.Field.Statuses;
-
-        protected readonly IBinderBase binder;
-
-        protected ShimFieldBase(IBinderBase binder, ICollection<Status> statuses) :
-            base(binder.Field.Name, statuses)
-        {
-            this.binder = binder;
-        }
-
-    }
-
-
-    public class ShimFieldBase<T> : 
-        ShimFieldBase,
-        IField<T>
-    {
-        public new T Value => (T)base.Value;
-
-        internal ShimFieldBase(IBinderBase binder, ICollection<Status> statuses) :
-            base(binder, statuses)
-        { 
-        }
-    }
-    
 
     public interface IBinderBase
     {
