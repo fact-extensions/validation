@@ -18,7 +18,7 @@ namespace Fact.Extensions.Validation
     }
 
 
-    public interface IField<T> : IField
+    public interface IField<out T> : IField
     {
         new T Value { get; }
     }
@@ -26,14 +26,12 @@ namespace Fact.Extensions.Validation
 
     public class FieldBase : IFieldBase
     {
-        readonly string name;
-
-        public string Name => name;
+        public string Name { get; }
 
 
         public FieldBase(string name)
         {
-            this.name = name;
+            Name = name;
         }
     }
 }
