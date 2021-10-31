@@ -473,6 +473,21 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fluentBinder"></param>
+        /// <typeparam name="TFluentBinder"></typeparam>
+        /// <returns></returns>
+        /// <remarks>
+        /// TODO: If we can somehow get IFluentBinder3 to be covariant, then this IsNotNull might be usable
+        /// more often
+        /// </remarks>
+        public static TFluentBinder IsNotNull<TFluentBinder>(this TFluentBinder fluentBinder)
+            where TFluentBinder : IFluentBinder3<object>
+            =>
+            fluentBinder.Required3<TFluentBinder, object>(v => v == null);
+
         public static TFluentBinder Required3<TFluentBinder>(this TFluentBinder fluentBinder)
             where TFluentBinder : IFluentBinder3<string> =>
             fluentBinder.Required3<TFluentBinder, string>(string.IsNullOrWhiteSpace);

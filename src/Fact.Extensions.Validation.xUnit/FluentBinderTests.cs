@@ -25,8 +25,8 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var field = new FieldStatus("test");
             var fb = field.BindNonTyped(() => "hi2u");
-
-            var fb2 = fb.Required3((object v) => v == null).
+            
+            var fb2 = fb.IsNotNull().
                 IsNotEqualTo("hi2u").
                 As<string>();
 

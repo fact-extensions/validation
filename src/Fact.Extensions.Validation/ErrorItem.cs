@@ -135,6 +135,9 @@ namespace Fact.Extensions.Validation
         /// <summary>
         /// Used in Code field in ErrorItemCoded when Category == Comparison
         /// </summary>
+        /// <remarks>
+        /// DEBT: Need disambiguation whether this code represents the desired condition or the error condition
+        /// </remarks>
         public enum ComparisonCode : short
         {
             Unspecified = -1,
