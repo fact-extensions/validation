@@ -257,6 +257,8 @@ namespace Fact.Extensions.Validation.Experimental
         
         public new  ShimFieldBase2<T> Field { get; }
 
+        IField<T> IFluentBinder<T>.Field => Field;
+
         new void Initialize()
         {
             base.Initialize();

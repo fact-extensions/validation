@@ -140,7 +140,7 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public interface IFluentBinder3<T> : IFluentBinder<T>,
+    public interface IFluentBinder3<out T> : IFluentBinder<T>,
         IFluentBinder3
     {
         
@@ -153,6 +153,8 @@ namespace Fact.Extensions.Validation.Experimental
         public new IFieldBinder Binder { get; }
 
         public new ShimFieldBase2<T> Field { get; }
+
+        IField<T> IFluentBinder<T>.Field => Field;
 
         /*
         public FluentBinder3(IFluentBinder<T> chained) :

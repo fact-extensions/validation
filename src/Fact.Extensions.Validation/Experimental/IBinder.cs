@@ -42,10 +42,9 @@ namespace Fact.Extensions.Validation.Experimental
         IField Field { get; }
     }
 
-    public interface IFluentBinder<T> : IFluentBinder
+    public interface IFluentBinder<out T> : IFluentBinder
     {
-        // DEBT: IField<T> would be better here if we can
-        new ShimFieldBase2<T> Field { get; }
+        new IField<T> Field { get; }
     }
 
 
@@ -54,7 +53,7 @@ namespace Fact.Extensions.Validation.Experimental
         T Trait { get; }
     }
 
-    public interface IFluentBinder<T, TTrait> : IFluentBinder<T>,
+    public interface IFluentBinder<out T, TTrait> : IFluentBinder<T>,
         ITrait<TTrait>
     {
 
