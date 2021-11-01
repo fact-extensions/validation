@@ -210,6 +210,44 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
+        /// <summary>
+        /// Only lightly tested "v3" version of convert
+        /// </summary>
+        /// <typeparam name="TFrom"></typeparam>
+        /// <typeparam name="TTo"></typeparam>
+        /// <param name="fb"></param>
+        /// <param name="converter"></param>
+        /// <returns></returns>
+        public static FluentBinder3<TTo> Convert3<TFrom, TTo>(this IFluentBinder3<TFrom> fb, 
+            tryConvertDelegate<IField<TFrom>, TTo> converter, string cannotConvert = null)
+        {
+            TTo converted = default(TTo);
+            var fbConverted = new FluentBinder3<TTo>(fb.Field.Name, () => converted);
+            // DEBT: Experimentally processing conversion as START of converted binder rather than
+            // end of unconverted binder -- seems to make more sense, but other converters don't do
+            // it this way
+            fbConverted.Binder.Processor.ProcessingAsync += (sender, context) =>
+            {
+                bool success = converter(fb.Field, out converted);
+
+                // FIX: We should be using this one, but it's yet another one and seemingly uncoupled from fbConverted.Field
+                //IFieldStatusCollector2 field = context.Field;
+
+                IFieldStatusCollector2 field = fbConverted.Field;
+
+                if (success)
+                    // DEBT: Kinda redundant, assigning value here -and- getter itself pointing to value
+                    context.Value = converted;
+                else
+                    field.Error( FieldStatus.ComparisonCode.Unspecified, typeof(TFrom),
+                        cannotConvert ?? "Conversion from type {0} failed");
+
+                return new ValueTask();
+            };
+            return fbConverted;
+        }
+
+
         public static FluentBinder2<TTo> Convert<T, TTo>(this IFluentBinder<T> fb,
             tryConvertDelegate<IField<T>, TTo> converter, string cannotConvert = null, Optional<TTo> defaultValue = null)
         {
@@ -229,6 +267,7 @@ namespace Fact.Extensions.Validation.Experimental
                 else
                 {
                     context.Abort = true;
+                    // DEBT: Seems like we want some kind of generic cannot convert error if no explicit one is specified
                     if (cannotConvert != null)
                         fb.Field.Error(FieldStatus.ComparisonCode.Unspecified, typeof(TTo), cannotConvert);
                 }

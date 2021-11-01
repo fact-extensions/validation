@@ -130,6 +130,32 @@ namespace Fact.Extensions.Validation.xUnit
 
         }
 
+
+        [Fact]
+        public async Task Convert_v3_1_Success()
+        {
+            var fb = new FluentBinder3<string>("field1", () => "123");
+            var fbConverted = fb.Convert3((IField<string> f, out int v) => int.TryParse(f.Value, out v));
+
+            await fbConverted.Binder.Process();
+
+            fbConverted.Field.Value.Should().Be(123);
+        }
+
+
+        [Fact]
+        public async Task Convert_v3_1_Fail()
+        {
+            var fb = new FluentBinder3<string>("field1", () => "123a");
+            var fbConverted = fb.Convert3((IField<string> f, out int v) => int.TryParse(f.Value, out v));
+
+            await fbConverted.Binder.Process();
+
+            var statuses = fbConverted.Field.Statuses.ToArray();
+            statuses.Should().HaveCount(1);
+        }
+
+
         [Fact]
         public async Task Emit1()
         {
