@@ -246,6 +246,13 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TTo"></typeparam>
+        /// <param name="fb"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         public static FluentBinder2<TTo> Convert<TTo>(this IFluentBinder fb, Optional<TTo> defaultValue = null)
         {
             var fb2 = new FluentBinder2<TTo>(fb.Binder, false);
@@ -282,6 +289,11 @@ namespace Fact.Extensions.Validation.Experimental
                     // DEBT: Not a foregone conclusion that InvalidCastException is because we can't convert a value
                     // type to null -- but probably that's why we get the exception
                     f.Error(FieldStatus.ComparisonCode.IsNull, null, "Null not allowed here");
+                    context.Abort = true;
+                }
+                catch(OverflowException)
+                {
+                    f.Error(FieldStatus.ComparisonCode.GreaterThan, t, "Out of bounds for type {0}");
                     context.Abort = true;
                 }
 
