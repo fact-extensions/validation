@@ -192,6 +192,11 @@ namespace Fact.Extensions.Validation.Experimental
 
     }
 
+
+    /// <summary>
+    /// Field whose value comes from a getter, and statuses come from external party
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class ShimFieldBase2<T> : ShimFieldBaseBase,
         IField<T>
     {

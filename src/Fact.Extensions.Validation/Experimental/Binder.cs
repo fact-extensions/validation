@@ -50,6 +50,10 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+
+    /// <summary>
+    /// Statuses come from external party
+    /// </summary>
     public class ShimFieldBaseBase
     {
         public string Name { get; }
