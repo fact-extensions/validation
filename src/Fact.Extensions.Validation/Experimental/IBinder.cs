@@ -16,7 +16,9 @@ namespace Fact.Extensions.Validation.Experimental
 
     public interface IBinder2Base : IBinder2ProcessorCore
     {
+        [Obsolete("Use Processor property directly ('v3')")]
         event ProcessingDelegateAsync ProcessedAsync;
+        [Obsolete("Use Processor property directly ('v3')")]
         event ProcessingDelegateAsync StartingAsync;
 
         Task Process(InputContext inputContext = default, CancellationToken ct = default);

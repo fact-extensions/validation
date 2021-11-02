@@ -54,13 +54,15 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
         public IField Field { get; }
-        
+
+        [Obsolete("Use Processor property directly ('v3')")]
         public event ProcessingDelegateAsync ProcessingAsync
         {
             add => Processor.ProcessingAsync += (sender, context) => value(Field, context);
             remove => throw new InvalidOperationException();
         }
 
+        [Obsolete("Use Processor property directly ('v3')")]
         public event ProcessingDelegateAsync ProcessedAsync
         {
             add => Processor.ProcessedAsync += (sender, context) => value(Field, context);
