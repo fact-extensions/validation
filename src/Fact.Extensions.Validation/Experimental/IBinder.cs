@@ -44,11 +44,19 @@ namespace Fact.Extensions.Validation.Experimental
 
         IBinder2 Binder { get; }
 
+        /// <summary>
+        /// Field associated specifically with this FluentBinder
+        /// Errors registered here are localized to this FluentBinder
+        /// </summary>
         IField Field { get; }
     }
 
     public interface IFluentBinder<out T> : IFluentBinder
     {
+        /// <summary>
+        /// Field associated specifically with this FluentBinder
+        /// Errors registered here are localized to this FluentBinder
+        /// </summary>
         new IField<T> Field { get; }
     }
 
