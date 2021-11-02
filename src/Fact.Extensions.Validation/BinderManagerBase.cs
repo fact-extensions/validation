@@ -39,6 +39,7 @@ namespace Fact.Extensions.Validation
         IAggregatedBinderProvider,
         ICollector<TBinderProvider>
     {
+        event BindersProcessedDelegate<TBinderProvider> BindersProcessed;
     }
 
     public interface IAggregatedBinder : IAggregatedBinderBase,

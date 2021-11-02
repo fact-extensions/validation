@@ -49,7 +49,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
                 });
 
             // DEBT: Always have to add this after other Adds, but would rather not have to
-            reg.AddSummaryProcessor();
+            reg.AddSummaryProcessor((FieldStatus)reg.Field);
 
             // regVersion.Convert<int>() flipping out
             await reg.Process();

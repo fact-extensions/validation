@@ -496,13 +496,13 @@ namespace Fact.Extensions.Validation.Experimental
             }
         }
 
-        public static void AddSummaryProcessor<TBinderProvider>(this AggregatedBinderBase2<TBinderProvider> aggregatedBinder)
+        public static void AddSummaryProcessor<TBinderProvider>(this IAggregatedBinderBase<TBinderProvider> aggregatedBinder,
+            FieldStatus summaryField)
             where TBinderProvider: IBinderProvider
         {
             var sp = new SummaryProcessor();
-            // DEBT: Do away with this cast
-            var f = (FieldStatus)aggregatedBinder.Field;
-            f.Add(sp.Statuses);
+
+            summaryField.Add(sp.Statuses);
 
             foreach(var provider in aggregatedBinder.Providers)
             {

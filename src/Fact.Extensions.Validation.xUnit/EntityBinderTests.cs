@@ -95,12 +95,12 @@ namespace Fact.Extensions.Validation.xUnit
         public async Task Test4()
         {
             var field = new FieldStatus("synthetic");
-            var ab = new AggregatedBinder(field);
+            var ab = new AggregatedBinder3();
             string test1val = "test1 value";
 
             ab.AddField("test1", () => test1val).StartsWith("test2");
 
-            ab.AddSummaryProcessor();
+            ab.AddSummaryProcessor(field);
 
             await ab.Process();
 
