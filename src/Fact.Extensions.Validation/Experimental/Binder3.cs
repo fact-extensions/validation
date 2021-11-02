@@ -21,6 +21,9 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+    /// <summary>
+    /// "v3" binder with has-a processor
+    /// </summary>
     public interface IFieldBinder : IBinder3Base, IBinder2Base, IBinderBase
     {
 
@@ -152,9 +155,9 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public new IFieldBinder Binder { get; }
 
-        public new ShimFieldBase2<T> Field { get; }
+        readonly ShimFieldBase2<T> field;
 
-        IField<T> IFluentBinder<T>.Field => Field;
+        IField<T> IFluentBinder<T>.Field => field;
 
         /*
         public FluentBinder3(IFluentBinder<T> chained) :
@@ -162,6 +165,12 @@ namespace Fact.Extensions.Validation.Experimental
         {
         } */
 
+
+        /// <summary>
+        /// Attach this FluentBinder to an existing Binder
+        /// </summary>
+        /// <param name="binder"></param>
+        /// <param name="initial"></param>
         public FluentBinder3(FieldBinder<T> binder, bool initial) :
             base(binder, typeof(T))
         {
@@ -169,14 +178,14 @@ namespace Fact.Extensions.Validation.Experimental
 
             if (initial)
                 // DEBT: Needs refiniement
-                Field = new ShimFieldBase2<T>(binder.Field.Name, statuses, () => binder.getter());
+                field = new ShimFieldBase2<T>(binder.Field.Name, statuses, () => binder.getter());
             else
             {
                 T initialValue = binder.getter();
-                Field = new ShimFieldBase2<T>(binder.Field.Name, statuses, () => initialValue);
+                field = new ShimFieldBase2<T>(binder.Field.Name, statuses, () => initialValue);
             }
 
-            base.Field = Field;
+            Field = field;
 
             Initialize();
         }

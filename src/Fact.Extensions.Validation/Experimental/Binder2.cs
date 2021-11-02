@@ -218,9 +218,13 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public IBinder2 Binder { get; }
 
+
+        /// <summary>
+        /// Field local to this FluentBinder
+        /// </summary>
         public IField Field { get; protected set; }
 
-        public Type Type { get; protected set; }
+        public Type Type { get; }
 
         // DEBT: Field MUST be initialized by calling class
         protected FluentBinder2(IBinder2 binder, Type type = null)
@@ -230,8 +234,18 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
+        /// <summary>
+        /// Statuses associated with just this binder
+        /// Attaches to Field as an external status
+        /// </summary>
         protected readonly List<Status> statuses = new List<Status>();
 
+
+        /// <summary>
+        /// Set up:
+        /// - clearing of local statuses to this FluentBinder
+        /// - awareness of this FluentBinder's local statuses to overall Binder
+        /// </summary>
         protected void Initialize()
         {
             // This event handler is more or less a re-initializer for subsequent
@@ -260,6 +274,9 @@ namespace Fact.Extensions.Validation.Experimental
         /// </summary>
         internal T InitialValue;
         
+        /// <summary>
+        /// Field whose statuses are only associated with this particular FluentBinder
+        /// </summary>
         public new  ShimFieldBase2<T> Field { get; }
 
         IField<T> IFluentBinder<T>.Field => Field;

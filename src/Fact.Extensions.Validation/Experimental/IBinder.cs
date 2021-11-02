@@ -22,6 +22,9 @@ namespace Fact.Extensions.Validation.Experimental
         Task Process(InputContext inputContext = default, CancellationToken ct = default);
     }
 
+    /// <summary>
+    /// "v2" with is-a processor
+    /// </summary>
     public interface IBinder2 : IBinder,
         IBinder2Base
     {
