@@ -26,7 +26,7 @@ namespace Fact.Extensions.Validation.Experimental
             foreach (var a in attributes)
                 a.Configure(fluentBinder);
 
-            fluentBinder.Binder.ProcessingAsync += (f, context) =>
+            ((IBinder2)fluentBinder.Binder).ProcessingAsync += (f, context) =>
             {
                 // handled automatically by FluentBinder2
                 //statuses.Clear();
@@ -43,7 +43,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public abstract void InitValidation();
             
-        public PropertyBinderProvider(IBinder2 binder, IFluentBinder fluentBinder,
+        public PropertyBinderProvider(IBinderBase binder, IFluentBinder fluentBinder,
             PropertyInfo property) : base(binder, fluentBinder)
         {
             Property = property;
@@ -131,8 +131,8 @@ namespace Fact.Extensions.Validation.Experimental
             items.Add(item);
             ProcessingAsync += async (field, context) =>
                 // Aggregated binder we always have our "Load" style InputContext unless overriden somehow
-                await item.Binder.Process(context.InputContext, context.CancellationToken);
-            item.Binder.ProcessedAsync += (field, context) =>
+                await ((IBinder2)item.Binder).Process(context.InputContext, context.CancellationToken);
+            ((IBinder2)item.Binder).ProcessedAsync += (field, context) =>
             {
                 // Filter out overall load/aggregated Process
                 if (context.InputContext?.InitiatingEvent != InitiatingEvents.Load)
@@ -173,7 +173,7 @@ namespace Fact.Extensions.Validation.Experimental
         
         protected readonly List<PropertyBinderProvider> providers = new List<PropertyBinderProvider>();
 
-        public IEnumerable<IBinder2> Binders => providers.Select(x => x.Binder);
+        public IEnumerable<IBinderBase> Binders => providers.Select(x => x.Binder);
 
         public IEnumerable<IBinderProvider> Providers => providers;
 
@@ -357,22 +357,31 @@ namespace Fact.Extensions.Validation.Experimental
             Committer committer = null)
         {
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
-            Dictionary<string, IBinder2> binders = binder.Providers.ToDictionary(x => x.Binder.Field.Name, y => y.Binder);
+            Dictionary<string, IBinderBase> binders = binder.Providers.ToDictionary(x => x.Binder.Field.Name, y => y.Binder);
             
             if (committer == null) committer = new Committer(); 
 
             foreach(var property in properties)
             {
-                if(binders.TryGetValue(property.Name, out IBinder2 b))
+                if(binders.TryGetValue(property.Name, out IBinderBase b))
                 {
                     // DEBT: Assign to DBNull or similar so we can tell if it's uninitialized
                     object staged = null;
-                    
-                    b.ProcessedAsync += (f, context) =>
+
+                    if (b is IBinder2 binderv2)
                     {
-                        staged = context.Value;
-                        return new ValueTask();
-                    };
+                        binderv2.ProcessedAsync += (f, context) =>
+                        {
+                            staged = context.Value;
+                            return new ValueTask();
+                        };
+                    }
+                    else
+                        ((IFieldBinder)b).Processor.ProcessedAsync += (sender, context) =>
+                        {
+                            staged = context.Value;
+                            return new ValueTask();
+                        };
 
                     committer.Committing += () =>
                     {
@@ -546,7 +555,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public class ShimField3<T> : ShimFieldBase2<T>, IBinderProvider
         {
-            public IBinder2 Binder { get; }
+            public IBinderBase Binder { get; }
 
             public IFluentBinder FluentBinder { get; }
 
@@ -574,6 +583,11 @@ namespace Fact.Extensions.Validation.Experimental
             bool isProcessing = false;
             bool isProcessed = false;
 
+            var f1v2binder = fluentBinder1.Binder as IBinder2;
+            var f2v2binder = fluentBinder2.Binder as IBinder2;
+            var f1v3binder = fluentBinder1.Binder as IFieldBinder;
+            var f2v3binder = fluentBinder2.Binder as IFieldBinder;
+
             var processing = new ProcessingDelegateAsync(async (f, c) =>
             {
                 if (!isProcessing)
@@ -594,8 +608,12 @@ namespace Fact.Extensions.Validation.Experimental
 
                     if (f == fluentBinder1.Binder.Field)
                     {
-                        await fluentBinder2.Binder.Process(c.InputContext);
-                        if(fluentBinder2.Binder.Field.Statuses.Any())
+                        if (f2v2binder != null)
+                            await f2v2binder.Process(c.InputContext);
+                        else
+                            await f2v3binder.Processor.ProcessAsync(c);
+
+                        if (fluentBinder2.Binder.Field.Statuses.Any())
                         {
                             c.Abort = true;
                             return;
@@ -604,7 +622,11 @@ namespace Fact.Extensions.Validation.Experimental
 
                     if (f == fluentBinder2.Binder.Field)
                     {
-                        await fluentBinder1.Binder.Process(c.InputContext);
+                        if (f1v2binder != null)
+                            await f1v2binder.Process(c.InputContext);
+                        else
+                            await f1v3binder.Processor.ProcessAsync(c);
+
                         if (fluentBinder1.Binder.Field.Statuses.Any())
                         {
                             c.Abort = true;
@@ -623,11 +645,23 @@ namespace Fact.Extensions.Validation.Experimental
                 return new ValueTask();
             });
 
-            fluentBinder1.Binder.ProcessingAsync += processing;
-            fluentBinder2.Binder.ProcessingAsync += processing;
+            if (f1v2binder != null)
+            {
+                f1v2binder.ProcessingAsync += processing;
+                f2v2binder.ProcessingAsync += processing;
 
-            fluentBinder1.Binder.ProcessedAsync += processed;
-            fluentBinder2.Binder.ProcessedAsync += processed;
+                f1v2binder.ProcessedAsync += processed;
+                f2v2binder.ProcessedAsync += processed;
+            }
+            else
+            {
+                // UNTESTED
+                f1v3binder.Processor.ProcessingAsync += (sender, ctx) => processing(ctx.Field, ctx);
+                f2v3binder.Processor.ProcessingAsync += (sender, ctx) => processing(ctx.Field, ctx);
+
+                f1v3binder.Processor.ProcessedAsync += (sender, ctx) => processed(ctx.Field, ctx);
+                f2v3binder.Processor.ProcessedAsync += (sender, ctx) => processed(ctx.Field, ctx);
+            }
 
             return fluentBinder1;
         }

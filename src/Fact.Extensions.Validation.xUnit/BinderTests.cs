@@ -15,7 +15,7 @@ namespace Fact.Extensions.Validation.xUnit
     public class BinderTests
     {
         [Fact]
-        public void Test1()
+        public async Task Test1()
         {
             var b = new FieldBinder<string>("field1", () => "123");
 
@@ -26,11 +26,11 @@ namespace Fact.Extensions.Validation.xUnit
 
             fbInt.IsTrue(v => v == 123, "Must be 123");
 
-            b.Process();
+            await b.Process();
 
             fbInt.IsTrue(v => v == 124, "Must be 124");
 
-            b.Process();
+            await b.Process();
 
             b.Field.Statuses.Should().HaveCount(1);
         }
@@ -55,7 +55,7 @@ namespace Fact.Extensions.Validation.xUnit
         }
 
         [Fact]
-        public void Compare1()
+        public async Task Compare1()
         {
             var f = new FieldStatus<string>("field1");
             var b = new FieldBinder<string>(f, () => "123");
@@ -66,19 +66,19 @@ namespace Fact.Extensions.Validation.xUnit
 
             fb2.GreaterThan(100);
 
-            b.Process();
+            await b.Process();
 
             f.Statuses.Should().BeEmpty();
 
             fb2.GreaterThan(124);
 
-            b.Process();
+            await b.Process();
 
             f.Statuses.Should().HaveCount(1);
 
             fb2.LessThan(122);
 
-            b.Process();
+            await b.Process();
 
             var statuses = f.Statuses.ToArray();
             statuses.Should().HaveCount(2);
@@ -87,7 +87,7 @@ namespace Fact.Extensions.Validation.xUnit
 
 
         [Fact]
-        public void Convert2()
+        public async Task Convert2()
         {
             var f = new FieldStatus<string>("field1");
             var b = new FieldBinder<string>(f, () => "123a");
@@ -96,7 +96,7 @@ namespace Fact.Extensions.Validation.xUnit
 
             var fb2 = fb.Convert<int>();
 
-            b.Process();
+            await b.Process();
 
             var statuses = f.Statuses.ToArray();
             statuses.Should().HaveCount(1);
@@ -196,20 +196,20 @@ namespace Fact.Extensions.Validation.xUnit
                 return new ValueTask();
             };
 
-            b.ProcessingAsync += async (field, context) =>
+            b.Processor.ProcessingAsync += async (_, context) =>
             {
                 gotHere.Add(1);
                 context.Sequential = false;
                 await Task.Delay(5000, context.CancellationToken);
             };
 
-            b.ProcessingAsync += async (field, context) =>
+            b.Processor.ProcessingAsync += async (_, context) =>
             {
                 gotHere.Add(2);
                 await Task.Delay(5000, context.CancellationToken);
             };
 
-            b.ProcessingAsync += (field, context) =>
+            b.Processor.ProcessingAsync += (_, context) =>
             {
                 gotHere.Add(3);
                 throw new XunitException("Should never reach here");

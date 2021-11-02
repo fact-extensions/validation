@@ -11,6 +11,7 @@ namespace Fact.Extensions.Validation.Experimental
     // DEBT: Stop-gap as we move to v3
     public interface IBinder2ProcessorCore
     {
+        [Obsolete("Use Processor property directly ('v3')")]
         event ProcessingDelegateAsync ProcessingAsync;
     }
 
@@ -27,12 +28,14 @@ namespace Fact.Extensions.Validation.Experimental
     /// <summary>
     /// "v2" with is-a processor
     /// </summary>
+    [Obsolete("Do not use - phasing out")]
     public interface IBinder2 : IBinder,
         IBinder2Base
     {
     }
 
 
+    [Obsolete("Do not use - phasing out")]
     public interface IBinder2<T> : IBinder2,
         IBinderBase<T>
     {
@@ -42,7 +45,7 @@ namespace Fact.Extensions.Validation.Experimental
     public interface IFluentBinder
     {
 
-        IBinder2 Binder { get; }
+        IBinderBase Binder { get; }
 
         /// <summary>
         /// Field associated specifically with this FluentBinder

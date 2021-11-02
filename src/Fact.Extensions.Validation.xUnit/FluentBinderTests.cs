@@ -92,7 +92,7 @@ namespace Fact.Extensions.Validation.xUnit
             //fb.InitialValue.Should().Be("hi2u");
             //fb2.InitialValue.Should().BeNull();
 
-            await fb.Binder.Process();
+            await ((IBinder2)fb.Binder).Process();
 
             // FIX: Technically we want InitialValue set here, but so far it actually only gets set during
             // convert operations

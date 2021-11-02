@@ -51,7 +51,10 @@ namespace Fact.Extensions.Validation.WinForms
             {
                 f.Value = v;
 
-                await bp.Binder.Process(inputContextFactory(), cancellationToken);
+                if (bp.Binder is IBinder2 binderv2)
+                    await binderv2.Process(inputContextFactory(), cancellationToken);
+                else
+                    throw new InvalidOperationException("Need v3 processor here");
 
                 styleManager.ContentChanged(bp);
             };

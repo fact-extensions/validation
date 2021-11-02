@@ -24,7 +24,15 @@ namespace Fact.Extensions.Validation.Experimental
     /// <summary>
     /// "v3" binder with has-a processor
     /// </summary>
-    public interface IFieldBinder : IBinder3Base, IBinder2Base, IBinderBase
+    public interface IFieldBinder : IBinder3Base, IBinderBase
+    {
+
+    }
+
+
+    public interface IFieldBinder<T> : 
+        IBinderBase<T>,
+        IFieldBinder
     {
 
     }
@@ -48,8 +56,7 @@ namespace Fact.Extensions.Validation.Experimental
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class FieldBinder<T> : Binder3Base,
-        IFieldBinder,
-        IBinder2<T>
+        IFieldBinder<T>
     {
         // Phasing AbortOnNull out at FieldBinder level
         public bool AbortOnNull
@@ -60,28 +67,6 @@ namespace Fact.Extensions.Validation.Experimental
 
         public IField Field { get; }
 
-        [Obsolete("Use Processor property directly ('v3')")]
-        public event ProcessingDelegateAsync ProcessingAsync
-        {
-            add => Processor.ProcessingAsync += (sender, context) => value(Field, context);
-            remove => throw new InvalidOperationException();
-        }
-
-        [Obsolete("Use Processor property directly ('v3')")]
-        public event ProcessingDelegateAsync ProcessedAsync
-        {
-            add => Processor.ProcessedAsync += (sender, context) => value(Field, context);
-            remove => throw new InvalidOperationException();
-        }
-        
-        
-        public event ProcessingDelegateAsync StartingAsync
-        {
-            add => Processor.StartingAsync += (_, context) => value(Field, context);
-            remove => throw new InvalidOperationException();
-        }
-        
-        
         public event Action Aborting
         {
             add => Processor.Aborting += value;
@@ -285,7 +270,7 @@ namespace Fact.Extensions.Validation.Experimental
             providers.Add(binderProvider);
             Committer.Committing += binderProvider.Binder.Committer.DoCommit;
 
-            binderProvider.Binder.ProcessedAsync += (field, context) =>
+            ((IBinder2)binderProvider.Binder).ProcessedAsync += (field, context) =>
             {
                 // Filter out overall load/aggregated Process
                 if (context.InputContext?.InitiatingEvent != InitiatingEvents.Load)
@@ -301,7 +286,7 @@ namespace Fact.Extensions.Validation.Experimental
             {
                 foreach(TBinderProvider provider in providers)
                 {
-                    await provider.Binder.Process(context.InputContext, context.CancellationToken);
+                    await ((IBinder2)provider.Binder).Process(context.InputContext, context.CancellationToken);
                 }
             };
 
@@ -336,6 +321,35 @@ namespace Fact.Extensions.Validation.Experimental
         {
             add => Processor.ProcessingAsync += (sender, context) => value(null, context);
             remove => new InvalidOperationException();
+        }
+    }
+
+
+
+    public static class ProcessorProviderExtensions
+    {
+        /// <summary>
+        /// Convenience method, mainly for compatibility with Binder v2
+        /// </summary>
+        /// <typeparam name="TContext"></typeparam>
+        /// <param name="provider"></param>
+        /// <param name="context"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public static Task Process<TContext>(this IProcessorProvider<TContext> provider, TContext context = null, 
+            CancellationToken cancellationToken = default)
+            where TContext: class, IContext
+        {
+            return provider.Processor.ProcessAsync(context, cancellationToken);
+        }
+    }
+
+
+    public static class Binder3Extensions
+    {
+        public static FluentBinder3<T> As<T>(this FieldBinder<T> binder)
+        {
+            return new FluentBinder3<T>(binder, true);
         }
     }
 }

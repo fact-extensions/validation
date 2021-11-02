@@ -55,7 +55,7 @@ namespace Fact.Extensions.Validation.Experimental
             Func<Status> getIsFalseStatus)
             where TFluentBinder : IFluentBinder<T>
         {
-            fb.Binder.ProcessingAsync += (field, context) =>
+            ((IBinder2)fb.Binder).ProcessingAsync += (field, context) =>
             {
                 IField<T> f = fb.Field;
                 if (!predicate(f.Value))
@@ -71,7 +71,7 @@ namespace Fact.Extensions.Validation.Experimental
             Func<Status> getIsFalseStatus)
             where TFluentBinder : IFluentBinder
         {
-            fb.Binder.ProcessingAsync += (field, context) =>
+            ((IBinder2)fb.Binder).ProcessingAsync += (field, context) =>
             {
                 IField f = fb.Field;
                 if (!predicate(f.Value))
@@ -119,7 +119,7 @@ namespace Fact.Extensions.Validation.Experimental
         public static IFluentBinder<T> IsTrueAsync<T>(this IFluentBinder<T> fb, Func<T, ValueTask<bool>> predicate,
             string messageIfFalse, Status.Code level = Status.Code.Error, bool sequential = true)
         {
-            fb.Binder.ProcessingAsync += async (field, context) =>
+            ((IBinder2)fb.Binder).ProcessingAsync += async (field, context) =>
             {
                 IField<T> f = fb.Field;
                 context.Sequential = sequential;
@@ -133,7 +133,7 @@ namespace Fact.Extensions.Validation.Experimental
         public static TFluentBinder StartsWith<TFluentBinder>(this TFluentBinder fb, string mustStartWith)
             where TFluentBinder : IFluentBinder<string>
         {
-            fb.Binder.ProcessingAsync += (field, context) =>
+            ((IBinder2)fb.Binder).ProcessingAsync += (field, context) =>
             {
                 if (!fb.Field.Value.StartsWith(mustStartWith))
                     fb.Field.Error(FieldStatus.ComparisonCode.Unspecified, mustStartWith,
@@ -147,7 +147,8 @@ namespace Fact.Extensions.Validation.Experimental
         public static TFluentBinder Contains<TFluentBinder>(this TFluentBinder fb, string mustContain)
             where TFluentBinder : IFluentBinder<string>
         {
-            fb.Binder.ProcessingAsync += (field, context) =>
+            var v2binder = (IBinder2)fb.Binder;
+            v2binder.ProcessingAsync += (field, context) =>
             {
                 if (!fb.Field.Value.Contains(mustContain))
                     fb.Field.Error(FieldStatus.ComparisonCode.Unspecified, mustContain,
@@ -160,8 +161,10 @@ namespace Fact.Extensions.Validation.Experimental
         public static TFluentBinder Required<TFluentBinder>(this TFluentBinder fb)
             where TFluentBinder : IFluentBinder
         {
-            fb.Binder.AbortOnNull = false;
-            fb.Binder.ProcessingAsync += (field, context) =>
+            var v2binder = (IBinder2)fb.Binder;
+
+            v2binder.AbortOnNull = false;
+            v2binder.ProcessingAsync += (field, context) =>
             {
                 if (fb.Field.Value == null)
                 {
@@ -254,7 +257,8 @@ namespace Fact.Extensions.Validation.Experimental
             tryConvertDelegate<IField<T>, TTo> converter, string cannotConvert = null, Optional<TTo> defaultValue = null)
         {
             var fb2 = new FluentBinder2<TTo>(fb.Binder, false);
-            fb.Binder.ProcessingAsync += (field, context) =>
+            var v2binder = (IBinder2)fb.Binder;
+            v2binder.ProcessingAsync += (field, context) =>
             {
                 if (defaultValue != null && context.Value == null)
                 {
@@ -297,7 +301,8 @@ namespace Fact.Extensions.Validation.Experimental
         public static FluentBinder2<TTo> Convert<TTo>(this IFluentBinder fb, Optional<TTo> defaultValue = null)
         {
             var fb2 = new FluentBinder2<TTo>(fb.Binder, false);
-            fb.Binder.ProcessingAsync += (field, context) =>
+            var v2binder = (IBinder2)fb.Binder;
+            v2binder.ProcessingAsync += (field, context) =>
             {
                 IField f = fb.Field;
                 Type t = typeof(TTo);
@@ -424,8 +429,9 @@ namespace Fact.Extensions.Validation.Experimental
             Func<Status, bool> whenStatus = null, bool bypassFilter = false)
         {
             if (whenStatus == null) whenStatus = FilterStatus;
+            var v2binder = (IBinder2)fb.Binder;
 
-            fb.Binder.ProcessingAsync += (field, context) =>
+            v2binder.ProcessingAsync += (field, context) =>
             {
                 IField<T> f = fb.Field;
 
@@ -454,13 +460,14 @@ namespace Fact.Extensions.Validation.Experimental
 
         // EXPERIMENTAL
         // Convert and assign on initialization only
-        public static FluentBinder2<TTo> Chain<T, TTo>(this IFluentBinder<T> fluentBinder, IBinder2 binder, tryConvertDelegate<IField<T>, TTo> convert,
+        public static FluentBinder2<TTo> Chain<T, TTo>(this IFluentBinder<T> fluentBinder, IBinderBase binder, tryConvertDelegate<IField<T>, TTo> convert,
             Action<TTo> setter)
         {
             // TODO: Rather than check a flag each time, remove the delegate from the ProcessedAsync chain
             bool initialized = false;
             var fbChained = new FluentBinder2<TTo>(binder, true);
-            fluentBinder.Binder.ProcessedAsync += (f, c) =>
+            var v2binder = (IBinder2)fluentBinder.Binder;
+            v2binder.ProcessedAsync += (f, c) =>
             {
                 if (initialized) return new ValueTask();
 
@@ -491,7 +498,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static FluentBinder2<T> Chain<T>(this IFluentBinder<T> fluentBinder, IBinder2 binder, Action<T> setter)
+        public static FluentBinder2<T> Chain<T>(this IFluentBinder<T> fluentBinder, IBinderBase binder, Action<T> setter)
         {
             return fluentBinder.Chain(binder,
             (IField<T> f, out T v) =>

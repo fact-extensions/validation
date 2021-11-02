@@ -185,7 +185,7 @@ namespace Fact.Extensions.Validation.Experimental
 
     public static class Binder2Extensions
     {
-        public static FluentBinder2<T> As<T>(this IBinder2 binder)
+        public static FluentBinder2<T> As<T>(this IBinderBase binder)
         {
             return new FluentBinder2<T>(binder, true);
         }
@@ -222,7 +222,7 @@ namespace Fact.Extensions.Validation.Experimental
 
     public class FluentBinder2 : IFluentBinder
     {
-        public IBinder2 Binder { get; }
+        public IBinderBase Binder { get; }
 
 
         /// <summary>
@@ -233,7 +233,7 @@ namespace Fact.Extensions.Validation.Experimental
         public Type Type { get; }
 
         // DEBT: Field MUST be initialized by calling class
-        protected FluentBinder2(IBinder2 binder, Type type = null)
+        protected FluentBinder2(IBinderBase binder, Type type)
         {
             Binder = binder;
             Type = type;
@@ -256,11 +256,20 @@ namespace Fact.Extensions.Validation.Experimental
         {
             // This event handler is more or less a re-initializer for subsequent
             // process/validation calls
-            Binder.StartingAsync += (field, context) =>
+            if (Binder is IBinder2 binderv2)
             {
-                statuses.Clear();
-                return new ValueTask();
-            };
+                binderv2.StartingAsync += (field, context) =>
+                {
+                    statuses.Clear();
+                    return new ValueTask();
+                };
+            }
+            else
+                ((IFieldBinder)Binder).Processor.StartingAsync += (_, context) =>
+                {
+                    statuses.Clear();
+                    return new ValueTask();
+                };
 
             // DEBT
             var f = (IFieldStatusExternalCollector)Binder.Field;
@@ -302,14 +311,14 @@ namespace Fact.Extensions.Validation.Experimental
             // type is compatible with T.  Be warned though that this will be a too-early call to
             // getter, so we'll want to make the runtime check skippable
 
-            Binder.ProcessingAsync += (f, c) =>
+            ((IBinder2)Binder).ProcessingAsync += (f, c) =>
             {
                 InitialValue = (T)chained.Field.Value;
                 return new ValueTask();
             };
         }
 
-        public FluentBinder2(IBinder2 binder, bool initial) : 
+        public FluentBinder2(IBinderBase binder, bool initial) : 
             base(binder, typeof(T))
         {
             string name = binder.Field.Name;
