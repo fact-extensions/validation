@@ -194,7 +194,7 @@ namespace Fact.Extensions.Validation.xUnit
             var statuses = fb.Binder.Field.Statuses.ToArray();
             statuses.Should().BeEmpty();
 
-            fb.Required3();
+            fb.Required();
 
             await fb.Binder.Process();
 

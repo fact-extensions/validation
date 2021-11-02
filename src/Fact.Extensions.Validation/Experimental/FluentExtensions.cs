@@ -158,7 +158,7 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
-        public static TFluentBinder Required<TFluentBinder>(this TFluentBinder fb)
+        public static TFluentBinder Required_Legacy<TFluentBinder>(this TFluentBinder fb)
             where TFluentBinder : IFluentBinder
         {
             var v2binder = (IBinder2)fb.Binder;
@@ -563,7 +563,7 @@ namespace Fact.Extensions.Validation.Experimental
             fluentBinder.Commit(fluentBinder.Binder.Committer, commit);
 
         // Temporarily named Required3 until we phase out "v2"
-        public static TFluentBinder Required3<TFluentBinder, T>(this TFluentBinder fluentBinder, Func<T, bool> isEmpty)
+        public static TFluentBinder Required<TFluentBinder, T>(this TFluentBinder fluentBinder, Func<T, bool> isEmpty)
             where TFluentBinder : IFluentBinder3<T>
         {
             fluentBinder.Binder.Processor.ProcessingAsync += (_, context) =>
@@ -594,11 +594,11 @@ namespace Fact.Extensions.Validation.Experimental
         public static TFluentBinder IsNotNull<TFluentBinder>(this TFluentBinder fluentBinder)
             where TFluentBinder : IFluentBinder3<object>
             =>
-            fluentBinder.Required3<TFluentBinder, object>(v => v == null);
+            fluentBinder.Required<TFluentBinder, object>(v => v == null);
 
-        public static TFluentBinder Required3<TFluentBinder>(this TFluentBinder fluentBinder)
+        public static TFluentBinder Required<TFluentBinder>(this TFluentBinder fluentBinder)
             where TFluentBinder : IFluentBinder3<string> =>
-            fluentBinder.Required3<TFluentBinder, string>(string.IsNullOrWhiteSpace);
+            fluentBinder.Required<TFluentBinder, string>(string.IsNullOrWhiteSpace);
 
         public static TFluentBinder Optional<TFluentBinder, T>(this TFluentBinder fluentBinder, Func<T, bool> isEmpty)
             where TFluentBinder : IFluentBinder3<T>

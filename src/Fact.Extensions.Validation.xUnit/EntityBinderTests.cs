@@ -80,7 +80,10 @@ namespace Fact.Extensions.Validation.xUnit
             // when reaching 'StartsWith'
 
             var passwordBinder1 = entityBinder.Get(x => x.Password1);
-            passwordBinder1.FluentBinder.
+
+            // DEBT: Naughty cast
+            var fluentBinder = (IFluentBinder3<string>)passwordBinder1.FluentBinder;
+            fluentBinder.
                 Required().
                 StartsWith("hi");
 

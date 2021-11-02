@@ -25,7 +25,7 @@ namespace Fact.Extensions.Validation.xUnit
             var statuses = fb.Binder.Field.Statuses.ToArray();
             statuses.Should().HaveCount(0);
 
-            fb.Required3((int v) => v == 0).
+            fb.Required((int v) => v == 0).
                 GreaterThan(124);
 
             await ab.Process();
@@ -48,11 +48,11 @@ namespace Fact.Extensions.Validation.xUnit
             // FIX: Not going to FluentBinder3 Required, so "null" check is weak
 
             fb.
-                Required3().
+                Required().
                 Convert<int>().GreaterThan(10);
 
             fb2.
-                Required3().
+                Required().
                 Convert<int>().LessThan(5);
 
             await fb.Binder.Process();

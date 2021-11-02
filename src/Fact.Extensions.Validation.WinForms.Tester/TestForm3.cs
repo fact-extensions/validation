@@ -41,11 +41,11 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             // FIX: Abort processing not quite right, so Required() not functioning properly
 
             ((FluentBinder3<string>)aggregatedBinder.BindText(txtEntry1)).
-                Required3().
+                Required().
                 Convert<int>().GreaterThan(10);
 
             ((FluentBinder3<string>)aggregatedBinder.BindText(txtEntry2)).
-                Required3().
+                Required().
                 Convert<int>().LessThan(5);
 
             aggregatedBinder.BindersProcessed += AggregatedBinder_BindersProcessed;

@@ -39,8 +39,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
             var summaryField = new FieldStatus("summary");
 
-            var regValue1 = reg.Add("Value1").Required3((object v) => v == null);
-            var regValue2 = reg.Add("Value2").Required3((object v) => v == null).Convert<int>();
+            var regValue1 = reg.Add("Value1").Required((object v) => v == null);
+            var regValue2 = reg.Add("Value2").Required((object v) => v == null).Convert<int>();
             var regVersion = reg.Add("Version").
                 Convert<int>().GroupValidate(regValue2, (c, version, v2) =>
                 {
