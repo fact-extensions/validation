@@ -21,7 +21,7 @@ namespace Fact.Extensions.Validation.Experimental
 
     // DEBT: Wants to attach to a parent binder, since this isn't an aggregated binder of its own
     public class RegistryBinder : 
-        AggregatedBinderBase2<RegistryBinder.Provider>,
+        AggregatedBinderBase3<RegistryBinder.Provider>,
         IRegistryBinder
     {
         public class Provider : AggregatedBinderBase.ItemBase
@@ -36,14 +36,13 @@ namespace Fact.Extensions.Validation.Experimental
 
         public RegistryKey Root => root;
 
-        public RegistryBinder(RegistryKey key) : base(new FieldStatus("dummy", null))
+        public RegistryBinder(RegistryKey key)
         {
             root = key;
         }
 
 
-        public RegistryBinder(RegistryHive hive, string path) :
-            base(new FieldStatus("dummy", null))
+        public RegistryBinder(RegistryHive hive, string path)
         {
             var view = RegistryView.Default;
             root = RegistryKey.OpenBaseKey(hive, view);
@@ -52,8 +51,7 @@ namespace Fact.Extensions.Validation.Experimental
 
 
         // EXPERIMENTAL
-        public RegistryBinder(RegistryHive hive, string path, bool writeable) :
-            base(new FieldStatus("dummy", null))
+        public RegistryBinder(RegistryHive hive, string path, bool writeable)
         {
             var view = RegistryView.Default;
             root = RegistryKey.OpenBaseKey(hive, view);

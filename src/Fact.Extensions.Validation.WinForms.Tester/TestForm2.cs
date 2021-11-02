@@ -37,6 +37,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             var regLocation = @"Software\Fact\Extensions\Validation\Diagnostic\Test";
             var reg = new RegistryBinder(Microsoft.Win32.RegistryHive.CurrentUser, regLocation, false);
 
+            var summaryField = new FieldStatus("summary");
+
             var regValue1 = reg.Add("Value1").Required3((object v) => v == null);
             var regValue2 = reg.Add("Value2").Required3((object v) => v == null).Convert<int>();
             var regVersion = reg.Add("Version").
@@ -49,12 +51,13 @@ namespace Fact.Extensions.Validation.WinForms.Tester
                 });
 
             // DEBT: Always have to add this after other Adds, but would rather not have to
-            reg.AddSummaryProcessor((FieldStatus)reg.Field);
+            reg.AddSummaryProcessor(summaryField);
 
             // regVersion.Convert<int>() flipping out
-            await reg.Process();
+            var context = new Context2(null, null, default);
+            await reg.Process(context);
 
-            var statuses = reg.Field.Statuses.ToArray();
+            var statuses = summaryField.Statuses.ToArray();
 
             var field = new FieldStatus("test");
             binderManager = new AggregatedBinder3(Services);

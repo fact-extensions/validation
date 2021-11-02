@@ -67,7 +67,7 @@ namespace Fact.Extensions.Validation.Experimental
     /// Boilerplate for less-typed filter-only style binder
     /// </summary>
     [Obsolete]
-    public class Binder2<T> : BinderBase<T>
+    public class Binder2<T> : BinderBase<T>, IBinder2
     {
         // DEBT: Sometimes a text entry of "" means null, an int of 0, etc.
         // we need a mechanism to account for that
