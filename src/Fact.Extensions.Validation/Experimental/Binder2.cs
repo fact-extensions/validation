@@ -340,35 +340,5 @@ namespace Fact.Extensions.Validation.Experimental
 
             Initialize();
         }
-
-
-        /// <summary>
-        /// EXPERIMENTAL
-        /// Hard wired to create a new FieldBinder ("v3" Binder)
-        /// </summary>
-        /// <param name="fieldName"></param>
-        /// <param name="getter"></param>
-        /// <param name="setter"></param>
-        /// <remarks>
-        /// I think in real life we won't be directly calling this constructor from user code
-        /// And also although FieldBinder is a fine choice, it may not be the only game in town
-        /// </remarks>
-        public FluentBinder2(string fieldName, Func<T> getter, Action<T> setter = null) :
-            this(new FieldBinder<T>(fieldName, getter, setter), true)
-        {
-            
-        }
-    }
-
-
-    public class FluentBinder2<T, TTrait> : FluentBinder2<T>,
-        IFluentBinder<T, TTrait>
-    {
-        public TTrait Trait { get; }
-
-        public FluentBinder2(IFluentBinder<T> chained) : 
-            base(chained)
-        {
-        }
     }
 }

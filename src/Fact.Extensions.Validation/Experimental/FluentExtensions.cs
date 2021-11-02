@@ -447,11 +447,6 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static FluentBinder2<T, TTrait> WithTrait<T, TTrait>(this IFluentBinder<T> fb,
-            TTrait trait = default(TTrait)) =>
-            new FluentBinder2<T, TTrait>(fb);
-
-
         public static FluentBinder3<T, TTrait> WithTrait<T, TTrait>(this IFluentBinder3<T> fb,
             TTrait trait = default(TTrait)) =>
             // DEBT: Smooth out this cast

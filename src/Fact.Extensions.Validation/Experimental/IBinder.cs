@@ -45,6 +45,11 @@ namespace Fact.Extensions.Validation.Experimental
         /// Errors registered here are localized to this FluentBinder
         /// </summary>
         IField Field { get; }
+
+        /// <summary>
+        /// Type which this particular fluent binder is associated with
+        /// </summary>
+        Type Type { get; }
     }
 
     public interface IFluentBinder<out T> : IFluentBinder

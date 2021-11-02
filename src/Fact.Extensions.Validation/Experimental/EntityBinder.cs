@@ -71,6 +71,7 @@ namespace Fact.Extensions.Validation.Experimental
 
     public delegate void BindersProcessedDelegate<TBinderProvider>(IEnumerable<TBinderProvider> binders, Context2 context);
 
+    [Obsolete]
     public class AggregatedBinderBase2<TBinderProvider> : Binder2<object>,
         IAggregatedBinderBase<TBinderProvider>
         where TBinderProvider: IBinderProvider
@@ -144,6 +145,7 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
     // TODO: Make an IEntityBinder so that we can do an IEntityBinder<T>
+    [Obsolete]
     public class AggregatedBinder : AggregatedBinderBase2<IBinderProvider>,
         IAggregatedBinder
     {

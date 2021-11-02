@@ -43,11 +43,11 @@ namespace Fact.Extensions.Validation
     /// </summary>
     public class VAssert
     {
-        protected readonly IAggregatedBinder aggregatedBinder;
+        protected readonly IAggregatedBinder3 aggregatedBinder;
 
-        public IAggregatedBinder AggregatedBinder => aggregatedBinder;
+        public IAggregatedBinder3 AggregatedBinder => aggregatedBinder;
 
-        public VAssert(IAggregatedBinder aggregatedBinder)
+        public VAssert(IAggregatedBinder3 aggregatedBinder)
         {
             this.aggregatedBinder = aggregatedBinder;
         }
@@ -71,11 +71,9 @@ namespace Fact.Extensions.Validation
         public Experimental.IEntityBinder<T> Binder { get; }
 
         public VAssert(T entity) :
-            base(new AggregatedBinder(new FieldStatus("test", null)))
+            base(new AggregatedBinder3())
         {
-            // DEBT
-            var ag = (AggregatedBinder)aggregatedBinder;
-            Binder = ag.BindInput2(entity);
+            Binder = aggregatedBinder.BindInput2(entity);
         }
     }
 
