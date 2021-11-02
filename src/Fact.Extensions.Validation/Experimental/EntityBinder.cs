@@ -71,6 +71,9 @@ namespace Fact.Extensions.Validation.Experimental
 
     public delegate void BindersProcessedDelegate<TBinderProvider>(IEnumerable<TBinderProvider> binders, Context2 context);
 
+    // Keeping v1/v2 old AggregatedBinderBase around just for code reference, because we do some
+    // tricky things here
+#if UNUSED
     [Obsolete]
     public class AggregatedBinderBase2<TBinderProvider> : Binder2<object>,
         IAggregatedBinderBase<TBinderProvider>
@@ -143,26 +146,7 @@ namespace Fact.Extensions.Validation.Experimental
             Committer.Committing += item.Binder.Committer.DoCommit;
         }
     }
-
-    // TODO: Make an IEntityBinder so that we can do an IEntityBinder<T>
-    [Obsolete]
-    public class AggregatedBinder : AggregatedBinderBase2<IBinderProvider>,
-        IAggregatedBinder
-    {
-        internal class Context : Context2
-        {
-            internal Context(CancellationToken ct) : base(null, null, ct)
-            {
-
-            }
-        }
-
-        public AggregatedBinder(IField field, IServiceProvider services = null) :
-            base(field, services)
-        {
-        }
-    }
-
+#endif
 
     /// <summary>
     /// Experimental helper for only-reflection-entity assistance
