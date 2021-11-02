@@ -39,13 +39,13 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
-        public static FluentBinder2<T> As<T>(this FluentBinder2 fb)
+        public static FluentBinder3<T> As<T>(this IFluentBinder3 fb)
         {
-            if (fb is FluentBinder2<T> fbTyped) return fbTyped;
+            if (fb is FluentBinder3<T> fbTyped) return fbTyped;
 
             // TODO: Check fb.Type and make sure this is a valid cast
 
-            fbTyped = new FluentBinder2<T>(fb);
+            fbTyped = new FluentBinder3<T>(fb.Binder);
             return fbTyped;
         }
 
@@ -119,7 +119,7 @@ namespace Fact.Extensions.Validation.Experimental
         public static IFluentBinder<T> IsTrueAsync<T>(this IFluentBinder<T> fb, Func<T, ValueTask<bool>> predicate,
             string messageIfFalse, Status.Code level = Status.Code.Error, bool sequential = true)
         {
-            ((IBinder2)fb.Binder).ProcessingAsync += async (field, context) =>
+            ((IFieldBinder)fb.Binder).Processor.ProcessingAsync += async (_, context) =>
             {
                 IField<T> f = fb.Field;
                 context.Sequential = sequential;
@@ -133,7 +133,7 @@ namespace Fact.Extensions.Validation.Experimental
         public static TFluentBinder StartsWith<TFluentBinder>(this TFluentBinder fb, string mustStartWith)
             where TFluentBinder : IFluentBinder<string>
         {
-            ((IBinder2)fb.Binder).ProcessingAsync += (field, context) =>
+            ((IFieldBinder)fb.Binder).Processor.ProcessingAsync += (_, context) =>
             {
                 if (!fb.Field.Value.StartsWith(mustStartWith))
                     fb.Field.Error(FieldStatus.ComparisonCode.Unspecified, mustStartWith,
@@ -429,10 +429,11 @@ namespace Fact.Extensions.Validation.Experimental
             Func<Status, bool> whenStatus = null, bool bypassFilter = false)
         {
             if (whenStatus == null) whenStatus = FilterStatus;
-            var v2binder = (IBinder2)fb.Binder;
+            var binder = (IFieldBinder)fb.Binder;
 
-            v2binder.ProcessingAsync += (field, context) =>
+            binder.Processor.ProcessingAsync += (_, context) =>
             {
+                IField field = context.Field;
                 IField<T> f = fb.Field;
 
                 if (bypassFilter || !field.Statuses.Any(whenStatus))
@@ -449,12 +450,18 @@ namespace Fact.Extensions.Validation.Experimental
             new FluentBinder2<T, TTrait>(fb);
 
 
+        public static FluentBinder3<T, TTrait> WithTrait<T, TTrait>(this IFluentBinder3<T> fb,
+            TTrait trait = default(TTrait)) =>
+            // DEBT: Smooth out this cast
+            new FluentBinder3<T, TTrait>((IFieldBinder<T>)fb.Binder, false);
+
+
         /// <summary>
         /// Tags the fluent binder as a UNIX Epoch
         /// </summary>
         /// <param name="fb"></param>
         /// <returns></returns>
-        public static FluentBinder2<int, Traits.Epoch> AsEpoch(this IFluentBinder<int> fb) =>
+        public static FluentBinder3<int, Traits.Epoch> AsEpoch(this IFluentBinder3<int> fb) =>
             fb.WithTrait<int, Traits.Epoch>();
 
 
@@ -466,8 +473,8 @@ namespace Fact.Extensions.Validation.Experimental
             // TODO: Rather than check a flag each time, remove the delegate from the ProcessedAsync chain
             bool initialized = false;
             var fbChained = new FluentBinder2<TTo>(binder, true);
-            var v2binder = (IBinder2)fluentBinder.Binder;
-            v2binder.ProcessedAsync += (f, c) =>
+            var v3binder = (IFieldBinder)fluentBinder.Binder;
+            v3binder.Processor.ProcessedAsync += (_, c) =>
             {
                 if (initialized) return new ValueTask();
 

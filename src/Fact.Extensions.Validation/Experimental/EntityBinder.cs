@@ -26,7 +26,7 @@ namespace Fact.Extensions.Validation.Experimental
             foreach (var a in attributes)
                 a.Configure(fluentBinder);
 
-            ((IBinder2)fluentBinder.Binder).ProcessingAsync += (f, context) =>
+            ((IFieldBinder)fluentBinder.Binder).Processor.ProcessingAsync += (_, context) =>
             {
                 // handled automatically by FluentBinder2
                 //statuses.Clear();

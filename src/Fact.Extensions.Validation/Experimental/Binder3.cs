@@ -169,12 +169,13 @@ namespace Fact.Extensions.Validation.Experimental
         /// </summary>
         /// <param name="chained">Binder on which we hang error reporting</param>
         /// <param name="converted">Parameter converter - previous FluentBinder in chain was not of type T</param>
-        public FluentBinder3(IFieldBinder chained, Func<T> converter) :
+        public FluentBinder3(IFieldBinder chained, Func<T> converter = null) :
             base(chained, typeof(T))
         {
             Binder = chained;
 
-            field = new ShimFieldBase2<T>(chained.Field.Name, statuses, converter);
+            field = new ShimFieldBase2<T>(chained.Field.Name, statuses, 
+                converter ?? (() => (T)chained.getter()));
 
             // DEBT: Easy to get wrong
             base.Field = field;
@@ -188,7 +189,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// </summary>
         /// <param name="binder"></param>
         /// <param name="initial"></param>
-        public FluentBinder3(FieldBinder<T> binder, bool initial) :
+        public FluentBinder3(IFieldBinder<T> binder, bool initial) :
             base(binder, typeof(T))
         {
             Binder = binder;
@@ -239,13 +240,16 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public class FluentBinder3<T, TTrait> : FluentBinder3<T>
+    public class FluentBinder3<T, TTrait> : FluentBinder3<T>,
+        IFluentBinder<T, TTrait>
     {
-        public FluentBinder3(FieldBinder<T> binder, bool initial) : 
+        public FluentBinder3(IFieldBinder<T> binder, bool initial) : 
             base(binder, initial)
         {
 
         }
+
+        public TTrait Trait => throw new NotImplementedException();
     }
 
 
