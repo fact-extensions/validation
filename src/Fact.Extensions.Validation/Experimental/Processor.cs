@@ -30,6 +30,13 @@ namespace Fact.Extensions.Validation.Experimental
         public event ProcessingDelegateAsync<TContext> ProcessedAsync;
         public event Action Aborting;
         
+
+        /// <summary>
+        /// Runs full processing chain - Starting, Processing, Processed
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task ProcessAsync(TContext context, CancellationToken cancellationToken = default)
         {
             if (StartingAsync != null)

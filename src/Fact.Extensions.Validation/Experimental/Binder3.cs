@@ -120,6 +120,13 @@ namespace Fact.Extensions.Validation.Experimental
             
         }
         
+
+        /// <summary>
+        /// Creates a new Context2 using this binder's getter() for initial value
+        /// and original Field
+        /// </summary>
+        /// <param name="ct"></param>
+        /// <returns></returns>
         protected Context2 CreateContext(CancellationToken ct) =>
             new Context2(getter(), Field, ct);
 

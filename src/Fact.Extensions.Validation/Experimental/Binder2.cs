@@ -29,8 +29,14 @@ namespace Fact.Extensions.Validation.Experimental
         /// </summary>
         public object Value { get; set; }
 
+        /// <summary>
+        /// Tends to be initialized by FieldBinder's getter
+        /// </summary>
         public object InitialValue { get; }
         
+        /// <summary>
+        /// Indicates synchronous operation requested (vs async)
+        /// </summary>
         public bool Sequential { get; set; }
         
         public CancellationToken CancellationToken { get; }
