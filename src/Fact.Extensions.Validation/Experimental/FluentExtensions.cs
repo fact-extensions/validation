@@ -557,7 +557,7 @@ namespace Fact.Extensions.Validation.Experimental
         public static IFluentBinder<T> Commit<T>(this IFluentBinder<T> fluentBinder, Action<T> commit) =>
             fluentBinder.Commit(fluentBinder.Binder.Committer, commit);
 
-        // Temporarily named Required3 until we phase out "v2"
+        
         public static TFluentBinder Required<TFluentBinder, T>(this TFluentBinder fluentBinder, Func<T, bool> isEmpty)
             where TFluentBinder : IFluentBinder3<T>
         {
@@ -614,6 +614,9 @@ namespace Fact.Extensions.Validation.Experimental
 
     namespace Traits
     {
+        /// <summary>
+        /// Tags a FluentBinder as a UNIX epoch
+        /// </summary>
         public struct Epoch
         {
 
