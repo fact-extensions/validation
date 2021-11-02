@@ -270,7 +270,7 @@ namespace Fact.Extensions.Validation.Experimental
             providers.Add(binderProvider);
             Committer.Committing += binderProvider.Binder.Committer.DoCommit;
 
-            ((IBinder2)binderProvider.Binder).ProcessedAsync += (field, context) =>
+            ((IFieldBinder)binderProvider.Binder).Processor.ProcessedAsync += (_, context) =>
             {
                 // Filter out overall load/aggregated Process
                 if (context.InputContext?.InitiatingEvent != InitiatingEvents.Load)
@@ -286,7 +286,7 @@ namespace Fact.Extensions.Validation.Experimental
             {
                 foreach(TBinderProvider provider in providers)
                 {
-                    await ((IBinder2)provider.Binder).Process(context.InputContext, context.CancellationToken);
+                    await ((IFieldBinder)provider.Binder).Process(context, context.CancellationToken);
                 }
             };
 
