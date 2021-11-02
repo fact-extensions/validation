@@ -23,7 +23,7 @@ namespace Fact.Extensions.Validation.WinForms
             Action<Tracker<T>> initEvent,
             Func<InputContext> inputContextFactory,
             Func<T, bool> isNull = null)
-            where TAggregatedBinder: IAggregatedBinderBase, IBinder2ProcessorCore, IServiceProviderProvider
+            where TAggregatedBinder: IAggregatedBinderBase, IServiceProviderProvider, IBinder3Base
         {
             var services = aggregatedBinder.Services;
             var styleManager = services.GetRequiredService<StyleManager>();
@@ -51,10 +51,13 @@ namespace Fact.Extensions.Validation.WinForms
             {
                 f.Value = v;
 
-                if (bp.Binder is IBinder2 binderv2)
-                    await binderv2.Process(inputContextFactory(), cancellationToken);
-                else
-                    throw new InvalidOperationException("Need v3 processor here");
+                var binderv3 = (IFieldBinder)bp.Binder;
+                
+                // DEBT: Likely we actually need a contextFactory not an inputContextFactory
+                var context = new Context2(null, f, cancellationToken);
+                context.InputContext = inputContextFactory();
+
+                await binderv3.Process(context, cancellationToken);
 
                 styleManager.ContentChanged(bp);
             };
@@ -64,7 +67,7 @@ namespace Fact.Extensions.Validation.WinForms
 
             // Aggregator-wide init of this particular field so that on any call to
             // aggregatorBinder.Process() current field state style is exactly reflected
-            aggregatedBinder.ProcessingAsync += (_, c) =>
+            aggregatedBinder.Processor.ProcessingAsync += (_, c) =>
             {
                 styleManager.Initialize(bp);
                 return new ValueTask();
@@ -83,7 +86,7 @@ namespace Fact.Extensions.Validation.WinForms
         /// <returns></returns>
         public static IFluentBinder<string> BindText<TAggregatedBinder>(this TAggregatedBinder aggregatedBinder, Control control, 
             Func<string> initialGetter = null)
-            where TAggregatedBinder : IAggregatedBinderBase, IBinder2ProcessorCore, IServiceProviderProvider
+            where TAggregatedBinder : IAggregatedBinderBase, IBinder3Base, IServiceProviderProvider
         {
             IBinderProvider<string> bp = Setup(aggregatedBinder, control,
                 () => control.Text,
@@ -103,7 +106,7 @@ namespace Fact.Extensions.Validation.WinForms
         }
 
 
-        public static IFluentBinder BindSelectedItem(this IAggregatedBinder aggregatedBinder, ListBox control,
+        public static IFluentBinder BindSelectedItem(this IAggregatedBinder3 aggregatedBinder, ListBox control,
             Func<object> initialGetter = null)
         {
             IBinderProvider<object> bp = Setup(aggregatedBinder, control,
@@ -130,7 +133,7 @@ namespace Fact.Extensions.Validation.WinForms
         /// <param name="control"></param>
         /// <param name="initialValue"></param>
         /// <returns></returns>
-        public static IFluentBinder<string> BindText(this IAggregatedBinder aggregatedBinder, Control control,
+        public static IFluentBinder<string> BindText(this IAggregatedBinder3 aggregatedBinder, Control control,
             string initialValue) =>
             aggregatedBinder.BindText(control, () => initialValue);
 
@@ -138,7 +141,7 @@ namespace Fact.Extensions.Validation.WinForms
         /// <summary>
         /// Auto-converting BindText, since native one is always string
         /// </summary>
-        public static FluentBinder2<T> BindText<T>(this IAggregatedBinder aggregatedBinder, Control control) =>
+        public static FluentBinder3<T> BindText<T>(this IAggregatedBinder3 aggregatedBinder, Control control) =>
             aggregatedBinder.BindText(control).Convert<T>();
 
         /// <summary>
@@ -149,7 +152,7 @@ namespace Fact.Extensions.Validation.WinForms
         /// <param name="control"></param>
         /// <param name="initialValue"></param>
         /// <returns></returns>
-        public static FluentBinder2<T> BindText<T>(this IAggregatedBinder aggregatedBinder, Control control,
+        public static FluentBinder3<T> BindText<T>(this IAggregatedBinder3 aggregatedBinder, Control control,
             T initialValue) =>
             aggregatedBinder.BindText(control, initialValue.ToString()).Convert<T>();
     }

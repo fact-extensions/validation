@@ -158,24 +158,20 @@ namespace Fact.Extensions.Validation.Experimental
 
         public new IField<T> Field => field;
 
-        /*
-        public FluentBinder3(IFluentBinder<T> chained) :
-            base(chained)
-        {
-        } */
-
         /// <summary>
-        /// EXPERIMENTAL - for conversion chains only
         /// </summary>
         /// <param name="chained">Binder on which we hang error reporting</param>
-        /// <param name="converted">Parameter converter - previous FluentBinder in chain was not of type T</param>
-        public FluentBinder3(IFieldBinder chained, Func<T> converter = null) :
+        /// <param name="getter">
+        /// Getter for shim field - can assist in parameter conversion when previous
+        /// FluentBinder in chain is not of type T
+        /// </param>
+        public FluentBinder3(IFieldBinder chained, Func<T> getter = null) :
             base(chained, typeof(T))
         {
             Binder = chained;
 
             field = new ShimFieldBase2<T>(chained.Field.Name, statuses, 
-                converter ?? (() => (T)chained.getter()));
+                getter ?? (() => (T)chained.getter()));
 
             // DEBT: Easy to get wrong
             base.Field = field;
@@ -305,26 +301,23 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
+
+    public interface IAggregatedBinder3 : 
+        IAggregatedBinderBase, IServiceProviderProvider, IBinder3Base
+    {
+    }
+
     /// <summary>
     /// "v3" Aggregated Binder
     /// </summary>
     public class AggregatedBinder3 : AggregatedBinderBase3<IBinderProvider>,
-        IAggregatedBinderBase,
-        IBinder2ProcessorCore,
-        IServiceProviderProvider
+        IAggregatedBinder3
     {
         public IServiceProvider Services { get; }
 
         public AggregatedBinder3(IServiceProvider services = null)
         {
             Services = services;
-        }
-
-        // DEBT: Temporary as we phase out v2
-        public event ProcessingDelegateAsync ProcessingAsync
-        {
-            add => Processor.ProcessingAsync += (sender, context) => value(null, context);
-            remove => new InvalidOperationException();
         }
     }
 

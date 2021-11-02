@@ -15,7 +15,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
     public partial class TestForm2 : Form
     {
         //readonly
-            AggregatedBinder binderManager;
+            AggregatedBinder3 binderManager;
 
         public IServiceProvider Services { get; set; }
 
@@ -56,8 +56,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
             var statuses = reg.Field.Statuses.ToArray();
 
-            var field = new FieldStatus("test", null);
-            binderManager = new AggregatedBinder(field, Services);
+            var field = new FieldStatus("test");
+            binderManager = new AggregatedBinder3(Services);
 
             var fm = binderManager.BindText(txtEntry1);
 

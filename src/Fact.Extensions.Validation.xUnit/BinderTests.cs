@@ -68,6 +68,8 @@ namespace Fact.Extensions.Validation.xUnit
 
             await b.Process();
 
+            fb2.Field.Value.Should().Be(123);
+
             f.Statuses.Should().BeEmpty();
 
             fb2.GreaterThan(124);

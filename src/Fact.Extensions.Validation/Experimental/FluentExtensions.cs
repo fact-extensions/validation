@@ -298,9 +298,10 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="fb"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-        public static FluentBinder2<TTo> Convert<TTo>(this IFluentBinder fb, Optional<TTo> defaultValue = null)
+        public static FluentBinder3<TTo> Convert<TTo>(this IFluentBinder fb, Optional<TTo> defaultValue = null)
         {
-            var fb2 = new FluentBinder2<TTo>(fb.Binder, false);
+            TTo converted = default(TTo);
+            var fb2 = new FluentBinder3<TTo>((IFieldBinder)fb.Binder, () => converted);
             var v3binder = (IFieldBinder)fb.Binder;
             v3binder.Processor.ProcessingAsync += (_, context) =>
             {
@@ -310,17 +311,17 @@ namespace Fact.Extensions.Validation.Experimental
                 if (f.Value == null && defaultValue != null)
                 {
                     context.Value = defaultValue.Value;
-                    fb2.InitialValue = defaultValue.Value;
+                    //fb2.InitialValue = defaultValue.Value;
                     return new ValueTask();
                 }
 
                 try
                 {
-                    var converted = (TTo)
+                    converted = (TTo)
                         System.Convert.ChangeType(f.Value, t);
 
                     context.Value = converted;
-                    fb2.InitialValue = converted;
+                    //fb2.InitialValue = converted;
                 }
                 catch (FormatException)
                 {
