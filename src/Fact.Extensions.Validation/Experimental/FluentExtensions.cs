@@ -222,11 +222,11 @@ namespace Fact.Extensions.Validation.Experimental
             tryConvertDelegate<IField<TFrom>, TTo> converter, string cannotConvert = null)
         {
             TTo converted = default(TTo);
-            var fbConverted = new FluentBinder3<TTo>(fb.Field.Name, () => converted);
+            var fbConverted = new FluentBinder3<TTo>(fb.Binder, () => converted);
             // DEBT: Experimentally processing conversion as START of converted binder rather than
             // end of unconverted binder -- seems to make more sense, but other converters don't do
             // it this way
-            fbConverted.Binder.Processor.ProcessingAsync += (sender, context) =>
+            fbConverted.Binder.Processor.StartingAsync += (sender, context) =>
             {
                 bool success = converter(fb.Field, out converted);
 

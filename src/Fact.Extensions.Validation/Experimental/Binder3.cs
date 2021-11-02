@@ -168,15 +168,16 @@ namespace Fact.Extensions.Validation.Experimental
         } */
 
         /// <summary>
-        /// EXPERIMENTAL
+        /// EXPERIMENTAL - for conversion chains only
         /// </summary>
-        /// <param name="chained"></param>
-        public FluentBinder3(IFieldBinder chained) :
+        /// <param name="chained">Binder on which we hang error reporting</param>
+        /// <param name="converted">Parameter converter - previous FluentBinder in chain was not of type T</param>
+        public FluentBinder3(IFieldBinder chained, Func<T> converter) :
             base(/* DEBT */ (IBinder2)chained, typeof(T))
         {
             Binder = chained;
 
-            field = new ShimFieldBase2<T>(chained.Field.Name, statuses, () => default(T));
+            field = new ShimFieldBase2<T>(chained.Field.Name, statuses, converter);
 
             Field = field;
 
