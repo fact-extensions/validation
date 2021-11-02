@@ -57,8 +57,6 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public new IFluentBinder<T> FluentBinder { get; }
 
-        public new IBinder2<T> Binder => (IBinder2<T>)base.Binder;
-
         public override void InitValidation()
         {
             InitValidation(FluentBinder, Property);

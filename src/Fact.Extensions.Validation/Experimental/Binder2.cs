@@ -66,8 +66,8 @@ namespace Fact.Extensions.Validation.Experimental
     /// <summary>
     /// Boilerplate for less-typed filter-only style binder
     /// </summary>
-    public class Binder2<T> : BinderBase<T>, 
-        IBinder2<T>
+    [Obsolete]
+    public class Binder2<T> : BinderBase<T>
     {
         // DEBT: Sometimes a text entry of "" means null, an int of 0, etc.
         // we need a mechanism to account for that
@@ -189,13 +189,6 @@ namespace Fact.Extensions.Validation.Experimental
         {
             return new FluentBinder2<T>(binder, true);
         }
-
-        public static FluentBinder2<T> As<T>(this IBinder2<T> binder)
-        {
-            return new FluentBinder2<T>(binder, true);
-        }
-
-
     }
 
 
@@ -333,7 +326,8 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public FluentBinder2(IBinder2<T> binder, bool initial = true) : 
+        [Obsolete]
+        public FluentBinder2(Binder2<T> binder, bool initial = true) : 
             base(binder, typeof(T))
         {
             string name = binder.Field.Name;
@@ -375,13 +369,6 @@ namespace Fact.Extensions.Validation.Experimental
         public FluentBinder2(IFluentBinder<T> chained) : 
             base(chained)
         {
-        }
-
-        public FluentBinder2(IBinder2 binder, bool initial = true, 
-            TTrait trait = default(TTrait)) : 
-            base(binder, initial)
-        {
-            Trait = trait;
         }
     }
 }

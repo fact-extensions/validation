@@ -62,8 +62,6 @@ namespace Fact.Extensions.Validation
     public interface IBinderProvider<T> : IBinderProvider
     {
         new IFluentBinder<T> FluentBinder { get; }
-
-        new IBinder2<T> Binder { get; }
     }
 
     public class AggregatedBinderBase
@@ -133,8 +131,6 @@ namespace Fact.Extensions.Validation
             public override bool IsModified => tracked.IsModified;
 
             IFluentBinder<T> IBinderProvider<T>.FluentBinder => (IFluentBinder<T>)base.FluentBinder;
-
-            IBinder2<T> IBinderProvider<T>.Binder => (IBinder2<T>)base.Binder;
 
             public Item(IFluentBinder<T> fluentBinder, TSource source, Tracker<T> tracker) :
                 base(fluentBinder, source)

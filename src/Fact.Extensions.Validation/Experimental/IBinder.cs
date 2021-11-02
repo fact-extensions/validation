@@ -35,13 +35,6 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    [Obsolete("Do not use - phasing out")]
-    public interface IBinder2<T> : IBinder2,
-        IBinderBase<T>
-    {
-
-    }
-
     public interface IFluentBinder
     {
 
@@ -64,12 +57,12 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public interface ITrait<T>
+    public interface ITrait<out T>
     {
         T Trait { get; }
     }
 
-    public interface IFluentBinder<out T, TTrait> : IFluentBinder<T>,
+    public interface IFluentBinder<out T, out TTrait> : IFluentBinder<T>,
         ITrait<TTrait>
     {
 
