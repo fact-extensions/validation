@@ -356,7 +356,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// </summary>
         public static Task Process(this IFieldBinder binder, CancellationToken cancellationToken = default)
         {
-            var context = new Context2(null, null, cancellationToken);
+            var context = new Context2(null, binder.Field, cancellationToken);
             return binder.Processor.ProcessAsync(context, cancellationToken);
         }
 

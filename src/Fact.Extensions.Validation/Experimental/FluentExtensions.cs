@@ -147,8 +147,8 @@ namespace Fact.Extensions.Validation.Experimental
         public static TFluentBinder Contains<TFluentBinder>(this TFluentBinder fb, string mustContain)
             where TFluentBinder : IFluentBinder<string>
         {
-            var v2binder = (IBinder2)fb.Binder;
-            v2binder.ProcessingAsync += (field, context) =>
+            var binder = (IFieldBinder)fb.Binder;
+            binder.Processor.ProcessingAsync += (_, context) =>
             {
                 if (!fb.Field.Value.Contains(mustContain))
                     fb.Field.Error(FieldStatus.ComparisonCode.Unspecified, mustContain,

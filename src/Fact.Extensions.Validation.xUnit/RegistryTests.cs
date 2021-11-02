@@ -25,7 +25,7 @@ namespace Fact.Extensions.Validation.xUnit
         public async Task Test2()
         {
             var field = new FieldStatus("root");
-            var ab = new AggregatedBinder(field);
+            var ab = new AggregatedBinder3();
             var key = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\Windows NT\CurrentVersion");
             var fb = ab.Add<string>(key, "ProductName");
             fb.Contains("Windows");
@@ -59,15 +59,15 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task Test3()
         {
-            var field = new FieldStatus("root", null);
-            var ab = new AggregatedBinder(field);
+            var field = new FieldStatus("root");
+            var ab = new AggregatedBinder3();
             var key = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\Windows NT\CurrentVersion");
 
             var fb2 = ab.Add<int>(key, "InstallDate").AsEpoch().
                 ToDateTimeOffset().  // FIX: Doesn't work, look into this
                 GreaterThan(DateTimeOffset.UnixEpoch);
 
-            await ((IBinder2)fb2.Binder).Process();
+            await ((IFieldBinder)fb2.Binder).Process();
 
             var statuses = fb2.Field.Statuses.ToArray();
             statuses.Should().BeEmpty();
@@ -84,7 +84,7 @@ namespace Fact.Extensions.Validation.xUnit
             
             fb.Emit(v => installDate = v);
 
-            await ((IBinder2)fb.Binder).Process();
+            await ((IFieldBinder)fb.Binder).Process();
 
             installDate.Should().BeGreaterThan(0);
         }
