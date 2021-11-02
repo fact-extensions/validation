@@ -83,9 +83,9 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task ChainTest()
         {
-            var field = new FieldStatus("testSource", null);
+            var field = new FieldStatus("testSource");
             var fb = field.Bind(() => "hi2u");
-            var field2 = new FieldStatus("testChained", null);
+            var field2 = new FieldStatus("testChained");
             var binder = new FieldBinder<object>(field2, () => field2.Value);
             var fb2 = fb.Chain(binder, v => field2.Value = v);
 

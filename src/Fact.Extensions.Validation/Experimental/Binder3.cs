@@ -42,6 +42,11 @@ namespace Fact.Extensions.Validation.Experimental
         public Committer Committer { get; } = new Committer();
     }
     
+
+    /// <summary>
+    /// "v3" of root binder
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class FieldBinder<T> : Binder3Base,
         IFieldBinder,
         IBinder2<T>
@@ -208,6 +213,7 @@ namespace Fact.Extensions.Validation.Experimental
                 field = new ShimFieldBase2<T>(binder.Field.Name, statuses, () => binder.getter());
             else
             {
+                // FIX: This seems wrong, getting initial value at FluentBinder setup time
                 T initialValue = binder.getter();
                 field = new ShimFieldBase2<T>(binder.Field.Name, statuses, () => initialValue);
             }
