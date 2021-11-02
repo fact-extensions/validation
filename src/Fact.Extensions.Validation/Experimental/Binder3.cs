@@ -167,6 +167,22 @@ namespace Fact.Extensions.Validation.Experimental
         {
         } */
 
+        /// <summary>
+        /// EXPERIMENTAL
+        /// </summary>
+        /// <param name="chained"></param>
+        public FluentBinder3(IFieldBinder chained) :
+            base(/* DEBT */ (IBinder2)chained, typeof(T))
+        {
+            Binder = chained;
+
+            field = new ShimFieldBase2<T>(chained.Field.Name, statuses, () => default(T));
+
+            Field = field;
+
+            Initialize();
+        }
+
 
         /// <summary>
         /// Attach this FluentBinder to an existing Binder
@@ -190,6 +206,28 @@ namespace Fact.Extensions.Validation.Experimental
             Field = field;
 
             Initialize();
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// 100% overrides semi-obsolete base
+        /// </remarks>
+        new void Initialize()
+        {
+            // This event handler is more or less a re-initializer for subsequent
+            // process/validation calls
+            Binder.Processor.StartingAsync += (field, context) =>
+            {
+                statuses.Clear();
+                return new ValueTask();
+            };
+
+            // DEBT
+            var f = (IFieldStatusExternalCollector)Binder.Field;
+            f.Add(statuses);
         }
 
 

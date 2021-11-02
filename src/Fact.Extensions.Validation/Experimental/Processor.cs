@@ -16,8 +16,17 @@ namespace Fact.Extensions.Validation.Experimental
     public class Processor<TContext>
         where TContext: IContext
     {
+        /// <summary>
+        /// Runs before main Processing chain.  Does not heed Sequential or Abort flags
+        /// </summary>
         public event ProcessingDelegateAsync<TContext> StartingAsync;
+        /// <summary>
+        /// Main processing chain.  If Abort flag is set, processing stops
+        /// </summary>
         public event ProcessingDelegateAsync<TContext> ProcessingAsync;
+        /// <summary>
+        /// Runs after main Processing chain.  Does not heed Sequential or Abort flags
+        /// </summary>
         public event ProcessingDelegateAsync<TContext> ProcessedAsync;
         public event Action Aborting;
         
