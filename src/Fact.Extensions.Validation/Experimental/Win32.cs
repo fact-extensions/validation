@@ -93,6 +93,15 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
+
+        /// <summary>
+        /// Create and add a FluentBinder which attaches to a specified registry key and name
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="binder"></param>
+        /// <param name="key"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static FluentBinder3<T> Add<T>(this IAggregatedBinder binder, RegistryKey key, string name)
         {
             Func<T> getter = () =>

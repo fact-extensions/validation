@@ -147,7 +147,8 @@ namespace Fact.Extensions.Validation.xUnit
         public async Task Convert_v3_1_Fail()
         {
             var fb = new FluentBinder3<string>("field1", () => "123a");
-            var fbConverted = fb.Convert3((IField<string> f, out int v) => int.TryParse(f.Value, out v));
+            var fbConverted = fb.Convert3((IField<string> f, out int v) => int.TryParse(f.Value, out v),
+                "Couldn't convert to int");
 
             await fbConverted.Binder.Process();
 

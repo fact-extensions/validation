@@ -24,7 +24,7 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task Test2()
         {
-            var field = new FieldStatus("root", null);
+            var field = new FieldStatus("root");
             var ab = new AggregatedBinder(field);
             var key = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\Windows NT\CurrentVersion");
             var fb = ab.Add<string>(key, "ProductName");
@@ -35,6 +35,7 @@ namespace Fact.Extensions.Validation.xUnit
             statuses.Should().HaveCount(0);
 
             var fb2 = ab.Add<int>(key, "InstallDate");
+            // NOTE: This Convert doesn't actually do anything here, the fb2Converted below takes over
             fb2.Convert((IField<int> f, out DateTimeOffset dt) =>
             {
                 dt = DateTimeOffset.FromUnixTimeSeconds(f.Value);
