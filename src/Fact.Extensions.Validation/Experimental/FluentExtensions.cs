@@ -55,7 +55,7 @@ namespace Fact.Extensions.Validation.Experimental
             Func<Status> getIsFalseStatus)
             where TFluentBinder : IFluentBinder<T>
         {
-            ((IBinder2)fb.Binder).ProcessingAsync += (field, context) =>
+            ((IFieldBinder)fb.Binder).Processor.ProcessingAsync += (_, context) =>
             {
                 IField<T> f = fb.Field;
                 if (!predicate(f.Value))
@@ -71,7 +71,7 @@ namespace Fact.Extensions.Validation.Experimental
             Func<Status> getIsFalseStatus)
             where TFluentBinder : IFluentBinder
         {
-            ((IBinder2)fb.Binder).ProcessingAsync += (field, context) =>
+            ((IFieldBinder)fb.Binder).Processor.ProcessingAsync += (_, context) =>
             {
                 IField f = fb.Field;
                 if (!predicate(f.Value))
@@ -257,8 +257,8 @@ namespace Fact.Extensions.Validation.Experimental
             tryConvertDelegate<IField<T>, TTo> converter, string cannotConvert = null, Optional<TTo> defaultValue = null)
         {
             var fb2 = new FluentBinder2<TTo>(fb.Binder, false);
-            var v2binder = (IBinder2)fb.Binder;
-            v2binder.ProcessingAsync += (field, context) =>
+            var v3binder = (IFieldBinder)fb.Binder;
+            v3binder.Processor.ProcessingAsync += (_, context) =>
             {
                 if (defaultValue != null && context.Value == null)
                 {
@@ -301,8 +301,8 @@ namespace Fact.Extensions.Validation.Experimental
         public static FluentBinder2<TTo> Convert<TTo>(this IFluentBinder fb, Optional<TTo> defaultValue = null)
         {
             var fb2 = new FluentBinder2<TTo>(fb.Binder, false);
-            var v2binder = (IBinder2)fb.Binder;
-            v2binder.ProcessingAsync += (field, context) =>
+            var v3binder = (IFieldBinder)fb.Binder;
+            v3binder.Processor.ProcessingAsync += (_, context) =>
             {
                 IField f = fb.Field;
                 Type t = typeof(TTo);

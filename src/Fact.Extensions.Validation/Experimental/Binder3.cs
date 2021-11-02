@@ -170,7 +170,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="chained">Binder on which we hang error reporting</param>
         /// <param name="converted">Parameter converter - previous FluentBinder in chain was not of type T</param>
         public FluentBinder3(IFieldBinder chained, Func<T> converter) :
-            base(/* DEBT */ (IBinder2)chained, typeof(T))
+            base(chained, typeof(T))
         {
             Binder = chained;
 
@@ -336,7 +336,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="context"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public static Task Process<TContext>(this IProcessorProvider<TContext> provider, TContext context = null, 
+        public static Task Process<TContext>(this IProcessorProvider<TContext> provider, TContext context, 
             CancellationToken cancellationToken = default)
             where TContext: class, IContext
         {
@@ -347,6 +347,15 @@ namespace Fact.Extensions.Validation.Experimental
 
     public static class Binder3Extensions
     {
+        /// <summary>
+        /// Convenience method, mainly for compatibility with Binder v2
+        /// </summary>
+        public static Task Process(this IFieldBinder binder, CancellationToken cancellationToken = default)
+        {
+            var context = new Context2(null, null, cancellationToken);
+            return binder.Processor.ProcessAsync(context, cancellationToken);
+        }
+
         public static FluentBinder3<T> As<T>(this FieldBinder<T> binder)
         {
             return new FluentBinder3<T>(binder, true);
