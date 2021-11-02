@@ -20,6 +20,23 @@ namespace Fact.Extensions.Validation.xUnit
             services = fixture.Services;
         }
 
+
+        [Fact]
+        public async Task BinderV3Test()
+        {
+            var fb = new FluentBinder3<int>("test1", () => 123);
+
+            var fbConverted = fb.Convert3((IField<int> f, out string s) =>
+            {
+                s = f.Value.ToString();
+                return true;
+            });
+
+            await fb.Binder.Process();
+
+            fbConverted.Field.Value.Should().Be("123");
+        }
+
         [Fact]
         public async Task NonTypedFluentBinder()
         {

@@ -166,7 +166,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         readonly ShimFieldBase2<T> field;
 
-        IField<T> IFluentBinder<T>.Field => field;
+        public new IField<T> Field => field;
 
         /*
         public FluentBinder3(IFluentBinder<T> chained) :
@@ -186,7 +186,8 @@ namespace Fact.Extensions.Validation.Experimental
 
             field = new ShimFieldBase2<T>(chained.Field.Name, statuses, converter);
 
-            Field = field;
+            // DEBT: Easy to get wrong
+            base.Field = field;
 
             Initialize();
         }
@@ -211,7 +212,8 @@ namespace Fact.Extensions.Validation.Experimental
                 field = new ShimFieldBase2<T>(binder.Field.Name, statuses, () => initialValue);
             }
 
-            Field = field;
+            // DEBT: Easy to get wrong
+            base.Field = field;
 
             Initialize();
         }
