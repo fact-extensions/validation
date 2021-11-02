@@ -92,12 +92,16 @@ namespace Fact.Extensions.Validation.xUnit
             //fb.InitialValue.Should().Be("hi2u");
             //fb2.InitialValue.Should().BeNull();
 
-            await binder.Process();
+            //await binder.Process();
+            await ((IFieldBinder)fb.Binder).Process();
 
             // FIX: Technically we want InitialValue set here, but so far it actually only gets set during
             // convert operations
             //fb.InitialValue.Should().Be("hi2u");
-            fb2.InitialValue.Should().Be("hi2u");
+
+            // "v3" FluentBinders don't track InitialValue (but maybe should)
+            //fb2.InitialValue.Should().Be("hi2u");
+            field2.Value.Should().BeOfType<string>().And.Be("hi2u");
         }
 
 

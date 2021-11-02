@@ -467,12 +467,12 @@ namespace Fact.Extensions.Validation.Experimental
 
         // EXPERIMENTAL
         // Convert and assign on initialization only
-        public static FluentBinder2<TTo> Chain<T, TTo>(this IFluentBinder<T> fluentBinder, IBinderBase binder, tryConvertDelegate<IField<T>, TTo> convert,
+        public static FluentBinder3<TTo> Chain<T, TTo>(this IFluentBinder<T> fluentBinder, IFieldBinder binder, tryConvertDelegate<IField<T>, TTo> convert,
             Action<TTo> setter)
         {
             // TODO: Rather than check a flag each time, remove the delegate from the ProcessedAsync chain
             bool initialized = false;
-            var fbChained = new FluentBinder2<TTo>(binder, true);
+            var fbChained = new FluentBinder3<TTo>(binder);
             var v3binder = (IFieldBinder)fluentBinder.Binder;
             v3binder.Processor.ProcessedAsync += (_, c) =>
             {
@@ -481,7 +481,7 @@ namespace Fact.Extensions.Validation.Experimental
                 // Do one time conversion + setter initialization of chained FluentBinder
                 if (convert(fluentBinder.Field, out TTo initialValue))
                 {
-                    fbChained.InitialValue = initialValue;
+                    //fbChained.InitialValue = initialValue;
                     setter(initialValue);
                 }
                 else
@@ -505,7 +505,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static FluentBinder2<T> Chain<T>(this IFluentBinder<T> fluentBinder, IBinderBase binder, Action<T> setter)
+        public static FluentBinder3<T> Chain<T>(this IFluentBinder<T> fluentBinder, IFieldBinder binder, Action<T> setter)
         {
             return fluentBinder.Chain(binder,
             (IField<T> f, out T v) =>
