@@ -4,10 +4,15 @@ using System.Text;
 
 namespace Fact.Extensions.Validation
 {
-    public interface IFluentBinder
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <remarks>
+    /// TODO: Consolidate with IFluentBinder3 -- namely, upgrade 'Binder' to use IFieldBinder rather than IBinderBase
+    /// Not doing yet because of last lingering "v2" class code which doesn't use IFieldBinder
+    /// </remarks>
+    public interface IFluentBinder : IBinderProviderBase
     {
-        IBinderBase Binder { get; }
-
         /// <summary>
         /// Field associated specifically with this FluentBinder
         /// Errors registered here are localized to this FluentBinder
@@ -48,7 +53,8 @@ namespace Fact.Extensions.Validation
     /// <remarks>
     /// DEBT: Fix naming - matches directly to "v3" FluentBinder
     /// </remarks>
-    public interface IFluentBinder3 : IFluentBinder
+    public interface IFluentBinder3 : IFluentBinder,
+        IBinderProviderBase<IFieldBinder>
     {
         new IFieldBinder Binder { get; }
     }

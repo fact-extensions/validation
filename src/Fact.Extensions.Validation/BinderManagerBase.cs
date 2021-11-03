@@ -49,11 +49,26 @@ namespace Fact.Extensions.Validation
     }
 
 
-    public interface IBinderProviderBase
+    public interface IBinderProviderBase<TBinder>
+        where TBinder: IBinderBase
     {
         IBinderBase Binder { get; }
     }
 
+    /// <summary>
+    /// Serves up core IBinderBase
+    /// </summary>
+    public interface IBinderProviderBase : IBinderProviderBase<IBinderBase>
+    {
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <remarks>
+    /// DEBT: Rename to IFluentBinderProvider
+    /// </remarks>
     public interface IBinderProvider : IBinderProviderBase
     {
         IFluentBinder FluentBinder { get; }
