@@ -238,7 +238,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         static PropertyBinderProvider<T> CreatePropertyItem2<T>(FieldBinder<T> binder, PropertyInfo property)
         {
-            var fb = new FluentBinder3<T>(binder, true);
+            var fb = new FluentBinder<T>(binder, true);
 
             var item = new PropertyBinderProvider<T>(fb, property);
 
@@ -393,21 +393,21 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static FluentBinder3<object> AddField(this IAggregatedBinderCollector binder, string name, Func<object> getter,
+        public static FluentBinder<object> AddField(this IAggregatedBinderCollector binder, string name, Func<object> getter,
             Func<IFluentBinder, IBinderProvider> providerFactory)
         {
             var f = new FieldStatus(name, null);
             var b = new FieldBinder<object>(f, getter);
-            var fb = new FluentBinder3<object>(b, true);
+            var fb = new FluentBinder<object>(b, true);
             binder.Add(providerFactory(fb));
             return fb;
         }
 
 
-        public static FluentBinder3<object> AddField(this IAggregatedBinderCollector binder, string name, Func<object> getter) =>
+        public static FluentBinder<object> AddField(this IAggregatedBinderCollector binder, string name, Func<object> getter) =>
             binder.AddField(name, getter, fb => new BinderManagerBase.ItemBase(fb.Binder, fb));
 
-        public static FluentBinder3<T> AddField<T, TBinderProvider>(this ICollector<TBinderProvider> binder, string name, Func<T> getter, 
+        public static FluentBinder<T> AddField<T, TBinderProvider>(this ICollector<TBinderProvider> binder, string name, Func<T> getter, 
             Func<IFluentBinder<T>, TBinderProvider> providerFactory)
             where TBinderProvider: IBinderProvider
         {
@@ -416,7 +416,7 @@ namespace Fact.Extensions.Validation.Experimental
             // runtime init is at the start of when pipeline processing actually occurs
             var f = new FieldStatus<T>(name);
             var b = new FieldBinder<T>(f, getter);
-            var fb = new FluentBinder3<T>(b, true);
+            var fb = new FluentBinder<T>(b, true);
             binder.Add(providerFactory(fb));
             return fb;
         }
@@ -449,7 +449,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static FluentBinder3<T> AddField<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter) =>
+        public static FluentBinder<T> AddField<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter) =>
             binder.AddField(name, getter, fb => new BinderManagerBase.ItemBase(fb.Binder, fb));
 
 

@@ -15,7 +15,4 @@ namespace Fact.Extensions.Validation
 
         Experimental.Committer Committer { get; }
     }
-
-
-
 }

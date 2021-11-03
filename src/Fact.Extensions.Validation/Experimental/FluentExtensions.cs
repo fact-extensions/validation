@@ -18,10 +18,10 @@ namespace Fact.Extensions.Validation.Experimental
         /// DEBT: Do some kind of runtime check here to help assert that indeed
         /// presented IField is of type T
         /// </remarks>
-        public static FluentBinder3<T> Bind<T>(this IField field, Func<T> getter)
+        public static FluentBinder<T> Bind<T>(this IField field, Func<T> getter)
         {
             var b = new FieldBinder<T>(field, getter);
-            var fb = new FluentBinder3<T>(b, true);
+            var fb = new FluentBinder<T>(b, true);
             return fb;
         }
 
@@ -32,20 +32,20 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="field"></param>
         /// <param name="getter"></param>
         /// <returns></returns>
-        public static FluentBinder3<object> BindNonTyped(this IField field, Func<object> getter)
+        public static FluentBinder<object> BindNonTyped(this IField field, Func<object> getter)
         {
             var b = new FieldBinder<object>(field, getter);
-            var fb = new FluentBinder3<object>(b, true);
+            var fb = new FluentBinder<object>(b, true);
             return fb;
         }
 
-        public static FluentBinder3<T> As<T>(this IFluentBinder3 fb)
+        public static FluentBinder<T> As<T>(this IFluentBinder3 fb)
         {
-            if (fb is FluentBinder3<T> fbTyped) return fbTyped;
+            if (fb is FluentBinder<T> fbTyped) return fbTyped;
 
             // TODO: Check fb.Type and make sure this is a valid cast
 
-            fbTyped = new FluentBinder3<T>(fb.Binder);
+            fbTyped = new FluentBinder<T>(fb.Binder);
             return fbTyped;
         }
 
@@ -107,11 +107,11 @@ namespace Fact.Extensions.Validation.Experimental
         /// Defaults to null, expecting that 'converter' itself registers errors on the field</param>
         /// <returns></returns>
         [Obsolete("Regular Convert is now upgraded to v3 - use that one")]
-        public static FluentBinder3<TTo> Convert3<TFrom, TTo>(this IFluentBinder3<TFrom> fb,
+        public static FluentBinder<TTo> Convert3<TFrom, TTo>(this IFluentBinder3<TFrom> fb,
             FluentConvertExtensions.tryConvertDelegate<IField<TFrom>, TTo> converter, string cannotConvert = null)
         {
             TTo converted = default(TTo);
-            var fbConverted = new FluentBinder3<TTo>(fb.Binder, () => converted);
+            var fbConverted = new FluentBinder<TTo>(fb.Binder, () => converted);
             // DEBT: Experimentally processing conversion as START of converted binder rather than
             // end of unconverted binder -- seems to make more sense, but other converters don't do
             // it this way
@@ -162,10 +162,10 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static FluentBinder3<T, TTrait> WithTrait<T, TTrait>(this IFluentBinder3<T> fb,
+        public static FluentBinder<T, TTrait> WithTrait<T, TTrait>(this IFluentBinder3<T> fb,
             TTrait trait = default(TTrait)) =>
             // DEBT: Smooth out this cast
-            new FluentBinder3<T, TTrait>((IFieldBinder<T>)fb.Binder, false);
+            new FluentBinder<T, TTrait>((IFieldBinder<T>)fb.Binder, false);
 
 
         /// <summary>
@@ -173,18 +173,18 @@ namespace Fact.Extensions.Validation.Experimental
         /// </summary>
         /// <param name="fb"></param>
         /// <returns></returns>
-        public static FluentBinder3<int, Traits.Epoch> AsEpoch(this IFluentBinder3<int> fb) =>
+        public static FluentBinder<int, Traits.Epoch> AsEpoch(this IFluentBinder3<int> fb) =>
             fb.WithTrait<int, Traits.Epoch>();
 
 
         // EXPERIMENTAL
         // Convert and assign on initialization only
-        public static FluentBinder3<TTo> Chain<T, TTo>(this IFluentBinder<T> fluentBinder, IFieldBinder binder, 
+        public static FluentBinder<TTo> Chain<T, TTo>(this IFluentBinder<T> fluentBinder, IFieldBinder binder, 
             FluentConvertExtensions.tryConvertDelegate<IField<T>, TTo> convert, Action<TTo> setter)
         {
             // TODO: Rather than check a flag each time, remove the delegate from the ProcessedAsync chain
             bool initialized = false;
-            var fbChained = new FluentBinder3<TTo>(binder);
+            var fbChained = new FluentBinder<TTo>(binder);
             var v3binder = (IFieldBinder)fluentBinder.Binder;
             v3binder.Processor.ProcessedAsync += (_, c) =>
             {
@@ -217,7 +217,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static FluentBinder3<T> Chain<T>(this IFluentBinder<T> fluentBinder, IFieldBinder binder, Action<T> setter)
+        public static FluentBinder<T> Chain<T>(this IFluentBinder<T> fluentBinder, IFieldBinder binder, Action<T> setter)
         {
             return fluentBinder.Chain(binder,
             (IField<T> f, out T v) =>

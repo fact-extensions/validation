@@ -10,7 +10,7 @@ namespace Fact.Extensions.Validation
 
     public static class FluentDateTimeExtensions
     {
-        static FluentBinder3<DateTimeOffset> FromEpochToDateTimeOffset<T>(this IFluentBinder<T> fb)
+        static FluentBinder<DateTimeOffset> FromEpochToDateTimeOffset<T>(this IFluentBinder<T> fb)
         {
             var fbConverted = fb.Convert((IField<T> f, out DateTimeOffset dt) =>
             {
@@ -32,16 +32,16 @@ namespace Fact.Extensions.Validation
             return fbConverted;
         }
 
-        public static FluentBinder3<DateTimeOffset> FromEpochToDateTimeOffset(this IFluentBinder<int> fb) =>
+        public static FluentBinder<DateTimeOffset> FromEpochToDateTimeOffset(this IFluentBinder<int> fb) =>
             FromEpochToDateTimeOffset<int>(fb);
 
-        public static FluentBinder3<DateTimeOffset> FromEpochToDateTimeOffset(this IFluentBinder<long> fb) =>
+        public static FluentBinder<DateTimeOffset> FromEpochToDateTimeOffset(this IFluentBinder<long> fb) =>
             FromEpochToDateTimeOffset<long>(fb);
 
-        public static FluentBinder3<DateTimeOffset> ToDateTimeOffset(this IFluentBinder<int, Experimental.Traits.Epoch> fb) =>
+        public static FluentBinder<DateTimeOffset> ToDateTimeOffset(this IFluentBinder<int, Experimental.Traits.Epoch> fb) =>
             FromEpochToDateTimeOffset<int>(fb);
 
-        public static FluentBinder3<DateTimeOffset> ToDateTimeOffset(this IFluentBinder<long, Experimental.Traits.Epoch> fb) =>
+        public static FluentBinder<DateTimeOffset> ToDateTimeOffset(this IFluentBinder<long, Experimental.Traits.Epoch> fb) =>
             FromEpochToDateTimeOffset<long>(fb);
     }
 }

@@ -41,4 +41,16 @@ namespace Fact.Extensions.Validation
 
     }
 
+
+    public interface IFluentBinder3 : IFluentBinder
+    {
+        new Experimental.IFieldBinder Binder { get; }
+    }
+
+
+    public interface IFluentBinder3<out T> : IFluentBinder<T>,
+        IFluentBinder3
+    {
+
+    }
 }

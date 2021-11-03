@@ -141,7 +141,7 @@ namespace Fact.Extensions.Validation.WinForms
         /// <summary>
         /// Auto-converting BindText, since native one is always string
         /// </summary>
-        public static FluentBinder3<T> BindText<T>(this IAggregatedBinder3 aggregatedBinder, Control control) =>
+        public static FluentBinder<T> BindText<T>(this IAggregatedBinder3 aggregatedBinder, Control control) =>
             aggregatedBinder.BindText(control).Convert<T>();
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace Fact.Extensions.Validation.WinForms
         /// <param name="control"></param>
         /// <param name="initialValue"></param>
         /// <returns></returns>
-        public static FluentBinder3<T> BindText<T>(this IAggregatedBinder3 aggregatedBinder, Control control,
+        public static FluentBinder<T> BindText<T>(this IAggregatedBinder3 aggregatedBinder, Control control,
             T initialValue) =>
             aggregatedBinder.BindText(control, initialValue.ToString()).Convert<T>();
     }

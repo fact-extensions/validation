@@ -24,7 +24,7 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task BinderV3Test()
         {
-            var fb = new FluentBinder3<int>("test1", () => 123);
+            var fb = new FluentBinder<int>("test1", () => 123);
 
             var fbConverted = fb.Convert((IField<int> f, out string s) =>
             {
@@ -187,7 +187,7 @@ namespace Fact.Extensions.Validation.xUnit
         public async Task StringRequiredTest()
         {
             string value = null;
-            var fb = new FluentBinder3<string>("field1", () => value);
+            var fb = new FluentBinder<string>("field1", () => value);
             
             await fb.Binder.Process();
 
@@ -214,7 +214,7 @@ namespace Fact.Extensions.Validation.xUnit
         public async Task StringOptionalTest()
         {
             string value = null;
-            var fb = new FluentBinder3<string>("field1", () => value).
+            var fb = new FluentBinder<string>("field1", () => value).
                 Optional().
                 IsEqualTo("hi2u");
 

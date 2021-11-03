@@ -114,7 +114,7 @@ namespace Fact.Extensions.Validation.xUnit
             //var fb = b.As();
 
             //var fb2 = fb.Convert<int>();
-            var fb = new FluentBinder3<string>("field1", () => "123");
+            var fb = new FluentBinder<string>("field1", () => "123");
             var fb2 = fb.Convert<int>();
             var b = fb.Binder;
 

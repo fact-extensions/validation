@@ -23,7 +23,7 @@ namespace Fact.Extensions.Validation.Experimental
             where TBinderProvider : IBinderProvider
         {
             var b = new FieldBinder<T>(name, getter);
-            var fb = new FluentBinder3<T>(b, true);
+            var fb = new FluentBinder<T>(b, true);
             var bp = providerFactory(fb);
             binder.Add(bp);
             return bp;
@@ -38,9 +38,9 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="name"></param>
         /// <param name="getter"></param>
         /// <returns></returns>
-        public static FluentBinder3<T> AddField3<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter) =>
+        public static FluentBinder<T> AddField3<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter) =>
             // DEBT: Naughty cast, inconsistent return value also
-            (FluentBinder3<T>)binder.AddField3(name, getter, fb => new BinderManagerBase.ItemBase(fb.Binder, fb)).FluentBinder;
+            (FluentBinder<T>)binder.AddField3(name, getter, fb => new BinderManagerBase.ItemBase(fb.Binder, fb)).FluentBinder;
 
 
         public static async Task Process<TAggregatedBinder>(this TAggregatedBinder aggregatedBinder,

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 // AKA Binder3, mostly same as Binder2 but uses Processor for a has-a vs is-a relationship.  This lets us
 // re-use processor for all kinds of things and also opens up easier possibility of AggregateBinder which
 // itself has no field
+// DEBT: At this point, only "Experimental" because of clumsy naming
 namespace Fact.Extensions.Validation.Experimental
 {
     public interface IBinder3Base : IProcessorProvider<Context2>
@@ -120,119 +121,6 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
-    public interface IFluentBinder3 : IFluentBinder
-    {
-        new IFieldBinder Binder { get; }
-    }
-
-
-    public interface IFluentBinder3<out T> : IFluentBinder<T>,
-        IFluentBinder3
-    {
-        
-    }
-
-
-    public class FluentBinder3<T> : FluentBinder2,
-        IFluentBinder3<T>
-    {
-        public new IFieldBinder Binder { get; }
-
-        readonly ShimFieldBase2<T> field;
-
-        public new IField<T> Field => field;
-
-        /// <summary>
-        /// </summary>
-        /// <param name="chained">Binder on which we hang error reporting</param>
-        /// <param name="getter">
-        /// Getter for shim field - can assist in parameter conversion when previous
-        /// FluentBinder in chain is not of type T
-        /// </param>
-        public FluentBinder3(IFieldBinder chained, Func<T> getter = null) :
-            base(chained, typeof(T))
-        {
-            Binder = chained;
-
-            field = new ShimFieldBase2<T>(chained.Field.Name, statuses, 
-                getter ?? (() => (T)chained.getter()));
-
-            // DEBT: Easy to get wrong
-            base.Field = field;
-
-            Initialize();
-        }
-
-
-        /// <summary>
-        /// Attach this FluentBinder to an existing Binder
-        /// </summary>
-        /// <param name="binder"></param>
-        /// <param name="initial"></param>
-        public FluentBinder3(IFieldBinder<T> binder, bool initial) :
-            base(binder, typeof(T))
-        {
-            Binder = binder;
-
-            if (initial)
-                // DEBT: Needs refiniement
-                field = new ShimFieldBase2<T>(binder.Field.Name, statuses, () => binder.getter());
-            else
-            {
-                // FIX: This seems wrong, getting initial value at FluentBinder setup time
-                T initialValue = binder.getter();
-                field = new ShimFieldBase2<T>(binder.Field.Name, statuses, () => initialValue);
-            }
-
-            // DEBT: Easy to get wrong
-            base.Field = field;
-
-            Initialize();
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <remarks>
-        /// 100% overrides semi-obsolete base
-        /// </remarks>
-        new void Initialize()
-        {
-            // This event handler is more or less a re-initializer for subsequent
-            // process/validation calls
-            Binder.Processor.StartingAsync += (field, context) =>
-            {
-                statuses.Clear();
-                return new ValueTask();
-            };
-
-            // DEBT
-            var f = (IFieldStatusExternalCollector)Binder.Field;
-            f.Add(statuses);
-        }
-
-
-        public FluentBinder3(string name, Func<T> getter) :
-            this(new FieldBinder<T>(name, getter), true)
-        {
-        }
-    }
-
-
-    public class FluentBinder3<T, TTrait> : FluentBinder3<T>,
-        IFluentBinder<T, TTrait>
-    {
-        public FluentBinder3(IFieldBinder<T> binder, bool initial) : 
-            base(binder, initial)
-        {
-
-        }
-
-        public TTrait Trait => throw new NotImplementedException();
-    }
-
-
     public class AggregatedBinderBase3<TBinderProvider> : Binder3Base,
         IAggregatedBinderBase<TBinderProvider>
         where TBinderProvider: IBinderProvider
@@ -342,9 +230,9 @@ namespace Fact.Extensions.Validation.Experimental
             return binder.Processor.ProcessAsync(context, cancellationToken);
         }
 
-        public static FluentBinder3<T> As<T>(this IFieldBinder<T> binder)
+        public static FluentBinder<T> As<T>(this IFieldBinder<T> binder)
         {
-            return new FluentBinder3<T>(binder, true);
+            return new FluentBinder<T>(binder, true);
         }
 
 
@@ -354,9 +242,9 @@ namespace Fact.Extensions.Validation.Experimental
         /// <typeparam name="T"></typeparam>
         /// <param name="binder"></param>
         /// <returns></returns>
-        public static FluentBinder3<T> As<T>(this IFieldBinder binder)
+        public static FluentBinder<T> As<T>(this IFieldBinder binder)
         {
-            return new FluentBinder3<T>(binder);
+            return new FluentBinder<T>(binder);
         }
     }
 }

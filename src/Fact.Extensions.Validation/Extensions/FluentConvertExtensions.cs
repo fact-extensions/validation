@@ -12,11 +12,11 @@ namespace Fact.Extensions.Validation
     {
         public delegate bool tryConvertDelegate<TFrom, TTo>(TFrom from, out TTo to);
 
-        public static FluentBinder3<TTo> Convert<T, TTo>(this IFluentBinder<T> fb,
+        public static FluentBinder<TTo> Convert<T, TTo>(this IFluentBinder<T> fb,
             tryConvertDelegate<IField<T>, TTo> converter, string cannotConvert = null, Optional<TTo> defaultValue = null)
         {
             TTo converted = default(TTo);
-            var fb2 = new FluentBinder3<TTo>((IFieldBinder)fb.Binder, () => converted);
+            var fb2 = new FluentBinder<TTo>((IFieldBinder)fb.Binder, () => converted);
             var v3binder = (IFieldBinder)fb.Binder;
             v3binder.Processor.ProcessingAsync += (_, context) =>
             {
@@ -43,7 +43,7 @@ namespace Fact.Extensions.Validation
             return fb2;
         }
 
-        public static FluentBinder3<TTo> Convert<T, TTo>(this IFluentBinder<T> fb,
+        public static FluentBinder<TTo> Convert<T, TTo>(this IFluentBinder<T> fb,
             tryConvertDelegate<T, TTo> converter, string cannotConvert, Optional<TTo> defaultValue = null)
         {
             return fb.Convert<T, TTo>((IField<T> field, out TTo converted) =>
@@ -58,10 +58,10 @@ namespace Fact.Extensions.Validation
         /// <param name="fb"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-        public static FluentBinder3<TTo> Convert<TTo>(this IFluentBinder fb, Optional<TTo> defaultValue = null)
+        public static FluentBinder<TTo> Convert<TTo>(this IFluentBinder fb, Optional<TTo> defaultValue = null)
         {
             TTo converted = default(TTo);
-            var fb2 = new FluentBinder3<TTo>((IFieldBinder)fb.Binder, () => converted);
+            var fb2 = new FluentBinder<TTo>((IFieldBinder)fb.Binder, () => converted);
             var v3binder = (IFieldBinder)fb.Binder;
             v3binder.Processor.ProcessingAsync += (_, context) =>
             {
