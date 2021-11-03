@@ -274,7 +274,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         
         public static TFluentBinder Required<TFluentBinder, T>(this TFluentBinder fluentBinder, Func<T, bool> isEmpty)
-            where TFluentBinder : IFluentBinder3<T>
+            where TFluentBinder : IFieldProvider<IField<T>>, IBinderProviderBase<IFieldBinder>
         {
             fluentBinder.Binder.Processor.ProcessingAsync += (_, context) =>
             {

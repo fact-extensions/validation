@@ -232,6 +232,8 @@ namespace Fact.Extensions.Validation.Experimental
 
         IField<T> IFluentBinder<T>.Field => Field;
 
+        IField<T> IFieldProvider<IField<T>>.Field => Field;
+
         new void Initialize()
         {
             base.Initialize();

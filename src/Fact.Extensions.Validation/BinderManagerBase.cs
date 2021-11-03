@@ -49,10 +49,10 @@ namespace Fact.Extensions.Validation
     }
 
 
-    public interface IBinderProviderBase<TBinder>
+    public interface IBinderProviderBase<out TBinder>
         where TBinder: IBinderBase
     {
-        IBinderBase Binder { get; }
+        TBinder Binder { get; }
     }
 
     /// <summary>

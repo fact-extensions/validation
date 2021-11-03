@@ -25,7 +25,8 @@ namespace Fact.Extensions.Validation
         Type Type { get; }
     }
 
-    public interface IFluentBinder<out T> : IFluentBinder
+    public interface IFluentBinder<out T> : IFluentBinder, 
+        IFieldProvider<IField<T>>
     {
         /// <summary>
         /// Field associated specifically with this FluentBinder
@@ -67,5 +68,12 @@ namespace Fact.Extensions.Validation
         IFluentBinder3
     {
 
+    }
+
+
+    public interface IFieldProvider<out TField>
+        where TField: IField
+    {
+        TField Field { get; }
     }
 }
