@@ -44,7 +44,7 @@ namespace Fact.Extensions.Validation
 
     public interface IAggregatedBinder : IAggregatedBinderBase,
         IServiceProviderProvider,
-        IBinder2
+        IBinderBase
     {
     }
 

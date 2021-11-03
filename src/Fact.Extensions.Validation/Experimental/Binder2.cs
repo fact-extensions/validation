@@ -183,15 +183,6 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public static class Binder2Extensions
-    {
-        public static FluentBinder2<T> As<T>(this IBinderBase binder)
-        {
-            return new FluentBinder2<T>(binder, true);
-        }
-    }
-
-
     /// <summary>
     /// Field whose value comes from a getter, and statuses come from external party
     /// </summary>
@@ -297,6 +288,7 @@ namespace Fact.Extensions.Validation.Experimental
             base.Field = Field;
         }
 
+#if UNUSED
         public FluentBinder2(IFluentBinder chained) :
             this(chained.Binder, false)
         {
@@ -324,6 +316,7 @@ namespace Fact.Extensions.Validation.Experimental
 
             Initialize();
         }
+#endif
 
 
         [Obsolete]

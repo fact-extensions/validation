@@ -282,6 +282,8 @@ namespace Fact.Extensions.Validation.Experimental
 
             //var helper = typeof(EntityBinderExtensions).GetRuntimeMethod(nameof(Helper),);
             var t2 = typeof(EntityBinderExtensions);
+            // FIX: Inappropriate forward cast from IAggregatedBinderBase to IAggregatedBinder happens here, will
+            // need attention
             var helperMethod = t2.GetRuntimeMethods().Single(x => x.Name == nameof(InputHelper));
 
             foreach (var property in properties)

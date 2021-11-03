@@ -358,9 +358,21 @@ namespace Fact.Extensions.Validation.Experimental
             return binder.Processor.ProcessAsync(context, cancellationToken);
         }
 
-        public static FluentBinder3<T> As<T>(this FieldBinder<T> binder)
+        public static FluentBinder3<T> As<T>(this IFieldBinder<T> binder)
         {
             return new FluentBinder3<T>(binder, true);
+        }
+
+
+        /// <summary>
+        /// Creates a FluentBinder assuming that <paramref name="binder"/> can be safely cast to T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="binder"></param>
+        /// <returns></returns>
+        public static FluentBinder3<T> As<T>(this IFieldBinder binder)
+        {
+            return new FluentBinder3<T>(binder);
         }
     }
 }
