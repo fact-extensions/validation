@@ -42,12 +42,21 @@ namespace Fact.Extensions.Validation
     }
 
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <remarks>
+    /// DEBT: Fix naming - matches directly to "v3" FluentBinder
+    /// </remarks>
     public interface IFluentBinder3 : IFluentBinder
     {
-        new Experimental.IFieldBinder Binder { get; }
+        new IFieldBinder Binder { get; }
     }
 
 
+    /// <remarks>
+    /// DEBT: Fix naming - matches directly to "v3" FluentBinder[T]
+    /// </remarks>
     public interface IFluentBinder3<out T> : IFluentBinder<T>,
         IFluentBinder3
     {

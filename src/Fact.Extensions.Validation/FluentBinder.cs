@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation
 {
-    using IFieldBinder = Experimental.IFieldBinder;
     using FluentBinderBase = Experimental.FluentBinder2;
 
     public class FluentBinder<T> : FluentBinderBase,
@@ -44,7 +43,7 @@ namespace Fact.Extensions.Validation
         /// </summary>
         /// <param name="binder"></param>
         /// <param name="initial"></param>
-        public FluentBinder(Experimental.IFieldBinder<T> binder, bool initial) :
+        public FluentBinder(IFieldBinder<T> binder, bool initial) :
             base(binder, typeof(T))
         {
             Binder = binder;
@@ -103,7 +102,7 @@ namespace Fact.Extensions.Validation
     public class FluentBinder<T, TTrait> : FluentBinder<T>,
         IFluentBinder<T, TTrait>
     {
-        public FluentBinder(Experimental.IFieldBinder<T> binder, bool initial) :
+        public FluentBinder(IFieldBinder<T> binder, bool initial) :
             base(binder, initial)
         {
 

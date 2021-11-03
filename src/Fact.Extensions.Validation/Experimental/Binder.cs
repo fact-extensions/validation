@@ -82,6 +82,9 @@ namespace Fact.Extensions.Validation.Experimental
         /// <summary>
         /// Optional
         /// </summary>
+        /// <remarks>
+        /// Somewhat experimental
+        /// </remarks>
         Action<T> setter { get; set; }
     }
 

@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation
 {
-    using IFieldBinder = Experimental.IFieldBinder;
-
     public static class FluentStringExtensions
     {
         public static TFluentBinder StartsWith<TFluentBinder>(this TFluentBinder fb, string mustStartWith)

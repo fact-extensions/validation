@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation
 {
-    using IFieldBinder = Experimental.IFieldBinder;
-
     public static class FluentLogicExtensions
     {
         public static TFluentBinder IsTrue<TFluentBinder, T>(this TFluentBinder fb, Func<T, bool> predicate,

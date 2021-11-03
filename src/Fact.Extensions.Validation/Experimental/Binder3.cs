@@ -17,21 +17,9 @@ namespace Fact.Extensions.Validation.Experimental
 
 
     /// <summary>
-    /// "v3" binder with has-a processor
+    /// Binder base class agnostic to whether we're binding against a field specifically or some
+    /// other unspecified source
     /// </summary>
-    public interface IFieldBinder : IBinder3Base, IBinderBase
-    {
-
-    }
-
-
-    public interface IFieldBinder<T> : 
-        IBinderBase<T>,
-        IFieldBinder
-    {
-
-    }
-
     public class Binder3Base : IBinder3Base
     {
         public Processor<Context2> Processor { get; } = new Processor<Context2>();
