@@ -75,6 +75,7 @@ namespace Fact.Extensions.Validation.Experimental
 
 
 
+#if UNUSED
         public static TFluentBinder Required_Legacy<TFluentBinder>(this TFluentBinder fb)
             where TFluentBinder : IFluentBinder
         {
@@ -92,7 +93,7 @@ namespace Fact.Extensions.Validation.Experimental
             };
             return fb;
         }
-
+#endif
 
 
 

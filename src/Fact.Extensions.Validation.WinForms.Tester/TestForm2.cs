@@ -23,8 +23,6 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         {
             InitializeComponent();
 
-            AggregatedBinderExtensions.v3mode = false;
-
             // So that 'services' can initialize
             Load += TestForm2_Load;
         }

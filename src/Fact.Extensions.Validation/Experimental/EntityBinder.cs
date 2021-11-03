@@ -354,20 +354,11 @@ namespace Fact.Extensions.Validation.Experimental
                     // DEBT: Assign to DBNull or similar so we can tell if it's uninitialized
                     object staged = null;
 
-                    if (b is IBinder2 binderv2)
+                    ((IFieldBinder)b).Processor.ProcessedAsync += (sender, context) =>
                     {
-                        binderv2.ProcessedAsync += (f, context) =>
-                        {
-                            staged = context.Value;
-                            return new ValueTask();
-                        };
-                    }
-                    else
-                        ((IFieldBinder)b).Processor.ProcessedAsync += (sender, context) =>
-                        {
-                            staged = context.Value;
-                            return new ValueTask();
-                        };
+                        staged = context.Value;
+                        return new ValueTask();
+                    };
 
                     committer.Committing += () =>
                     {
@@ -419,33 +410,6 @@ namespace Fact.Extensions.Validation.Experimental
             var fb = new FluentBinder<T>(b, true);
             binder.Add(providerFactory(fb));
             return fb;
-        }
-
-
-        /// <summary>
-        /// Named AddField2 to not collide with the more core ICollection<typeparamref name="TBinderProvider"/> flavor
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <typeparam name="TBinderProvider"></typeparam>
-        /// <param name="binder"></param>
-        /// <param name="name"></param>
-        /// <param name="getter"></param>
-        /// <param name="providerFactory"></param>
-        /// <param name="isNull"></param>
-        /// <returns></returns>
-        [Obsolete("Do not use - only keeping around for the last parts of v2->v3 upgrading")]
-        public static TBinderProvider AddField2<T, TBinderProvider>(this IAggregatedBinderCollector binder, string name, 
-            Func<T> getter,
-            Func<IFluentBinder<T>, TBinderProvider> providerFactory,
-            Func<T, bool> isNull = default)
-            where TBinderProvider: IBinderProvider<T>
-        {
-            var f = new FieldStatus<T>(name);
-            var b = new Binder2<T>(f, getter, isNull);
-            var fb = new FluentBinder2<T>(b);
-            var bp = providerFactory(fb);
-            binder.Add(bp);
-            return bp;
         }
 
 
@@ -570,8 +534,6 @@ namespace Fact.Extensions.Validation.Experimental
             bool isProcessing = false;
             bool isProcessed = false;
 
-            var f1v2binder = fluentBinder1.Binder as IBinder2;
-            var f2v2binder = fluentBinder2.Binder as IBinder2;
             var f1v3binder = fluentBinder1.Binder as IFieldBinder;
             var f2v3binder = fluentBinder2.Binder as IFieldBinder;
 
@@ -595,10 +557,7 @@ namespace Fact.Extensions.Validation.Experimental
 
                     if (f == fluentBinder1.Binder.Field)
                     {
-                        if (f2v2binder != null)
-                            await f2v2binder.Process(c.InputContext);
-                        else
-                            await f2v3binder.Processor.ProcessAsync(c);
+                        await f2v3binder.Processor.ProcessAsync(c);
 
                         if (fluentBinder2.Binder.Field.Statuses.Any())
                         {
@@ -609,10 +568,7 @@ namespace Fact.Extensions.Validation.Experimental
 
                     if (f == fluentBinder2.Binder.Field)
                     {
-                        if (f1v2binder != null)
-                            await f1v2binder.Process(c.InputContext);
-                        else
-                            await f1v3binder.Processor.ProcessAsync(c);
+                        await f1v3binder.Processor.ProcessAsync(c);
 
                         if (fluentBinder1.Binder.Field.Statuses.Any())
                         {
@@ -632,23 +588,12 @@ namespace Fact.Extensions.Validation.Experimental
                 return new ValueTask();
             });
 
-            if (f1v2binder != null)
-            {
-                f1v2binder.ProcessingAsync += processing;
-                f2v2binder.ProcessingAsync += processing;
+            // UNTESTED
+            f1v3binder.Processor.ProcessingAsync += (sender, ctx) => processing(ctx.Field, ctx);
+            f2v3binder.Processor.ProcessingAsync += (sender, ctx) => processing(ctx.Field, ctx);
 
-                f1v2binder.ProcessedAsync += processed;
-                f2v2binder.ProcessedAsync += processed;
-            }
-            else
-            {
-                // UNTESTED
-                f1v3binder.Processor.ProcessingAsync += (sender, ctx) => processing(ctx.Field, ctx);
-                f2v3binder.Processor.ProcessingAsync += (sender, ctx) => processing(ctx.Field, ctx);
-
-                f1v3binder.Processor.ProcessedAsync += (sender, ctx) => processed(ctx.Field, ctx);
-                f2v3binder.Processor.ProcessedAsync += (sender, ctx) => processed(ctx.Field, ctx);
-            }
+            f1v3binder.Processor.ProcessedAsync += (sender, ctx) => processed(ctx.Field, ctx);
+            f2v3binder.Processor.ProcessedAsync += (sender, ctx) => processed(ctx.Field, ctx);
 
             return fluentBinder1;
         }

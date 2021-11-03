@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation.Experimental
 {
+#if UNUSED
     // DEBT: Stop-gap as we move to v3
     public interface IBinder2ProcessorCore
     {
@@ -33,4 +34,5 @@ namespace Fact.Extensions.Validation.Experimental
         IBinder2Base
     {
     }
+#endif
 }

@@ -15,6 +15,7 @@ namespace Fact.Extensions.Validation.Experimental
     public delegate ValueTask ProcessingDelegateAsync(IField f, Context2 context);
 
 
+#if UNUSED
     /// <summary>
     /// Boilerplate for less-typed filter-only style binder
     /// </summary>
@@ -126,7 +127,7 @@ namespace Fact.Extensions.Validation.Experimental
             inputContext?.AlreadyRun?.Add(this);
         }
     }
-
+#endif
 
 
     public class Optional<T>
@@ -192,6 +193,7 @@ namespace Fact.Extensions.Validation.Experimental
         {
             // This event handler is more or less a re-initializer for subsequent
             // process/validation calls
+            /*
             if (Binder is IBinder2 binderv2)
             {
                 binderv2.StartingAsync += (field, context) =>
@@ -200,7 +202,7 @@ namespace Fact.Extensions.Validation.Experimental
                     return new ValueTask();
                 };
             }
-            else
+            else */
                 ((IFieldBinder)Binder).Processor.StartingAsync += (_, context) =>
                 {
                     statuses.Clear();
@@ -215,6 +217,7 @@ namespace Fact.Extensions.Validation.Experimental
 
 
 
+#if UNUSED
     public class FluentBinder2<T> : FluentBinder2,
         IFluentBinder<T>
     {
@@ -242,7 +245,6 @@ namespace Fact.Extensions.Validation.Experimental
             base.Field = Field;
         }
 
-#if UNUSED
         public FluentBinder2(IFluentBinder chained) :
             this(chained.Binder, false)
         {
@@ -270,7 +272,6 @@ namespace Fact.Extensions.Validation.Experimental
 
             Initialize();
         }
-#endif
 
 
         [Obsolete]
@@ -288,4 +289,5 @@ namespace Fact.Extensions.Validation.Experimental
             Initialize();
         }
     }
+#endif
 }

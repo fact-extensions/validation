@@ -15,9 +15,6 @@ namespace Fact.Extensions.Validation.WinForms
 {
     public static class AggregatedBinderExtensions
     {
-        // DEBT: Only temporary as we transition things to v3
-        public static bool v3mode = false;
-
         static BinderManagerBase.Item<T> Setup<TAggregatedBinder, T>(TAggregatedBinder aggregatedBinder, Control control,
             Func<T> getter, 
             Action<Tracker<T>> initEvent,
@@ -35,16 +32,10 @@ namespace Fact.Extensions.Validation.WinForms
 
             BinderManagerBase.Item<T> bp;
 
-            if (v3mode)
-                // DEBT: Naughty cast
-                bp = (BinderManagerBase.Item<T>) aggregatedBinder.AddField3(control.Name,
-                    () => tracker.Value,
-                    _fb => new BinderManagerBase.Item<T>(_fb, control, tracker));
-            else
-                bp = aggregatedBinder.AddField2(control.Name,
-                    () => tracker.Value,
-                    _fb => new BinderManagerBase.Item<T>(_fb, control, tracker),
-                    isNull);
+            // DEBT: Naughty cast
+            bp = (BinderManagerBase.Item<T>) aggregatedBinder.AddField3(control.Name,
+                () => tracker.Value,
+                _fb => new BinderManagerBase.Item<T>(_fb, control, tracker));
 
             var f = (FieldStatus<T>)bp.Binder.Field;   // DEBT: Sloppy cast
             tracker.Updated += async (v, c) =>

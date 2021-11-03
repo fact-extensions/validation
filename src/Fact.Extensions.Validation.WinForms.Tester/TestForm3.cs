@@ -28,9 +28,6 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         {
             this.services = services;
 
-            // FIX: v3 mode exhibits a lot of issues, but that's why we have a Test program!
-            AggregatedBinderExtensions.v3mode = true;
-
             aggregatedBinder = new AggregatedBinder3(services);
 
             Initialize().Wait();
