@@ -26,7 +26,7 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var fb = new FluentBinder3<int>("test1", () => 123);
 
-            var fbConverted = fb.Convert3((IField<int> f, out string s) =>
+            var fbConverted = fb.Convert((IField<int> f, out string s) =>
             {
                 s = f.Value.ToString();
                 return true;

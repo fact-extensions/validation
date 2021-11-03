@@ -133,6 +133,8 @@ namespace Fact.Extensions.Validation.xUnit
         }
 
 
+        // Only keeping around for ideas & reference, since regular Convert extension is now v3 compliant
+#if UNUSED
         [Fact]
         public async Task Convert_v3_1_Success()
         {
@@ -157,6 +159,7 @@ namespace Fact.Extensions.Validation.xUnit
             var statuses = fbConverted.Field.Statuses.ToArray();
             statuses.Should().HaveCount(1);
         }
+#endif
 
 
         [Fact]

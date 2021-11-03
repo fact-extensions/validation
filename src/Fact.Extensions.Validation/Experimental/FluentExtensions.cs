@@ -223,6 +223,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="cannotConvert">If not null, a false from 'converter' adds this message as an error.
         /// Defaults to null, expecting that 'converter' itself registers errors on the field</param>
         /// <returns></returns>
+        [Obsolete("Regular Convert is now upgraded to v3 - use that one")]
         public static FluentBinder3<TTo> Convert3<TFrom, TTo>(this IFluentBinder3<TFrom> fb, 
             tryConvertDelegate<IField<TFrom>, TTo> converter, string cannotConvert = null)
         {
@@ -350,44 +351,6 @@ namespace Fact.Extensions.Validation.Experimental
             return fb2;
         }
 
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="fb"></param>
-        /// <returns></returns>
-        /// <remarks>
-        /// "v3" variety
-        /// </remarks>
-        static FluentBinder3<DateTimeOffset> FromEpochToDateTimeOffset<T>(this IFluentBinder3<T> fb)
-        {
-            var fbConverted = fb.Convert3((IField<T> f, out DateTimeOffset dt) =>
-            {
-                // NOTE: We know we can safely do this because only the <int> and <long> overloads
-                // are permitted to call this method
-                var value = System.Convert.ToInt64(f.Value);
-
-                try
-                {
-                    dt = DateTimeOffset.FromUnixTimeSeconds(value);
-                    return true;
-                }
-                catch (ArgumentOutOfRangeException aoore)
-                {
-                    f.Error(FieldStatus.ComparisonCode.Unspecified, f.Value, aoore.Message);
-                    return false;
-                }
-            });
-            return fbConverted;
-        }
-
-        public static FluentBinder3<DateTimeOffset> FromEpochToDateTimeOffset(this IFluentBinder3<int> fb) =>
-            FromEpochToDateTimeOffset<int>(fb);
-
-        public static FluentBinder3<DateTimeOffset> FromEpochToDateTimeOffset(this IFluentBinder3<long> fb) =>
-            FromEpochToDateTimeOffset<long>(fb);
 
 
         static FluentBinder3<DateTimeOffset> FromEpochToDateTimeOffset<T>(this IFluentBinder<T> fb)
