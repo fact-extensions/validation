@@ -42,13 +42,11 @@ namespace Fact.Extensions.Validation.WinForms
             {
                 f.Value = v;
 
-                var binderv3 = (IFieldBinder)bp.Binder;
-                
                 // DEBT: Likely we actually need a contextFactory not an inputContextFactory
                 var context = new Context2(null, f, cancellationToken);
                 context.InputContext = inputContextFactory();
 
-                await binderv3.Process(context, cancellationToken);
+                await bp.Binder.Process(context, cancellationToken);
 
                 styleManager.ContentChanged(bp);
             };

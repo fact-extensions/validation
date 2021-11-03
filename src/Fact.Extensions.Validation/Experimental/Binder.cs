@@ -120,6 +120,7 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+#if UNUSED
     [Obsolete("Replaced by FieldBinder")]
     public class BinderBase<T> : BinderBase, IBinderBase<T>
         //: IBinderBase<T>
@@ -151,6 +152,7 @@ namespace Fact.Extensions.Validation.Experimental
             this.setter = setter;
         }
     }
+#endif
 
 
     public enum Interaction

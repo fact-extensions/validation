@@ -43,7 +43,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public abstract void InitValidation();
             
-        public PropertyBinderProvider(IBinderBase binder, IFluentBinder fluentBinder,
+        public PropertyBinderProvider(IFieldBinder binder, IFluentBinder fluentBinder,
             PropertyInfo property) : base(binder, fluentBinder)
         {
             Property = property;
@@ -343,18 +343,18 @@ namespace Fact.Extensions.Validation.Experimental
             Committer committer = null)
         {
             IEnumerable<PropertyInfo> properties = t.GetRuntimeProperties();
-            Dictionary<string, IBinderBase> binders = binder.Providers.ToDictionary(x => x.Binder.Field.Name, y => y.Binder);
+            Dictionary<string, IFieldBinder> binders = binder.Providers.ToDictionary(x => x.Binder.Field.Name, y => y.Binder);
             
             if (committer == null) committer = new Committer(); 
 
             foreach(var property in properties)
             {
-                if(binders.TryGetValue(property.Name, out IBinderBase b))
+                if(binders.TryGetValue(property.Name, out IFieldBinder b))
                 {
                     // DEBT: Assign to DBNull or similar so we can tell if it's uninitialized
                     object staged = null;
 
-                    ((IFieldBinder)b).Processor.ProcessedAsync += (sender, context) =>
+                    b.Processor.ProcessedAsync += (sender, context) =>
                     {
                         staged = context.Value;
                         return new ValueTask();
@@ -506,7 +506,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         public class ShimField3<T> : ShimFieldBase2<T>, IBinderProvider
         {
-            public IBinderBase Binder { get; }
+            public IFieldBinder Binder { get; }
 
             public IFluentBinder FluentBinder { get; }
 

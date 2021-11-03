@@ -159,7 +159,7 @@ namespace Fact.Extensions.Validation.Experimental
 
     public class FluentBinder2 : IFluentBinder
     {
-        public IBinderBase Binder { get; }
+        public IFieldBinder Binder { get; }
 
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace Fact.Extensions.Validation.Experimental
         public Type Type { get; }
 
         // DEBT: Field MUST be initialized by calling class
-        protected FluentBinder2(IBinderBase binder, Type type)
+        protected FluentBinder2(IFieldBinder binder, Type type)
         {
             Binder = binder;
             Type = type;

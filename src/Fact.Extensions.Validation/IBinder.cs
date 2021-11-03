@@ -4,13 +4,8 @@ using System.Text;
 
 namespace Fact.Extensions.Validation
 {
-    public interface IBinderBase
+    public interface IBinderBase : Experimental.IBinder3Base
     {
-        /// <summary>
-        /// Original 'canonical' field with aggregated/total status
-        /// </summary>
-        IField Field { get; }
-
         /// <summary>
         /// Discrete source from which to get the value which we will validate against
         /// </summary>
@@ -28,9 +23,12 @@ namespace Fact.Extensions.Validation
     /// "v3" binder with has-a processor
     /// Dedicated to IField binding
     /// </summary>
-    public interface IFieldBinder : Experimental.IBinder3Base, IBinderBase
+    public interface IFieldBinder : IBinderBase
     {
-
+        /// <summary>
+        /// Original 'canonical' field with aggregated/total status
+        /// </summary>
+        IField Field { get; }
     }
 
 
