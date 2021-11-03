@@ -53,20 +53,10 @@ namespace Fact.Extensions.Validation.Experimental
         IFieldBinder<T>
     {
         // Phasing AbortOnNull out at FieldBinder level
-        public bool AbortOnNull
-        {
-            get => false;
-            set => throw new InvalidOperationException("Only Binder2 supports AbortOnNull");
-        }
+        public bool AbortOnNull => false;
 
         public IField Field { get; }
 
-        public event Action Aborting
-        {
-            add => Processor.Aborting += value;
-            remove => Processor.Aborting -= value;
-        }
-        
         static bool DefaultIsNull(T value) =>
             // We don't want this at all, for example int of 0 is valid in all kinds of scenarios
             //Equals(value, default(T));

@@ -62,6 +62,8 @@ namespace Fact.Extensions.Validation.Experimental
 
     public static class RegistryExtensions
     {
+        // Keeping around as a "v2" curiousity.  Can delete at any time
+#if UNUSED
         public static FluentBinder2<T> Add<T>(this IRegistryBinder binder, string name)
         {
             Func<T> getter = () => (T)binder.Root.GetValue(name);
@@ -71,6 +73,7 @@ namespace Fact.Extensions.Validation.Experimental
             binder.Add(new RegistryBinder.Provider(fluentBinder));
             return fluentBinder;
         }
+#endif
 
 
         public static FluentBinder3<object> Add(this IRegistryBinder binder, string name)

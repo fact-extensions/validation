@@ -100,13 +100,14 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+    [Obsolete("Replaced by FieldBinder")]
     public class BinderBase
     {
         protected readonly IField field;
 
         public IField Field => field;
 
-        public BinderBase(IField field)
+        protected BinderBase(IField field)
         {
             this.field = field;
         }
@@ -116,6 +117,7 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+    [Obsolete("Replaced by FieldBinder")]
     public class BinderBase<T> : BinderBase, IBinderBase<T>
         //: IBinderBase<T>
     {
@@ -140,7 +142,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// </remarks>
         public Action<T> setter { get; set; }
         
-        public BinderBase(IField field, Func<T> getter, Action<T> setter = null) : base(field)
+        protected BinderBase(IField field, Func<T> getter, Action<T> setter = null) : base(field)
         {
             getter2 = getter;
             this.setter = setter;

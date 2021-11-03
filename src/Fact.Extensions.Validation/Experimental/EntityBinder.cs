@@ -433,6 +433,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="providerFactory"></param>
         /// <param name="isNull"></param>
         /// <returns></returns>
+        [Obsolete("Do not use - only keeping around for the last parts of v2->v3 upgrading")]
         public static TBinderProvider AddField2<T, TBinderProvider>(this IAggregatedBinderCollector binder, string name, 
             Func<T> getter,
             Func<IFluentBinder<T>, TBinderProvider> providerFactory,
