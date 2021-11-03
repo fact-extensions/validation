@@ -75,19 +75,6 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public interface IBinderBase
-    {
-        /// <summary>
-        /// Original 'canonical' field with aggregated/total status
-        /// </summary>
-        IField Field { get; }
-
-        Func<object> getter { get; }
-
-        Committer Committer { get; }
-    }
-
-
     public interface IBinderBase<T> : IBinderBase
     {
         new Func<T> getter { get; }
@@ -158,17 +145,6 @@ namespace Fact.Extensions.Validation.Experimental
             getter2 = getter;
             this.setter = setter;
         }
-    }
-
-
-    public class Context
-    {
-        /// <summary>
-        /// When true, evaluation context proceeds normally (implicitly all the way until the end)
-        /// When false, evaluation halts completely (catestrophic failure)
-        /// Defaults to true
-        /// </summary>
-        public bool Abort { get; set; } = false;
     }
 
 

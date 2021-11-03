@@ -51,50 +51,13 @@ namespace Fact.Extensions.Validation.Experimental
 
         public delegate bool tryConvertDelegate<TFrom, TTo>(TFrom from, out TTo to);
 
-        public static TFluentBinder IsTrue<TFluentBinder, T>(this TFluentBinder fb, Func<T, bool> predicate,
-            Func<Status> getIsFalseStatus)
-            where TFluentBinder : IFluentBinder<T>
-        {
-            ((IFieldBinder)fb.Binder).Processor.ProcessingAsync += (_, context) =>
-            {
-                IField<T> f = fb.Field;
-                if (!predicate(f.Value))
-                    f.Add(getIsFalseStatus());
 
-                return new ValueTask();
-            };
-            return fb;
-        }
-
-
-        public static TFluentBinder IsTrue<TFluentBinder>(this TFluentBinder fb, Func<object, bool> predicate,
-            Func<Status> getIsFalseStatus)
-            where TFluentBinder : IFluentBinder
-        {
-            ((IFieldBinder)fb.Binder).Processor.ProcessingAsync += (_, context) =>
-            {
-                IField f = fb.Field;
-                if (!predicate(f.Value))
-                    f.Add(getIsFalseStatus());
-
-                return new ValueTask();
-            };
-            return fb;
-        }
 
         /*
         public static IFluentBinder<T> IsTrue<T>(this IFluentBinder<T> fb, Func<T, bool> predicate,
             Func<Status> getIsFalseStatus) =>
             IsTrue<IFluentBinder<T>, T>(fb, predicate, getIsFalseStatus); */
 
-        public static IFluentBinder<T> IsTrue<T>(this IFluentBinder<T> fb, Func<T, bool> predicate,
-            string messageIfFalse, Status.Code level = Status.Code.Error) =>
-            fb.IsTrue(predicate, () => new Status(level, messageIfFalse));
-
-        public static TFluentBinder IsTrue<TFluentBinder, T>(this TFluentBinder fb, Func<T, bool> predicate,
-            string messageIfFalse, Status.Code level = Status.Code.Error)
-            where TFluentBinder : IFluentBinder<T> =>
-            fb.IsTrue(predicate, () => new Status(level, messageIfFalse));
 
         public static IFluentBinder<T> IsTrueScalar<T>(this IFluentBinder<T> fb, Func<T, bool> predicate,
             FieldStatus.ComparisonCode code, T compareTo, string messageIfFalse = null,

@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-// EXPERIMENTAL, not used
-namespace Fact.Extensions.Validation.Experimental
+
+namespace Fact.Extensions.Validation
 {
     public delegate ValueTask ProcessingDelegateAsync<TContext>(object sender, TContext context);
+
+
 
     public interface IProcessor<TContext>
     {
