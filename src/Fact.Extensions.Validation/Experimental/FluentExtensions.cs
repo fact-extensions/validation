@@ -49,8 +49,6 @@ namespace Fact.Extensions.Validation.Experimental
             return fbTyped;
         }
 
-        public delegate bool tryConvertDelegate<TFrom, TTo>(TFrom from, out TTo to);
-
 
 
         /*
@@ -59,25 +57,7 @@ namespace Fact.Extensions.Validation.Experimental
             IsTrue<IFluentBinder<T>, T>(fb, predicate, getIsFalseStatus); */
 
 
-        public static IFluentBinder<T> IsTrueScalar<T>(this IFluentBinder<T> fb, Func<T, bool> predicate,
-            FieldStatus.ComparisonCode code, T compareTo, string messageIfFalse = null,
-            Status.Code level = Status.Code.Error) =>
-            fb.IsTrue(predicate, () =>
-                new ScalarStatus(level, messageIfFalse, code, compareTo));
 
-        public static TFluentBinder IsTrueScalar<TFluentBinder, T>(this TFluentBinder fb, Func<T, bool> predicate,
-            FieldStatus.ComparisonCode code, T compareTo, string messageIfFalse = null,
-            Status.Code level = Status.Code.Error)
-            where TFluentBinder : IFluentBinder<T>
-            =>
-            fb.IsTrue(predicate, () => new ScalarStatus(level, messageIfFalse, code, compareTo));
-
-        public static TFluentBinder IsTrueScalar<TFluentBinder>(this TFluentBinder fb, Func<object, bool> predicate,
-            FieldStatus.ComparisonCode code, object compareTo, string messageIfFalse = null,
-            Status.Code level = Status.Code.Error)
-            where TFluentBinder : IFluentBinder
-            =>
-            fb.IsTrue(predicate, () => new ScalarStatus(level, messageIfFalse, code, compareTo));
 
         public static IFluentBinder<T> IsTrueAsync<T>(this IFluentBinder<T> fb, Func<T, ValueTask<bool>> predicate,
             string messageIfFalse, Status.Code level = Status.Code.Error, bool sequential = true)
@@ -93,33 +73,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static TFluentBinder StartsWith<TFluentBinder>(this TFluentBinder fb, string mustStartWith)
-            where TFluentBinder : IFluentBinder<string>
-        {
-            ((IFieldBinder)fb.Binder).Processor.ProcessingAsync += (_, context) =>
-            {
-                if (!fb.Field.Value.StartsWith(mustStartWith))
-                    fb.Field.Error(FieldStatus.ComparisonCode.Unspecified, mustStartWith,
-                        $"Must start with: {mustStartWith}");
-                return new ValueTask();
-            };
-            return fb;
-        }
 
-
-        public static TFluentBinder Contains<TFluentBinder>(this TFluentBinder fb, string mustContain)
-            where TFluentBinder : IFluentBinder<string>
-        {
-            var binder = (IFieldBinder)fb.Binder;
-            binder.Processor.ProcessingAsync += (_, context) =>
-            {
-                if (!fb.Field.Value.Contains(mustContain))
-                    fb.Field.Error(FieldStatus.ComparisonCode.Unspecified, mustContain,
-                        $"Must start with: {mustContain}");
-                return new ValueTask();
-            };
-            return fb;
-        }
 
         public static TFluentBinder Required_Legacy<TFluentBinder>(this TFluentBinder fb)
             where TFluentBinder : IFluentBinder
@@ -139,41 +93,7 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
-        public static TFluentBinder IsEqualTo<TFluentBinder>(this TFluentBinder fb, object compareTo)
-            where TFluentBinder : IFluentBinder =>
-            fb.IsTrueScalar(v => v.Equals(compareTo), FieldStatus.ComparisonCode.EqualTo,
-                $"Must be equal to: {compareTo}");
 
-        public static TFluentBinder IsNotEqualTo<TFluentBinder>(this TFluentBinder fb, object compareTo)
-            where TFluentBinder : IFluentBinder =>
-            fb.IsTrueScalar(v => !v.Equals(compareTo), FieldStatus.ComparisonCode.EqualTo,
-                $"Must not be equal to: {compareTo}");
-        
-        public static TFluentBinder LessThan<TFluentBinder, T>(this TFluentBinder fb, T value,
-            string errorDescription = null)
-            where T : IComparable<T>
-            where TFluentBinder : IFluentBinder<T>
-        {
-            return fb.IsTrueScalar(v => v.CompareTo(value) < 0,
-                FieldStatus.ComparisonCode.LessThan, value, errorDescription);
-        }
-
-
-        public static TFluentBinder GreaterThan<TFluentBinder, T>(this TFluentBinder fb, T value)
-            where T : IComparable<T>
-            where TFluentBinder : IFluentBinder<T>
-        {
-            return fb.IsTrueScalar(v => v.CompareTo(value) > 0,
-                FieldStatus.ComparisonCode.GreaterThan, value);
-        }
-
-        public static TFluentBinder GreaterThanOrEqualTo<TFluentBinder, T>(this TFluentBinder fb, T value)
-            where T : IComparable<T>
-            where TFluentBinder : IFluentBinder<T>
-        {
-            return fb.IsTrueScalar(v => v.CompareTo(value) > 0,
-                FieldStatus.ComparisonCode.GreaterThan, value);
-        }
 
 
         /// <summary>
@@ -187,8 +107,8 @@ namespace Fact.Extensions.Validation.Experimental
         /// Defaults to null, expecting that 'converter' itself registers errors on the field</param>
         /// <returns></returns>
         [Obsolete("Regular Convert is now upgraded to v3 - use that one")]
-        public static FluentBinder3<TTo> Convert3<TFrom, TTo>(this IFluentBinder3<TFrom> fb, 
-            tryConvertDelegate<IField<TFrom>, TTo> converter, string cannotConvert = null)
+        public static FluentBinder3<TTo> Convert3<TFrom, TTo>(this IFluentBinder3<TFrom> fb,
+            FluentConvertExtensions.tryConvertDelegate<IField<TFrom>, TTo> converter, string cannotConvert = null)
         {
             TTo converted = default(TTo);
             var fbConverted = new FluentBinder3<TTo>(fb.Binder, () => converted);
@@ -217,138 +137,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static FluentBinder3<TTo> Convert<T, TTo>(this IFluentBinder<T> fb,
-            tryConvertDelegate<IField<T>, TTo> converter, string cannotConvert = null, Optional<TTo> defaultValue = null)
-        {
-            TTo converted = default(TTo);
-            var fb2 = new FluentBinder3<TTo>((IFieldBinder)fb.Binder, () => converted);
-            var v3binder = (IFieldBinder)fb.Binder;
-            v3binder.Processor.ProcessingAsync += (_, context) =>
-            {
-                if (defaultValue != null && context.Value == null)
-                {
-                    context.Value = defaultValue.Value;
-                    //fb2.InitialValue = defaultValue.Value;
-                }
-                else if (converter(fb.Field, out converted))
-                {
-                    context.Value = converted;
-                    //fb2.InitialValue = converted;
-                }
-                else
-                {
-                    context.Abort = true;
-                    // DEBT: Seems like we want some kind of generic cannot convert error if no explicit one is specified
-                    if (cannotConvert != null)
-                        fb.Field.Error(FieldStatus.ComparisonCode.Unspecified, typeof(TTo), cannotConvert);
-                }
 
-                return new ValueTask();
-            };
-            return fb2;
-        }
-
-        public static FluentBinder3<TTo> Convert<T, TTo>(this IFluentBinder<T> fb,
-            tryConvertDelegate<T, TTo> converter, string cannotConvert, Optional<TTo> defaultValue = null)
-        {
-            return fb.Convert<T, TTo>((IField<T> field, out TTo converted) =>
-                converter(field.Value, out converted), cannotConvert, defaultValue);
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="TTo"></typeparam>
-        /// <param name="fb"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        public static FluentBinder3<TTo> Convert<TTo>(this IFluentBinder fb, Optional<TTo> defaultValue = null)
-        {
-            TTo converted = default(TTo);
-            var fb2 = new FluentBinder3<TTo>((IFieldBinder)fb.Binder, () => converted);
-            var v3binder = (IFieldBinder)fb.Binder;
-            v3binder.Processor.ProcessingAsync += (_, context) =>
-            {
-                IField f = fb.Field;
-                Type t = typeof(TTo);
-
-                if (f.Value == null && defaultValue != null)
-                {
-                    context.Value = defaultValue.Value;
-                    //fb2.InitialValue = defaultValue.Value;
-                    return new ValueTask();
-                }
-
-                try
-                {
-                    converted = (TTo)
-                        System.Convert.ChangeType(f.Value, t);
-
-                    context.Value = converted;
-                    //fb2.InitialValue = converted;
-                }
-                catch (FormatException)
-                {
-                    // DEBT: Get a candidate factory to grab descriptions from a comparisoncode + scalar
-                    f.Error(FieldStatus.ComparisonCode.Unspecified, t, "Unable to convert to type {0}");
-                    context.Abort = true;
-                }
-                catch(InvalidCastException)
-                {
-                    // DEBT: Would be far better to check for null before issuing conversion.  Not doing so
-                    // because some types can be null and the logic for determining that is a tiny bit involved
-                    // DEBT: Not a foregone conclusion that InvalidCastException is because we can't convert a value
-                    // type to null -- but probably that's why we get the exception
-                    f.Error(FieldStatus.ComparisonCode.IsNull, null, "Null not allowed here");
-                    context.Abort = true;
-                }
-                catch(OverflowException)
-                {
-                    f.Error(FieldStatus.ComparisonCode.GreaterThan, t, "Out of bounds for type {0}");
-                    context.Abort = true;
-                }
-
-                return new ValueTask();
-            };
-            return fb2;
-        }
-
-
-
-        static FluentBinder3<DateTimeOffset> FromEpochToDateTimeOffset<T>(this IFluentBinder<T> fb)
-        {
-            var fbConverted = fb.Convert((IField<T> f, out DateTimeOffset dt) =>
-            {
-                // NOTE: We know we can safely do this because only the <int> and <long> overloads
-                // are permitted to call this method
-                var value = System.Convert.ToInt64(f.Value);
-
-                try
-                {
-                    dt = DateTimeOffset.FromUnixTimeSeconds(value);
-                    return true;
-                }
-                catch (ArgumentOutOfRangeException aoore)
-                {
-                    f.Error(FieldStatus.ComparisonCode.Unspecified, f.Value, aoore.Message);
-                    return false;
-                }
-            });
-            return fbConverted;
-        }
-
-        public static FluentBinder3<DateTimeOffset> FromEpochToDateTimeOffset(this IFluentBinder<int> fb) =>
-            FromEpochToDateTimeOffset<int>(fb);
-
-        public static FluentBinder3<DateTimeOffset> FromEpochToDateTimeOffset(this IFluentBinder<long> fb) =>
-            FromEpochToDateTimeOffset<long>(fb);
-
-        public static FluentBinder3<DateTimeOffset> ToDateTimeOffset(this IFluentBinder<int, Traits.Epoch> fb) =>
-            FromEpochToDateTimeOffset<int>(fb);
-
-        public static FluentBinder3<DateTimeOffset> ToDateTimeOffset(this IFluentBinder<long, Traits.Epoch> fb) =>
-            FromEpochToDateTimeOffset<long>(fb);
 
         static bool FilterStatus(Status s)
             => s.Level != Status.Code.OK;
@@ -390,8 +179,8 @@ namespace Fact.Extensions.Validation.Experimental
 
         // EXPERIMENTAL
         // Convert and assign on initialization only
-        public static FluentBinder3<TTo> Chain<T, TTo>(this IFluentBinder<T> fluentBinder, IFieldBinder binder, tryConvertDelegate<IField<T>, TTo> convert,
-            Action<TTo> setter)
+        public static FluentBinder3<TTo> Chain<T, TTo>(this IFluentBinder<T> fluentBinder, IFieldBinder binder, 
+            FluentConvertExtensions.tryConvertDelegate<IField<T>, TTo> convert, Action<TTo> setter)
         {
             // TODO: Rather than check a flag each time, remove the delegate from the ProcessedAsync chain
             bool initialized = false;

@@ -14,7 +14,15 @@ namespace Fact.Extensions.Validation
     {
         Task ProcessAsync(TContext context, CancellationToken cancellationToken = default);
     }
-    
+
+    public interface IProcessorProvider<TContext>
+        where TContext : IContext
+    {
+        Processor<TContext> Processor { get; }
+    }
+
+
+
     public class Processor<TContext>
         where TContext: IContext
     {

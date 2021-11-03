@@ -10,12 +10,6 @@ using System.Threading.Tasks;
 // itself has no field
 namespace Fact.Extensions.Validation.Experimental
 {
-    public interface IProcessorProvider<TContext>
-        where TContext: IContext
-    {
-        Processor<TContext> Processor { get; }
-    }
-
     public interface IBinder3Base : IProcessorProvider<Context2>
     {
     }
