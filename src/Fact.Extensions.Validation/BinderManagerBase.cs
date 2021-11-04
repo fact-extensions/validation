@@ -8,9 +8,14 @@ namespace Fact.Extensions.Validation
     using System.Linq;
 
 
-    public interface IAggregatedBinderProvider
+    public interface IAggregatedBinderProvider<out TBinderProvider>
     {
-        IEnumerable<IBinderProvider> Providers { get; }
+        IEnumerable<TBinderProvider> Providers { get; }
+    }
+
+
+    public interface IAggregatedBinderProvider : IAggregatedBinderProvider<IBinderProvider>
+    {
     }
 
 
@@ -75,7 +80,11 @@ namespace Fact.Extensions.Validation
     }
 
 
-    public interface IBinderProvider<T> : IBinderProvider
+    /// <summary>
+    /// Technically a fluent field binder provider
+    /// </summary>
+    /// <typeparam name="T">Type associated with binder itself</typeparam>
+    public interface IBinderProvider<out T> : IBinderProvider
     {
         new IFluentBinder<T> FluentBinder { get; }
     }

@@ -7,8 +7,7 @@ namespace Fact.Extensions.Validation
 {
     using FluentBinderBase = Experimental.FluentBinder2;
 
-    public class FluentBinder<T> : FluentBinderBase,
-        IFluentBinder3<T>
+    public class FluentBinder<T> : FluentBinderBase, IFluentBinder<T>
     {
         public new IFieldBinder Binder { get; }
 

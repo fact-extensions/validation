@@ -108,7 +108,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// Defaults to null, expecting that 'converter' itself registers errors on the field</param>
         /// <returns></returns>
         [Obsolete("Regular Convert is now upgraded to v3 - use that one")]
-        public static FluentBinder<TTo> Convert3<TFrom, TTo>(this IFluentBinder3<TFrom> fb,
+        public static FluentBinder<TTo> Convert3<TFrom, TTo>(this IFluentBinder<TFrom> fb,
             FluentConvertExtensions.tryConvertDelegate<IField<TFrom>, TTo> converter, string cannotConvert = null)
         {
             TTo converted = default(TTo);
