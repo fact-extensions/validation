@@ -5,7 +5,7 @@ using System.Text;
 namespace Fact.Extensions.Validation
 {
     /// <summary>
-    /// 
+    /// Associated with an IField
     /// </summary>
     /// <remarks>
     /// TODO: Consolidate with IFluentBinder3 -- namely, upgrade 'Binder' to use IFieldBinder rather than IBinderBase
@@ -25,6 +25,11 @@ namespace Fact.Extensions.Validation
         Type Type { get; }
     }
 
+
+    /// <summary>
+    /// Associated with an IField
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IFluentBinder<out T> : IFluentBinder, 
         IFieldProvider<IField<T>>
     {

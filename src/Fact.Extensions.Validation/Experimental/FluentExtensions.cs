@@ -39,7 +39,7 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
-        public static FluentBinder<T> As<T>(this IFluentBinder3 fb)
+        public static FluentBinder<T> As<T>(this IFluentBinder fb)
         {
             if (fb is FluentBinder<T> fbTyped) return fbTyped;
 
@@ -147,9 +147,8 @@ namespace Fact.Extensions.Validation.Experimental
             Func<Status, bool> whenStatus = null, bool bypassFilter = false)
         {
             if (whenStatus == null) whenStatus = FilterStatus;
-            var binder = (IFieldBinder)fb.Binder;
 
-            binder.Processor.ProcessingAsync += (_, context) =>
+            fb.Binder.Processor.ProcessingAsync += (_, context) =>
             {
                 IField field = context.Field;
                 IField<T> f = fb.Field;
@@ -163,7 +162,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static FluentBinder<T, TTrait> WithTrait<T, TTrait>(this IFluentBinder3<T> fb,
+        public static FluentBinder<T, TTrait> WithTrait<T, TTrait>(this IFluentBinder<T> fb,
             TTrait trait = default(TTrait)) =>
             // DEBT: Smooth out this cast
             new FluentBinder<T, TTrait>((IFieldBinder<T>)fb.Binder, false);
@@ -174,7 +173,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// </summary>
         /// <param name="fb"></param>
         /// <returns></returns>
-        public static FluentBinder<int, Traits.Epoch> AsEpoch(this IFluentBinder3<int> fb) =>
+        public static FluentBinder<int, Traits.Epoch> AsEpoch(this IFluentBinder<int> fb) =>
             fb.WithTrait<int, Traits.Epoch>();
 
 
@@ -303,16 +302,16 @@ namespace Fact.Extensions.Validation.Experimental
         /// more often
         /// </remarks>
         public static TFluentBinder IsNotNull<TFluentBinder>(this TFluentBinder fluentBinder)
-            where TFluentBinder : IFluentBinder3<object>
+            where TFluentBinder : IFluentBinder<object>
             =>
             fluentBinder.Required<TFluentBinder, object>(v => v == null);
 
         public static TFluentBinder Required<TFluentBinder>(this TFluentBinder fluentBinder)
-            where TFluentBinder : IFluentBinder3<string> =>
+            where TFluentBinder : IFluentBinder<string> =>
             fluentBinder.Required<TFluentBinder, string>(string.IsNullOrWhiteSpace);
 
         public static TFluentBinder Optional<TFluentBinder, T>(this TFluentBinder fluentBinder, Func<T, bool> isEmpty)
-            where TFluentBinder : IFluentBinder3<T>
+            where TFluentBinder : IFluentBinder<T>
         {
             fluentBinder.Binder.Processor.StartingAsync += (_, context) =>
             {
@@ -323,7 +322,7 @@ namespace Fact.Extensions.Validation.Experimental
         }
         
         public static TFluentBinder Optional<TFluentBinder>(this TFluentBinder fluentBinder)
-            where TFluentBinder : IFluentBinder3<string> =>
+            where TFluentBinder : IFluentBinder<string> =>
             fluentBinder.Optional<TFluentBinder, string>(string.IsNullOrWhiteSpace);
     }
 

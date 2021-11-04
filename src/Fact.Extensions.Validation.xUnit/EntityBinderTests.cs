@@ -82,7 +82,7 @@ namespace Fact.Extensions.Validation.xUnit
             var passwordBinder1 = entityBinder.Get(x => x.Password1);
 
             // DEBT: Naughty cast
-            var fluentBinder = (IFluentBinder3<string>)passwordBinder1.FluentBinder;
+            var fluentBinder = passwordBinder1.FluentBinder;
             fluentBinder.
                 Required().
                 StartsWith("hi");
