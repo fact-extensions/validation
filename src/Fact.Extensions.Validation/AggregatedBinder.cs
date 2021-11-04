@@ -32,7 +32,7 @@ namespace Fact.Extensions.Validation
             providers.Add(binderProvider);
             Committer.Committing += binderProvider.Binder.Committer.DoCommit;
 
-            ((IFieldBinder)binderProvider.Binder).Processor.ProcessedAsync += (_, context) =>
+            binderProvider.Binder.Processor.ProcessedAsync += (_, context) =>
             {
                 // Filter out overall load/aggregated Process
                 if (context.InputContext?.InitiatingEvent != InitiatingEvents.Load)

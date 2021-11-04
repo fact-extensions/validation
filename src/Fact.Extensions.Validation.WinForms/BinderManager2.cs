@@ -20,7 +20,7 @@ namespace Fact.Extensions.Validation.WinForms
             Action<Tracker<T>> initEvent,
             Func<InputContext> inputContextFactory,
             Func<T, bool> isNull = null)
-            where TAggregatedBinder: IAggregatedBinderBase, IServiceProviderProvider, IBinder3Base
+            where TAggregatedBinder: IAggregatedBinderBase, IServiceProviderProvider, IProcessorProvider<Context2>
         {
             var services = aggregatedBinder.Services;
             var styleManager = services.GetRequiredService<StyleManager>();
@@ -72,7 +72,7 @@ namespace Fact.Extensions.Validation.WinForms
         /// <returns></returns>
         public static IFluentBinder<string> BindText<TAggregatedBinder>(this TAggregatedBinder aggregatedBinder, Control control, 
             Func<string> initialGetter = null)
-            where TAggregatedBinder : IAggregatedBinderBase, IBinder3Base, IServiceProviderProvider
+            where TAggregatedBinder : IAggregatedBinderBase, IServiceProviderProvider, IProcessorProvider<Context2>
         {
             IBinderProvider<string> bp = Setup(aggregatedBinder, control,
                 () => control.Text,

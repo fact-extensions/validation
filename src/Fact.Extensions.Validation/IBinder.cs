@@ -10,7 +10,7 @@ namespace Fact.Extensions.Validation
     public interface IBinderBase : Experimental.IBinder3Base
     {
         /// <summary>
-        /// Discrete source from which to get the value which we will validate against
+        /// Discrete source from which to get the value which we will validate/process
         /// </summary>
         /// <remarks>
         /// DEBT: Some overlap with IField.Value, disambiguate them
