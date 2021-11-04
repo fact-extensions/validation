@@ -15,6 +15,13 @@ namespace Fact.Extensions.Validation
         Task ProcessAsync(TContext context, CancellationToken cancellationToken = default);
     }
 
+    /// <summary>
+    /// Access to Processor object
+    /// </summary>
+    /// <typeparam name="TContext"></typeparam>
+    /// <remarks>
+    /// We do this to ensure we have a "has-a" relationship to processor
+    /// </remarks>
     public interface IProcessorProvider<TContext>
         where TContext : IContext
     {
@@ -23,7 +30,7 @@ namespace Fact.Extensions.Validation
 
 
 
-    public class Processor<TContext>
+    public class Processor<TContext> : IProcessor<TContext>
         where TContext: IContext
     {
         /// <summary>

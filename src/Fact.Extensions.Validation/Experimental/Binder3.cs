@@ -12,22 +12,14 @@ using System.Threading.Tasks;
 namespace Fact.Extensions.Validation.Experimental
 {
     /// <summary>
-    /// 
-    /// </summary>
-    /// <remarks>
-    /// TODO: Decouple IBinder3Base from Context2 since Context2 has a 1:1 field relationship, but Binder3Base'd stuff
-    /// isn't always
-    /// </remarks>
-    public interface IBinder3Base : IProcessorProvider<Context2>
-    {
-    }
-
-
-    /// <summary>
     /// Binder base class agnostic to whether we're binding against a field specifically or some
     /// other unspecified source
     /// </summary>
-    public class Binder3Base : IBinder3Base
+    /// <remarks>
+    /// DEBT: Decouple from Context2 since Context2 has a 1:1 field relationship, but Binder3Base'd stuff
+    /// isn't always
+    /// </remarks>
+    public class Binder3Base : IProcessorProvider<Context2>
     {
         public Processor<Context2> Processor { get; } = new Processor<Context2>();
 

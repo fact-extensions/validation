@@ -85,7 +85,7 @@ namespace Fact.Extensions.Validation
 
 
     public interface IAggregatedBinder3 :
-        IAggregatedBinderBase, IServiceProviderProvider, IBinder3Base
+        IAggregatedBinderBase, IServiceProviderProvider, IProcessorProvider<Context2>
     {
     }
 

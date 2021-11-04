@@ -7,7 +7,11 @@ namespace Fact.Extensions.Validation
     /// <summary>
     /// Low level binder inteface bringing in Processor and simplistic object getter
     /// </summary>
-    public interface IBinderBase : Experimental.IBinder3Base
+    /// <remarks>
+    /// DEBT: Decouple from Context2 since Context2 has a 1:1 field relationship, but Binder3Base'd stuff
+    /// isn't always
+    /// </remarks>
+    public interface IBinderBase : IProcessorProvider<Context2>
     {
         /// <summary>
         /// Discrete source from which to get the value which we will validate/process
