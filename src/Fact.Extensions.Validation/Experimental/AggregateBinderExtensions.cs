@@ -19,7 +19,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="providerFactory"></param>
         /// <returns></returns>
         public static TBinderProvider AddField3<T, TBinderProvider>(this ICollector<TBinderProvider> binder, string name, Func<T> getter,
-            Func<IFluentBinder<T>, TBinderProvider> providerFactory)
+            Func<FluentBinder<T>, TBinderProvider> providerFactory)
             where TBinderProvider : IBinderProvider
         {
             var b = new FieldBinder<T>(name, getter);

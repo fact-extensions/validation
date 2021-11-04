@@ -11,7 +11,7 @@ namespace Fact.Extensions.Validation
     }
 
     public interface IField : IFieldBase,
-        IFieldStatusCollector2,
+        IFieldStatusCollector,
         IFieldStatusProvider2
     {
         object Value { get; }

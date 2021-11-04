@@ -8,9 +8,8 @@ namespace Fact.Extensions.Validation
     /// Mechanism for actual gathering of status; has no specific contract for reviewing 
     /// these errors
     /// </summary>
-    public interface IFieldStatusCollector2
+    public interface IFieldStatusCollector : ICollector<Status>
     {
-        void Add(Status status);
     }
 
 
@@ -40,14 +39,14 @@ namespace Fact.Extensions.Validation
 
     public static class IFieldStatusCollectorExtensions
     {
-        public static void Error(this IFieldStatusCollector2 field, FieldStatus.ComparisonCode code,
+        public static void Error(this IFieldStatusCollector field, FieldStatus.ComparisonCode code,
             object value, string description = null) =>
             field.Add(new ScalarStatus(Status.Code.Error, description, code, value));
 
-        public static void Add(this IFieldStatusCollector2 field, Status.Code code, string description) =>
+        public static void Add(this IFieldStatusCollector field, Status.Code code, string description) =>
             field.Add(new Status(code, description));
 
-        public static void Error(this IFieldStatusCollector2 field, string description) =>
+        public static void Error(this IFieldStatusCollector field, string description) =>
             field.Add(Status.Code.Error, description);
     }
 }

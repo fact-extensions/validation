@@ -123,7 +123,7 @@ namespace Fact.Extensions.Validation.Experimental
                 // FIX: We should be using this one, but it's yet another one and seemingly uncoupled from fbConverted.Field
                 //IFieldStatusCollector2 field = context.Field;
 
-                IFieldStatusCollector2 field = fbConverted.Field;
+                IFieldStatusCollector field = fbConverted.Field;
 
                 if (success)
                     // DEBT: Kinda redundant, assigning value here -and- getter itself pointing to value
