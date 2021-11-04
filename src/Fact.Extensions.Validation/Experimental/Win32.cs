@@ -92,8 +92,27 @@ namespace Fact.Extensions.Validation.Experimental
 #endif
 
 
+        /// <summary>
+        /// Adds field associated with registry key and also auto loads value for it
+        /// </summary>
+        /// <typeparam name="T">Type expected to be retrieved from registry</typeparam>
+        /// <param name="binder"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static FluentBinder<T> Add<T>(this IRegistryBinder binder, string name, T defaultValue = default) =>
+            binder.AddField(name, 
+                () => (T)binder.Root.GetValue(name, defaultValue), 
+                fb => new RegistryBinder.Provider<T>(fb)).
+            FluentBinder;
+
+        /// <summary>
+        /// Adds field associated with registry key and also auto loads value for it
+        /// </summary>
+        /// <param name="binder"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static FluentBinder<object> Add(this IRegistryBinder binder, string name) =>
-            binder.AddField(name, () => binder.Root.GetValue(name), fb => new RegistryBinder.Provider<object>(fb)).FluentBinder;
+            binder.Add<object>(name);
 
 
         // TODO: Consider consolidating with Fact.Extensions Taxonomy
@@ -117,6 +136,9 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="key"></param>
         /// <param name="name"></param>
         /// <returns></returns>
+        /// <remarks>
+        /// This one's trick is that one needn't hang it off an IRegistryBinder
+        /// </remarks>
         public static FluentBinder<T> Add<T>(this IAggregatedBinderBase binder, RegistryKey key, string name)
         {
             Func<T> getter = () =>

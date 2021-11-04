@@ -39,6 +39,13 @@ namespace Fact.Extensions.Validation.Experimental
             return fb;
         }
 
+
+        /// <summary>
+        /// Forcefully typecasts fluent binder or creates a new chained one of type T
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fb"></param>
+        /// <returns></returns>
         public static FluentBinder<T> As<T>(this IFluentBinder fb)
         {
             if (fb is FluentBinder<T> fbTyped) return fbTyped;

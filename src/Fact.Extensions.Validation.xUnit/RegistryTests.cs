@@ -67,7 +67,7 @@ namespace Fact.Extensions.Validation.xUnit
                 ToDateTimeOffset().  // FIX: Doesn't work, look into this
                 GreaterThan(DateTimeOffset.UnixEpoch);
 
-            await ((IFieldBinder)fb2.Binder).Process();
+            await fb2.Binder.Process();
 
             var statuses = fb2.Field.Statuses.ToArray();
             statuses.Should().BeEmpty();
@@ -84,7 +84,7 @@ namespace Fact.Extensions.Validation.xUnit
             
             fb.Emit(v => installDate = v);
 
-            await ((IFieldBinder)fb.Binder).Process();
+            await fb.Binder.Process();
 
             installDate.Should().BeGreaterThan(0);
         }

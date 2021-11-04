@@ -49,6 +49,14 @@ namespace Fact.Extensions.Validation.Experimental
             binder.AddField(name, getter, fb => new BinderManagerBase.ItemBase<T>(fb)).FluentBinder;
 
 
+        /// <summary>
+        /// DEBT: This particular Process() helper fiddles with InputContext while others don't
+        /// </summary>
+        /// <typeparam name="TAggregatedBinder"></typeparam>
+        /// <param name="aggregatedBinder"></param>
+        /// <param name="inputContext"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public static async Task Process<TAggregatedBinder>(this TAggregatedBinder aggregatedBinder,
             InputContext inputContext = null,
             CancellationToken cancellationToken = default)

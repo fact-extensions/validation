@@ -43,7 +43,7 @@ namespace Fact.Extensions.Validation.WinForms
                 var context = new Context2(null, f, cancellationToken);
                 context.InputContext = inputContextFactory();
 
-                await bp.Binder.Process(context, cancellationToken);
+                await bp.Binder.Processor.ProcessAsync(context, cancellationToken);
 
                 styleManager.ContentChanged(bp);
             };

@@ -53,7 +53,7 @@ namespace Fact.Extensions.Validation
                     // this though
                     context.Abort = false;
 
-                    await provider.Binder.Process(context, context.CancellationToken);
+                    await provider.Binder.Processor.ProcessAsync(context, context.CancellationToken);
                 }
             };
 

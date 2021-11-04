@@ -157,63 +157,6 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public class FluentBinder2 : IFluentBinder
-    {
-        public IFieldBinder Binder { get; }
-
-
-        /// <summary>
-        /// Field local to this FluentBinder
-        /// </summary>
-        public IField Field { get; protected set; }
-
-        public Type Type { get; }
-
-        // DEBT: Field MUST be initialized by calling class
-        protected FluentBinder2(IFieldBinder binder, Type type)
-        {
-            Binder = binder;
-            Type = type;
-        }
-
-
-        /// <summary>
-        /// Statuses associated with just this binder
-        /// Attaches to Field as an external status
-        /// </summary>
-        protected readonly List<Status> statuses = new List<Status>();
-
-
-        /// <summary>
-        /// Set up:
-        /// - clearing of local statuses to this FluentBinder
-        /// - awareness of this FluentBinder's local statuses to overall Binder
-        /// </summary>
-        protected void Initialize()
-        {
-            // This event handler is more or less a re-initializer for subsequent
-            // process/validation calls
-            /*
-            if (Binder is IBinder2 binderv2)
-            {
-                binderv2.StartingAsync += (field, context) =>
-                {
-                    statuses.Clear();
-                    return new ValueTask();
-                };
-            }
-            else */
-                ((IFieldBinder)Binder).Processor.StartingAsync += (_, context) =>
-                {
-                    statuses.Clear();
-                    return new ValueTask();
-                };
-
-            // DEBT
-            var f = (IFieldStatusExternalCollector)Binder.Field;
-            f.Add(statuses);
-        }
-    }
 
 
 

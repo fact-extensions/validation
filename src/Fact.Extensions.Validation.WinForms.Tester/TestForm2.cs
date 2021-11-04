@@ -53,7 +53,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
             // regVersion.Convert<int>() flipping out
             var context = new Context2(null, null, default);
-            await reg.Process(context);
+            await reg.Processor.ProcessAsync(context);
 
             var statuses = summaryField.Statuses.ToArray();
 

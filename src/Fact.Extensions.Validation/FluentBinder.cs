@@ -5,12 +5,55 @@ using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation
 {
-    using FluentBinderBase = Experimental.FluentBinder2;
-
-    public class FluentBinder<T> : FluentBinderBase, IFluentBinder<T>
+    public class FluentBinder : IFluentBinder
     {
-        public new IFieldBinder Binder { get; }
+        public IFieldBinder Binder { get; }
 
+
+        /// <summary>
+        /// Field local to this FluentBinder
+        /// </summary>
+        public IField Field { get; protected set; }
+
+        public Type Type { get; }
+
+        // DEBT: Field MUST be initialized by calling class
+        protected FluentBinder(IFieldBinder binder, Type type)
+        {
+            Binder = binder;
+            Type = type;
+        }
+
+
+        /// <summary>
+        /// Statuses associated with just this binder
+        /// Attaches to Field as an external status
+        /// </summary>
+        protected readonly List<Status> statuses = new List<Status>();
+
+
+        /// <summary>
+        /// Set up:
+        /// - clearing of local statuses to this FluentBinder
+        /// - awareness of this FluentBinder's local statuses to overall Binder
+        /// </summary>
+        protected void Initialize()
+        {
+            Binder.Processor.StartingAsync += (_, context) =>
+            {
+                statuses.Clear();
+                return new ValueTask();
+            };
+
+            // DEBT
+            var f = (IFieldStatusExternalCollector)Binder.Field;
+            f.Add(statuses);
+        }
+    }
+
+
+    public class FluentBinder<T> : FluentBinder, IFluentBinder<T>
+    {
         readonly Experimental.ShimFieldBase2<T> field;
 
         public new IField<T> Field => field;
@@ -25,8 +68,6 @@ namespace Fact.Extensions.Validation
         public FluentBinder(IFieldBinder chained, Func<T> getter = null) :
             base(chained, typeof(T))
         {
-            Binder = chained;
-
             field = new Experimental.ShimFieldBase2<T>(chained.Field.Name, statuses,
                 getter ?? (() => (T)chained.getter()));
 
@@ -45,8 +86,6 @@ namespace Fact.Extensions.Validation
         public FluentBinder(IFieldBinder<T> binder, bool initial) :
             base(binder, typeof(T))
         {
-            Binder = binder;
-
             if (initial)
                 // DEBT: Needs refiniement
                 field = new Experimental.ShimFieldBase2<T>(binder.Field.Name, statuses, () => binder.getter());
@@ -63,27 +102,6 @@ namespace Fact.Extensions.Validation
             Initialize();
         }
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <remarks>
-        /// 100% overrides semi-obsolete base
-        /// </remarks>
-        new void Initialize()
-        {
-            // This event handler is more or less a re-initializer for subsequent
-            // process/validation calls
-            Binder.Processor.StartingAsync += (field, context) =>
-            {
-                statuses.Clear();
-                return new ValueTask();
-            };
-
-            // DEBT
-            var f = (IFieldStatusExternalCollector)Binder.Field;
-            f.Add(statuses);
-        }
 
 
         /// <summary>
