@@ -16,9 +16,8 @@ namespace Fact.Extensions.Validation
             tryConvertDelegate<IField<T>, TTo> converter, string cannotConvert = null, Optional<TTo> defaultValue = null)
         {
             TTo converted = default(TTo);
-            var fb2 = new FluentBinder<TTo>((IFieldBinder)fb.Binder, () => converted);
-            var v3binder = (IFieldBinder)fb.Binder;
-            v3binder.Processor.ProcessingAsync += (_, context) =>
+            var fb2 = new FluentBinder<TTo>(fb.Binder, () => converted);
+            fb.Binder.Processor.ProcessingAsync += (_, context) =>
             {
                 if (defaultValue != null && context.Value == null)
                 {
@@ -43,10 +42,21 @@ namespace Fact.Extensions.Validation
             return fb2;
         }
 
+
+        /// <summary>
+        /// Simplified version of converter which only emits 'cannotConvert' message on failure
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TTo"></typeparam>
+        /// <param name="fb"></param>
+        /// <param name="converter"></param>
+        /// <param name="cannotConvert"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         public static FluentBinder<TTo> Convert<T, TTo>(this IFluentBinder<T> fb,
             tryConvertDelegate<T, TTo> converter, string cannotConvert, Optional<TTo> defaultValue = null)
         {
-            return fb.Convert<T, TTo>((IField<T> field, out TTo converted) =>
+            return fb.Convert((IField<T> field, out TTo converted) =>
                 converter(field.Value, out converted), cannotConvert, defaultValue);
         }
 
@@ -61,9 +71,8 @@ namespace Fact.Extensions.Validation
         public static FluentBinder<TTo> Convert<TTo>(this IFluentBinder fb, Optional<TTo> defaultValue = null)
         {
             TTo converted = default(TTo);
-            var fb2 = new FluentBinder<TTo>((IFieldBinder)fb.Binder, () => converted);
-            var v3binder = (IFieldBinder)fb.Binder;
-            v3binder.Processor.ProcessingAsync += (_, context) =>
+            var fb2 = new FluentBinder<TTo>(fb.Binder, () => converted);
+            fb.Binder.Processor.ProcessingAsync += (_, context) =>
             {
                 IField f = fb.Field;
                 Type t = typeof(TTo);
