@@ -24,11 +24,27 @@ namespace Fact.Extensions.Validation.Experimental
         AggregatedBinderBase3<RegistryBinder.Provider>,
         IRegistryBinder
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// Could have used ItemBase directly, but breaking it out here in case we want to track extra things
+        /// </remarks>
         public class Provider : AggregatedBinderBase.ItemBase
         {
             public Provider(IFluentBinder fb) : base(fb.Binder, fb)
             {
 
+            }
+        }
+
+        public class Provider<T> : Provider
+        {
+            public new FluentBinder<T> FluentBinder { get; }
+
+            public Provider(FluentBinder<T> fb) : base(fb)
+            {
+                FluentBinder = fb;
             }
         }
 
@@ -76,10 +92,8 @@ namespace Fact.Extensions.Validation.Experimental
 #endif
 
 
-        public static FluentBinder<object> Add(this IRegistryBinder binder, string name)
-        {
-            return binder.AddField(name, () => binder.Root.GetValue(name), fb => new RegistryBinder.Provider(fb));
-        }
+        public static FluentBinder<object> Add(this IRegistryBinder binder, string name) =>
+            binder.AddField(name, () => binder.Root.GetValue(name), fb => new RegistryBinder.Provider<object>(fb)).FluentBinder;
 
 
         // TODO: Consider consolidating with Fact.Extensions Taxonomy

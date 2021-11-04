@@ -18,7 +18,7 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var ab = new AggregatedBinder3();
 
-            var fb = ab.AddField3("field1", () => 123);
+            var fb = ab.AddField("field1", () => 123);
 
             await ab.Process();
 
@@ -42,8 +42,8 @@ namespace Fact.Extensions.Validation.xUnit
             string value1 = "";
             string value2 = "4";
 
-            var fb = ab.AddField3("field1", () => value1);
-            var fb2 = ab.AddField3("field2", () => value2);
+            var fb = ab.AddField("field1", () => value1);
+            var fb2 = ab.AddField("field2", () => value2);
 
             // FIX: Not going to FluentBinder3 Required, so "null" check is weak
 

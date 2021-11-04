@@ -400,40 +400,6 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public static FluentBinder<object> AddField(this IAggregatedBinderCollector binder, string name, Func<object> getter,
-            Func<IFluentBinder, IBinderProvider> providerFactory)
-        {
-            var f = new FieldStatus(name, null);
-            var b = new FieldBinder<object>(f, getter);
-            var fb = new FluentBinder<object>(b, true);
-            binder.Add(providerFactory(fb));
-            return fb;
-        }
-
-
-        public static FluentBinder<object> AddField(this IAggregatedBinderCollector binder, string name, Func<object> getter) =>
-            binder.AddField(name, getter, fb => new BinderManagerBase.ItemBase(fb.Binder, fb));
-
-        public static FluentBinder<T> AddField<T, TBinderProvider>(this ICollector<TBinderProvider> binder, string name, Func<T> getter, 
-            Func<IFluentBinder<T>, TBinderProvider> providerFactory)
-            where TBinderProvider: IBinderProvider
-        {
-            // default(T) because early init is not the same as runtime init
-            // early init is when system is setting up the rules
-            // runtime init is at the start of when pipeline processing actually occurs
-            var f = new FieldStatus<T>(name);
-            var b = new FieldBinder<T>(f, getter);
-            var fb = new FluentBinder<T>(b, true);
-            binder.Add(providerFactory(fb));
-            return fb;
-        }
-
-
-        public static FluentBinder<T> AddField<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter) =>
-            binder.AddField(name, getter, fb => new BinderManagerBase.ItemBase(fb.Binder, fb));
-
-
-
         public class SummaryProcessor
         {
             internal Dictionary<IBinderProvider, Item> items = new Dictionary<IBinderProvider, Item>();

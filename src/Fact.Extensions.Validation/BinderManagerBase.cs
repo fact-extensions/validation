@@ -43,6 +43,7 @@ namespace Fact.Extensions.Validation
     public interface IAggregatedBinderBase<TBinderProvider> :
         IAggregatedBinderProvider,
         ICollector<TBinderProvider>
+        where TBinderProvider: IBinderProvider
     {
         event BindersProcessedDelegate<TBinderProvider> BindersProcessed;
     }
@@ -108,6 +109,16 @@ namespace Fact.Extensions.Validation
             }
         }
 
+
+        public class ItemBase<T> : ItemBase
+        {
+            public new FluentBinder<T> FluentBinder { get; }
+
+            public ItemBase(IFieldBinder binder, FluentBinder<T> fluentBinder) : base(binder, fluentBinder)
+            {
+                FluentBinder = fluentBinder;
+            }
+        }
     }
 
     public interface IModified

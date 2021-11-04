@@ -60,7 +60,7 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var ag = new AggregatedBinder3(services);
 
-            var fb = ag.AddField3("epoch", () => long.MinValue).
+            var fb = ag.AddField("epoch", () => long.MinValue).
                 FromEpochToDateTimeOffset();
 
             await fb.Binder.Process();
@@ -68,7 +68,7 @@ namespace Fact.Extensions.Validation.xUnit
             var statues = fb.Binder.Field.Statuses.ToArray();
             statues.Should().HaveCount(1);
 
-            var fb2 = ag.AddField3("epoch2", () => 0);
+            var fb2 = ag.AddField("epoch2", () => 0);
             var fb3 = fb2.AsEpoch();
             var fb4 = fb3.ToDateTimeOffset();
 
@@ -111,8 +111,8 @@ namespace Fact.Extensions.Validation.xUnit
         public async Task GroupValidateTest()
         {
             var ab = new AggregatedBinder3();
-            var fb1 = ab.AddField3("field1", () => "one");
-            var fb2 = ab.AddField3("field2", () => "two");
+            var fb1 = ab.AddField("field1", () => "one");
+            var fb2 = ab.AddField("field2", () => "two");
 
             fb1.GroupValidate(fb2, (c, field1, field2) =>
             {
@@ -137,8 +137,8 @@ namespace Fact.Extensions.Validation.xUnit
         public async Task GroupValidate2Test()
         {
             var ab = new AggregatedBinder3();
-            var fb1 = ab.AddField3("field1", () => "one");
-            var fb2 = ab.AddField3("field2", () => "two");
+            var fb1 = ab.AddField("field1", () => "one");
+            var fb2 = ab.AddField("field2", () => "two");
 
             fb1.IsMatch(fb2);
 
@@ -159,8 +159,8 @@ namespace Fact.Extensions.Validation.xUnit
             string value2 = null;
             string committed1 = null;
             string committed2 = null;
-            var fb1 = ab.AddField3("field1", () => value1);
-            var fb2 = ab.AddField3("field2", () => value2);
+            var fb1 = ab.AddField("field1", () => value1);
+            var fb2 = ab.AddField("field2", () => value2);
 
             fb1.Setter(v => value1 = v, () => "one");
             fb2.Setter(v => value2 = v, () => "two");

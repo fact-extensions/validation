@@ -30,10 +30,7 @@ namespace Fact.Extensions.Validation.WinForms
             var tracker = new Tracker<T>(getter());
             initEvent(tracker);
 
-            BinderManagerBase.Item<T> bp;
-
-            // DEBT: Naughty cast
-            bp = (BinderManagerBase.Item<T>) aggregatedBinder.AddField3(control.Name,
+            BinderManagerBase.Item<T> bp = aggregatedBinder.AddField(control.Name,
                 () => tracker.Value,
                 _fb => new BinderManagerBase.Item<T>(_fb, control, tracker));
 
