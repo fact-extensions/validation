@@ -9,10 +9,13 @@ namespace Fact.Extensions.Validation.Experimental
     public static class AggregateBinderExtensions
     {
         /// <summary>
-        /// For testing "v3" binder
+        /// Adds a Field to the aggregator/collector with a new binder underneath it
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <typeparam name="TBinderProvider"></typeparam>
+        /// <typeparam name="T">Type associated with field itself</typeparam>
+        /// <typeparam name="TBinderProvider">Type of binder provider the factory is creating</typeparam>
+        /// <typeparam name="TBinderProviderCollector">
+        /// Type of binder provider the aggregator/collector understandings
+        /// </typeparam>
         /// <param name="binder"></param>
         /// <param name="name"></param>
         /// <param name="getter"></param>
@@ -31,38 +34,11 @@ namespace Fact.Extensions.Validation.Experimental
             return bp;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <typeparam name="TBinderProvider"></typeparam>
-        /// <param name="binder"></param>
-        /// <param name="name"></param>
-        /// <param name="getter"></param>
-        /// <param name="providerFactory"></param>
-        /// <returns></returns>
-        /// <remarks>
-        /// DEBT: Consolidate with above and also match up return types
-        /// </remarks>
-        public static FluentBinder<T> AddFieldX<T, TBinderProvider>(this ICollector<TBinderProvider> binder, string name, Func<T> getter,
-            Func<FluentBinder<T>, TBinderProvider> providerFactory)
-            where TBinderProvider : IBinderProvider
-        {
-            // default(T) because early init is not the same as runtime init
-            // early init is when system is setting up the rules
-            // runtime init is at the start of when pipeline processing actually occurs
-            var f = new FieldStatus<T>(name);
-            var b = new FieldBinder<T>(f, getter);
-            var fb = new FluentBinder<T>(b, true);
-            binder.Add(providerFactory(fb));
-            return fb;
-        }
-
 
 
 
         /// <summary>
-        /// For testing "v3" binder
+        /// Adds a field with new binders to the aggregator using stock standard BinderManagerBase provider
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="binder"></param>
@@ -70,7 +46,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="getter"></param>
         /// <returns></returns>
         public static FluentBinder<T> AddField<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter) =>
-            binder.AddField(name, getter, fb => new BinderManagerBase.ItemBase<T>(fb.Binder, fb)).FluentBinder;
+            binder.AddField(name, getter, fb => new BinderManagerBase.ItemBase<T>(fb)).FluentBinder;
 
 
         public static async Task Process<TAggregatedBinder>(this TAggregatedBinder aggregatedBinder,

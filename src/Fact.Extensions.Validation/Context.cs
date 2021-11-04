@@ -53,7 +53,12 @@ namespace Fact.Extensions.Validation
         // Still experimental 
         public Experimental.InputContext InputContext { get; set; }
 
-        // EXPERIMENTAL putting this here -- same as IBinder.Field
+        /// <summary>
+        /// Same as IBinder.Field
+        /// </summary>
+        /// <remarks>
+        /// EXPERIMENTAL putting this here 
+        /// </remarks>
         public IField Field { get; }
 
         public Context2(object initialValue, IField field, CancellationToken cancellationToken)

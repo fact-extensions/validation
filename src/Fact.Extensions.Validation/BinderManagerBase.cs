@@ -135,9 +135,19 @@ namespace Fact.Extensions.Validation
 
             public void DoInitialize() => Initialize?.Invoke();
 
-            public ItemBase(IFieldBinder binder, IFluentBinder fluentBinder) : 
-                base(binder, fluentBinder)
+            public ItemBase(IFluentBinder fluentBinder) : 
+                base(fluentBinder.Binder, fluentBinder)
             {
+            }
+        }
+
+        public new class ItemBase<T> : ItemBase
+        {
+            public new FluentBinder<T> FluentBinder { get; }
+
+            public ItemBase(FluentBinder<T> fluentBinder) : base(fluentBinder)
+            {
+                FluentBinder = fluentBinder;
             }
         }
     }
@@ -154,7 +164,7 @@ namespace Fact.Extensions.Validation
 
 
             public Item(IFluentBinder fluentBinder, TSource source) : 
-                base(fluentBinder.Binder, fluentBinder)
+                base(fluentBinder)
             {
                 Control = source;
             }

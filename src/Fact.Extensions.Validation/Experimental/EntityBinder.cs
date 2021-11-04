@@ -77,8 +77,6 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
-    public delegate void BindersProcessedDelegate<TBinderProvider>(IEnumerable<TBinderProvider> binders, Context2 context);
-
     // Keeping v1/v2 old AggregatedBinderBase around just for code reference, because we do some
     // tricky things here
 #if UNUSED

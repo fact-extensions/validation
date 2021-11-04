@@ -49,6 +49,8 @@ namespace Fact.Extensions.Validation
         /// <returns></returns>
         public async Task ProcessAsync(TContext context, CancellationToken cancellationToken = default)
         {
+            // NOTE: Consider setting context.Abort = false at the start here
+
             if (StartingAsync != null)
                 await StartingAsync(this, context);
 
