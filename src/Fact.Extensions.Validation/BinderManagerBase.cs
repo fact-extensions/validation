@@ -4,7 +4,6 @@ using System.Text;
 
 namespace Fact.Extensions.Validation
 {
-    using Fact.Extensions.Validation.Experimental;
     using System.Linq;
 
 
@@ -34,20 +33,7 @@ namespace Fact.Extensions.Validation
     {
     }
 
-    public interface IAggregatedBinderBase : 
-        IAggregatedBinderProvider,
-        IAggregatedBinderCollector
-    {
-    }
-
-    public interface IAggregatedBinderBase<TBinderProvider> :
-        IAggregatedBinderProvider,
-        ICollector<TBinderProvider>
-        where TBinderProvider: IBinderProvider
-    {
-        event BindersProcessedDelegate<TBinderProvider> BindersProcessed;
-    }
-
+    [Obsolete]
     public interface IAggregatedBinder : IAggregatedBinderBase,
         IServiceProviderProvider,
         IBinderBase

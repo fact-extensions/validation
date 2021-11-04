@@ -26,7 +26,7 @@ namespace Fact.Extensions.Validation.xUnit
             // NOTE: No longer heading that direction as we can see via AggregatedBinder3
             //var field = new FieldStatus("synthetic");
 
-            var ab = new AggregatedBinder3();
+            var ab = new AggregatedBinder();
             var inputEntity = new SyntheticEntity1();
             var outputEntity = new SyntheticEntity1();
 
@@ -50,7 +50,7 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task Test2()
         {
-            var eb = new AggregatedBinder3();
+            var eb = new AggregatedBinder();
 
             eb.AddField<string>(nameof(SyntheticEntity1.Password1), () => null);
             eb.AddField<string>(nameof(SyntheticEntity1.Password2), () => null);
@@ -67,7 +67,7 @@ namespace Fact.Extensions.Validation.xUnit
         //[Fact]
         public async Task Test3()
         {
-            var ab = new AggregatedBinder3();
+            var ab = new AggregatedBinder();
 
             var inputEntity = new SyntheticEntity1
             {
@@ -98,7 +98,7 @@ namespace Fact.Extensions.Validation.xUnit
         public async Task Test4()
         {
             var field = new FieldStatus("synthetic");
-            var ab = new AggregatedBinder3();
+            var ab = new AggregatedBinder();
             string test1val = "test1 value";
 
             ab.AddField("test1", () => test1val).StartsWith("test2");
@@ -116,7 +116,7 @@ namespace Fact.Extensions.Validation.xUnit
         //[Fact]
         public async Task Test5()
         {
-            var ab = new AggregatedBinder3();
+            var ab = new AggregatedBinder();
             var dummy = new SyntheticEntity1();
             dummy.Password1 = "hi2u";
             var eb = ab.BindInput2(dummy);

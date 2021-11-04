@@ -18,7 +18,7 @@ namespace Fact.Extensions.Validation
         bool Sequential { get; set; }
     }
 
-    public class Context
+    public class Context : IContext
     {
         /// <summary>
         /// When true, evaluation context proceeds normally (implicitly all the way until the end)
@@ -26,11 +26,18 @@ namespace Fact.Extensions.Validation
         /// Defaults to true
         /// </summary>
         public bool Abort { get; set; } = false;
+
+        /// <summary>
+        /// Indicates synchronous operation requested (vs async)
+        /// </summary>
+        public bool Sequential { get; set; }
     }
 
 
-
-    public class Context2 : Context, IContext
+    /// <summary>
+    /// DEBT: Poor naming - this context has lots of UI/Field goodies where base one does not
+    /// </summary>
+    public class Context2 : Context
     {
         /// <summary>
         /// Current value, which starts as populated by the binder's getter but may
@@ -42,11 +49,6 @@ namespace Fact.Extensions.Validation
         /// Tends to be initialized by FieldBinder's getter
         /// </summary>
         public object InitialValue { get; }
-
-        /// <summary>
-        /// Indicates synchronous operation requested (vs async)
-        /// </summary>
-        public bool Sequential { get; set; }
 
         public CancellationToken CancellationToken { get; }
 

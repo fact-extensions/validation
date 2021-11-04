@@ -58,7 +58,7 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task EpochConversionTest()
         {
-            var ag = new AggregatedBinder3(services);
+            var ag = new AggregatedBinder(services);
 
             var fb = ag.AddField("epoch", () => long.MinValue).
                 FromEpochToDateTimeOffset();
@@ -110,7 +110,7 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task GroupValidateTest()
         {
-            var ab = new AggregatedBinder3();
+            var ab = new AggregatedBinder();
             var fb1 = ab.AddField("field1", () => "one");
             var fb2 = ab.AddField("field2", () => "two");
 
@@ -136,7 +136,7 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task GroupValidate2Test()
         {
-            var ab = new AggregatedBinder3();
+            var ab = new AggregatedBinder();
             var fb1 = ab.AddField("field1", () => "one");
             var fb2 = ab.AddField("field2", () => "two");
 
@@ -154,7 +154,7 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task InitializerTest()
         {
-            var ab = new AggregatedBinder3();
+            var ab = new AggregatedBinder();
             string value1 = null;
             string value2 = null;
             string committed1 = null;

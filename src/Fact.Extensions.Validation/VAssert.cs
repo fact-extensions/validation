@@ -71,7 +71,7 @@ namespace Fact.Extensions.Validation
         public Experimental.IEntityBinder<T> Binder { get; }
 
         public VAssert(T entity) :
-            base(new AggregatedBinder3())
+            base(new AggregatedBinder())
         {
             Binder = aggregatedBinder.BindInput2(entity);
         }

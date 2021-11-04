@@ -25,7 +25,7 @@ namespace Fact.Extensions.Validation.xUnit
         public async Task Test2()
         {
             var field = new FieldStatus("root");
-            var ab = new AggregatedBinder3();
+            var ab = new AggregatedBinder();
             var key = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\Windows NT\CurrentVersion");
             var fb = ab.Add<string>(key, "ProductName");
             fb.Contains("Windows");
@@ -60,7 +60,7 @@ namespace Fact.Extensions.Validation.xUnit
         public async Task Test3()
         {
             var field = new FieldStatus("root");
-            var ab = new AggregatedBinder3();
+            var ab = new AggregatedBinder();
             var key = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\Windows NT\CurrentVersion");
 
             var fb2 = ab.Add<int>(key, "InstallDate").AsEpoch().

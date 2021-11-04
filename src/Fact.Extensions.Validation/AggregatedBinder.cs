@@ -69,6 +69,21 @@ namespace Fact.Extensions.Validation
     }
 
 
+    public interface IAggregatedBinderBase :
+        IAggregatedBinderProvider,
+        IAggregatedBinderCollector
+    {
+    }
+
+    public interface IAggregatedBinderBase<TBinderProvider> :
+        IAggregatedBinderProvider,
+        ICollector<TBinderProvider>
+        where TBinderProvider : IBinderProvider
+    {
+        event BindersProcessedDelegate<TBinderProvider> BindersProcessed;
+    }
+
+
     public interface IAggregatedBinder3 :
         IAggregatedBinderBase, IServiceProviderProvider, IBinder3Base
     {
@@ -77,12 +92,12 @@ namespace Fact.Extensions.Validation
     /// <summary>
     /// "v3" Aggregated Binder
     /// </summary>
-    public class AggregatedBinder3 : AggregatedBinderBase3<IBinderProvider>,
+    public class AggregatedBinder : AggregatedBinderBase3<IBinderProvider>,
         IAggregatedBinder3
     {
         public IServiceProvider Services { get; }
 
-        public AggregatedBinder3(IServiceProvider services = null)
+        public AggregatedBinder(IServiceProvider services = null)
         {
             Services = services;
         }

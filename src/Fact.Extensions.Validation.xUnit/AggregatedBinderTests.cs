@@ -16,7 +16,7 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task Test1()
         {
-            var ab = new AggregatedBinder3();
+            var ab = new AggregatedBinder();
 
             var fb = ab.AddField("field1", () => 123);
 
@@ -38,7 +38,7 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task Test2()
         {
-            var ab = new AggregatedBinder3();
+            var ab = new AggregatedBinder();
             string value1 = "";
             string value2 = "4";
 

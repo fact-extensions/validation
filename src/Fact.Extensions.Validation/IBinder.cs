@@ -4,6 +4,9 @@ using System.Text;
 
 namespace Fact.Extensions.Validation
 {
+    /// <summary>
+    /// Low level binder inteface bringing in Processor and simplistic object getter
+    /// </summary>
     public interface IBinderBase : Experimental.IBinder3Base
     {
         /// <summary>

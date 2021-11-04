@@ -11,6 +11,13 @@ using System.Threading.Tasks;
 // DEBT: At this point, only "Experimental" because of clumsy naming
 namespace Fact.Extensions.Validation.Experimental
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <remarks>
+    /// TODO: Decouple IBinder3Base from Context2 since Context2 has a 1:1 field relationship, but Binder3Base'd stuff
+    /// isn't always
+    /// </remarks>
     public interface IBinder3Base : IProcessorProvider<Context2>
     {
     }
@@ -35,26 +42,6 @@ namespace Fact.Extensions.Validation.Experimental
 
 
 
-
-    public static class ProcessorProviderExtensions
-    {
-        /// <summary>
-        /// Convenience method, mainly for compatibility with Binder v2
-        /// </summary>
-        /// <typeparam name="TContext"></typeparam>
-        /// <param name="provider"></param>
-        /// <param name="context"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public static Task Process<TContext>(this IProcessorProvider<TContext> provider, TContext context, 
-            CancellationToken cancellationToken = default)
-            where TContext: IContext
-        {
-            return provider.Processor.ProcessAsync(context, cancellationToken);
-        }
-    }
-
-
     public static class Binder3Extensions
     {
         /// <summary>
@@ -65,6 +52,7 @@ namespace Fact.Extensions.Validation.Experimental
             var context = new Context2(null, binder.Field, cancellationToken);
             return binder.Processor.ProcessAsync(context, cancellationToken);
         }
+
 
         public static FluentBinder<T> As<T>(this IFieldBinder<T> binder)
         {

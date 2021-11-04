@@ -16,7 +16,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
     public partial class TestForm3 : Form
     {
         readonly IServiceProvider services;
-        readonly AggregatedBinder3 aggregatedBinder;
+        readonly AggregatedBinder aggregatedBinder;
 
         public TestForm3()
         {
@@ -28,7 +28,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         {
             this.services = services;
 
-            aggregatedBinder = new AggregatedBinder3(services);
+            aggregatedBinder = new AggregatedBinder(services);
 
             Initialize().Wait();
         }
