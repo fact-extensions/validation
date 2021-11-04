@@ -6,12 +6,21 @@ using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation
 {
-    public delegate ValueTask ProcessingDelegateAsync<TContext>(object sender, TContext context);
+    public delegate ValueTask ProcessingDelegateAsync<in TContext>(object sender, TContext context);
 
 
+    /// <summary>
+    /// EXPERIMENTAL
+    /// </summary>
+    /// <typeparam name="TContext"></typeparam>
+    public interface IProcessorEvents<out TContext>
+    {
+        event ProcessingDelegateAsync<TContext> ProcessingAsync;
+        event ProcessingDelegateAsync<TContext> ProcessedAsync;
+    }
 
     public interface IProcessor<TContext>
-    {
+    { 
         Task ProcessAsync(TContext context, CancellationToken cancellationToken = default);
     }
 
@@ -30,7 +39,8 @@ namespace Fact.Extensions.Validation
 
 
 
-    public class Processor<TContext> : IProcessor<TContext>
+    public class Processor<TContext> : IProcessor<TContext>,
+        IProcessorEvents<TContext>
         where TContext: IContext
     {
         /// <summary>
