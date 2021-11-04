@@ -93,7 +93,7 @@ namespace Fact.Extensions.Validation
         /// <param name="name"></param>
         /// <param name="getter"></param>
         public FluentBinder(string name, Func<T> getter) :
-            this(new Experimental.FieldBinder<T>(name, getter), true)
+            this(new FieldBinder<T>(name, getter), true)
         {
         }
     }

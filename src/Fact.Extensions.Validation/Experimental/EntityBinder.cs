@@ -14,6 +14,10 @@ namespace Fact.Extensions.Validation.Experimental
         PropertyInfo Property { get; }
     }
 
+
+    /// <summary>
+    /// 
+    /// </summary>
     public abstract class PropertyBinderProvider : AggregatedBinderBase.ItemBase, IPropertyProvider
     {
         public PropertyInfo Property { get; }
@@ -26,7 +30,7 @@ namespace Fact.Extensions.Validation.Experimental
             foreach (var a in attributes)
                 a.Configure(fluentBinder);
 
-            ((IFieldBinder)fluentBinder.Binder).Processor.ProcessingAsync += (_, context) =>
+            fluentBinder.Binder.Processor.ProcessingAsync += (_, context) =>
             {
                 // handled automatically by FluentBinder2
                 //statuses.Clear();
@@ -51,6 +55,10 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+    /// <summary>
+    /// Associates a specified property with an IFluentBinder
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class PropertyBinderProvider<T> : 
         PropertyBinderProvider,
         IBinderProvider<T>
@@ -245,6 +253,14 @@ namespace Fact.Extensions.Validation.Experimental
             return item;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="aggregatedBinder"></param>
+        /// <param name="property"></param>
+        /// <returns></returns>
         static PropertyBinderProvider<T> CreatePropertyItem<T>(IBinderBase aggregatedBinder, PropertyInfo property)
         {
             var field = new FieldStatus<T>(property.Name, default(T));
