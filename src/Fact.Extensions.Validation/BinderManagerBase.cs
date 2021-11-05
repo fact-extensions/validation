@@ -48,7 +48,7 @@ namespace Fact.Extensions.Validation
     }
 
     /// <summary>
-    /// Serves up core IBinderBase
+    /// Serves up core IFieldBinder
     /// </summary>
     public interface IBinderProviderBase : IBinderProviderBase<IFieldBinder>
     {
@@ -80,17 +80,13 @@ namespace Fact.Extensions.Validation
     {
         public class ItemBase : IBinderProvider
         {
-            // DEBT: Due to InternalBindText clumsiness, have to make this non readonly
-            public IFieldBinder binder;
-
             public IFluentBinder FluentBinder { get; }
             
-            // DEBT: Still transitioning to IBinder2, so clumsy here
-            public IFieldBinder Binder => binder;
+            public IFieldBinder Binder { get; }
 
             public ItemBase(IFieldBinder binder, IFluentBinder fluentBinder)
             {
-                this.binder = binder;
+                Binder = binder;
                 FluentBinder = fluentBinder;
             }
         }
