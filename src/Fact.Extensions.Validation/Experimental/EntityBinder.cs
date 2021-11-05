@@ -456,6 +456,34 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
+        /// <summary>
+        /// NOT READY YET
+        /// </summary>
+        /// <param name="binder"></param>
+        /// <param name="p"></param>
+        /// <param name="getInstance"></param>
+        /// <returns></returns>
+        public static FluentBinder AddField(this IAggregatedBinderBase binder, PropertyInfo p, Func<object> getInstance)
+        {
+            return binder.AddField(p.Name, () => p.GetValue(getInstance()));
+        }
+
+
+        public static FluentBinder<TProperty> AddField<T, TProperty>(this IAggregatedBinderBase binder, Expression<Func<T, TProperty>> propertyLambda, Func<T> getInstance)
+        {
+            var name = propertyLambda.Name;
+            var member = propertyLambda.Body as MemberExpression;
+            var property = member.Member as PropertyInfo;
+
+            FluentBinder<TProperty> fluentBinder =
+                binder.AddField(property.Name, () => (TProperty)property.GetValue(getInstance()));
+
+            PropertyBinderProvider.InitValidation(fluentBinder, property);
+
+            return fluentBinder;
+        }
+
+
         public class SummaryProcessor
         {
             internal Dictionary<IBinderProvider, Item> items = new Dictionary<IBinderProvider, Item>();

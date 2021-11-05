@@ -169,5 +169,25 @@ namespace Fact.Extensions.Validation.xUnit
             statuses.Should().HaveCount(1);
             statuses[0].Level.Should().Be(Status.Code.Error);
         }
+
+
+        [Fact]
+        public async Task Test6()
+        {
+            var binder = new AggregatedBinder();
+            var entity = new Synthetic.SyntheticEntity1();
+
+            binder.AddField(e => e.Password1, () => entity);
+            binder.AddField(e => e.Password2, () => entity);
+
+            entity.Password2 = "hi2u";
+
+            await binder.Process();
+
+            var fields = binder.Fields().ToArray(); 
+            var statuses = fields[0].Statuses.ToArray();
+
+            statuses.Should().HaveCount(1);
+        }
     }
 }

@@ -58,7 +58,9 @@ namespace Fact.Extensions.Validation
         }
 
 
-        public static IFluentBinder<T> Commit<T>(this IFluentBinder<T> fluentBinder, Committer committer, Action<T> commit)
+        public static TFluentBinder Commit<T, TFluentBinder>(this TFluentBinder fluentBinder, Committer committer,
+            Action<T> commit)
+            where TFluentBinder: IFluentBinder<T>
         {
             committer.Committing += () =>
             {
