@@ -27,8 +27,8 @@ namespace Fact.Extensions.Validation.xUnit
             //var field = new FieldStatus("synthetic");
 
             var ab = new AggregatedBinder();
-            var inputEntity = new SyntheticEntity1();
-            var outputEntity = new SyntheticEntity1();
+            var inputEntity = new Synthetic.SyntheticEntity1();
+            var outputEntity = new Synthetic.SyntheticEntity1();
 
             inputEntity.UserName = "fred";
 
@@ -52,10 +52,10 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var eb = new AggregatedBinder();
 
-            eb.AddField<string>(nameof(SyntheticEntity1.Password1), () => null);
-            eb.AddField<string>(nameof(SyntheticEntity1.Password2), () => null);
+            eb.AddField<string>(nameof(Synthetic.SyntheticEntity1.Password1), () => null);
+            eb.AddField<string>(nameof(Synthetic.SyntheticEntity1.Password2), () => null);
             
-            eb.BindValidation(typeof(SyntheticEntity1));
+            eb.BindValidation(typeof(Synthetic.SyntheticEntity1));
             await eb.Process();
 
             var fields = eb.Fields().ToArray();
@@ -69,7 +69,7 @@ namespace Fact.Extensions.Validation.xUnit
         {
             var ab = new AggregatedBinder();
 
-            var inputEntity = new SyntheticEntity1
+            var inputEntity = new Synthetic.SyntheticEntity1
             {
                 Password1 = "bye"
             };
@@ -117,7 +117,7 @@ namespace Fact.Extensions.Validation.xUnit
         public async Task Test5()
         {
             var ab = new AggregatedBinder();
-            var dummy = new SyntheticEntity1();
+            var dummy = new Synthetic.SyntheticEntity1();
             dummy.Password1 = "hi2u";
             var eb = ab.BindInput2(dummy);
 
@@ -149,7 +149,7 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public void PropertyBinderProviderCreate()
         {
-            var obj = new SyntheticEntity1();
+            var obj = new Synthetic.SyntheticEntity1();
             var prop = obj.GetType().GetProperty(nameof(obj.Password1));
             var pbp = PropertyBinderProvider.Create(prop, () => obj);
             pbp.Should().BeOfType<PropertyBinderProvider<string>>();
@@ -159,8 +159,8 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public async Task BasicEntityBinderTest1()
         {
-            var entity = new SyntheticEntity1();
-            var binder = new BasicEntityBinder(typeof(SyntheticEntity1), () => entity);
+            var entity = new Synthetic.SyntheticEntity1();
+            var binder = new BasicEntityBinder(typeof(Synthetic.SyntheticEntity1), () => entity);
             var context = new Context2(null, null, default);
             await binder.Processor.ProcessAsync(context);
             var fields = binder.Fields().ToArray();

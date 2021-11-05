@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Fact.Extensions.Validation.xUnit
+namespace Fact.Extensions.Validation.Synthetic
 {
     using Experimental;
 

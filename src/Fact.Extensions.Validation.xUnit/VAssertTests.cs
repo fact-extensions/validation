@@ -21,7 +21,7 @@ namespace Fact.Extensions.Validation.xUnit
             this.services = fixture.Services;
         }
 
-        async Task DoAssert1(SyntheticEntity1 se1, int param1)
+        async Task DoAssert1(Synthetic.SyntheticEntity1 se1, int param1)
         {
             var va = asserter.From(se1);
 
@@ -39,7 +39,7 @@ namespace Fact.Extensions.Validation.xUnit
         //[Fact]
         public async Task Test1()
         {
-            var se1 = new SyntheticEntity1
+            var se1 = new Synthetic.SyntheticEntity1
             {
                 Password1 = "hi2u"
             };
