@@ -54,7 +54,7 @@ namespace Fact.Extensions.Validation.Experimental
     /// <summary>
     /// Statuses come from external party
     /// </summary>
-    public class ShimFieldBaseBase
+    public class ShimFieldBaseBase : IField
     {
         public string Name { get; }
 
@@ -62,10 +62,15 @@ namespace Fact.Extensions.Validation.Experimental
 
         public IEnumerable<Status> Statuses => statuses;
 
-        public ShimFieldBaseBase(string name, ICollection<Status> statuses)
+        readonly Func<object> getter;    // TODO: Maybe make this acquired direct from FluentBinder2
+
+        object IValueProvider<object>.Value => getter();
+
+        internal ShimFieldBaseBase(string name, ICollection<Status> statuses, Func<object> getter)
         {
             Name = name;
             this.statuses = statuses;
+            this.getter = getter;
         }
 
         // Clear only the locally shimmed in statuses - leave original field alone

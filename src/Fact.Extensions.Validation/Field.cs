@@ -10,17 +10,28 @@ namespace Fact.Extensions.Validation
         string Name { get; }
     }
 
-    public interface IField : IFieldBase,
-        IFieldStatusCollector,
-        IFieldStatusProvider2
+
+    public interface IValueProvider<out T>
     {
-        object Value { get; }
+        T Value { get; }
     }
 
 
-    public interface IField<out T> : IField
+    public interface IFieldStatus : IFieldBase,
+        IFieldStatusCollector,
+        IFieldStatusProvider2
     {
-        new T Value { get; }
+    }
+
+    public interface IField : IFieldStatus,
+        IValueProvider<object>
+    {
+    }
+
+
+    public interface IField<out T> : IFieldStatus,
+        IValueProvider<T>
+    {
     }
 
 

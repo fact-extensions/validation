@@ -27,7 +27,7 @@ namespace Fact.Extensions.Validation
 
 
     /// <summary>
-    /// "v3" binder with has-a processor
+    /// Binder with has-a processor ala IBinderBase
     /// Dedicated to IField binding
     /// </summary>
     public interface IFieldBinder : IBinderBase

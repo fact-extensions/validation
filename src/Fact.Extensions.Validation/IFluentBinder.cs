@@ -49,7 +49,7 @@ namespace Fact.Extensions.Validation
     }
 
     public interface IFieldProvider<out TField>
-        where TField: IField
+        where TField: IFieldBase
     {
         TField Field { get; }
     }

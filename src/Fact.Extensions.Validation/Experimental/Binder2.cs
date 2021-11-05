@@ -144,13 +144,12 @@ namespace Fact.Extensions.Validation.Experimental
         IField<T>
     {
         readonly Func<T> getter;    // TODO: Maybe make this acquired direct from FluentBinder2
-        object IField.Value => getter();
 
         public T Value => getter();
 
         internal ShimFieldBase2(string name, ICollection<Status> statuses, 
             Func<T> getter) :
-            base(name, statuses)
+            base(name, statuses, () => getter())
         {
             this.getter = getter;
         }
