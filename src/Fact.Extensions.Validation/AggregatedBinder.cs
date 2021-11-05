@@ -48,12 +48,12 @@ namespace Fact.Extensions.Validation
             {
                 foreach (TBinderProvider provider in providers)
                 {
+                    await provider.Binder.Processor.ProcessAsync(context, context.CancellationToken);
+
                     // DEBT: when running through providers sometimes they abort, but we overall want to keep
                     // going.  So brute forcing abort to false always -- this feels like the wrong place to do
                     // this though
                     context.Abort = false;
-
-                    await provider.Binder.Processor.ProcessAsync(context, context.CancellationToken);
                 }
             };
 
