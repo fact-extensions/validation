@@ -43,5 +43,15 @@ namespace Fact.Extensions.Validation
 
         public static FluentBinder<DateTimeOffset> ToDateTimeOffset(this IFluentBinder<long, Experimental.Traits.Epoch> fb) =>
             FromEpochToDateTimeOffset<long>(fb);
+
+        /// <summary>
+        /// Tags the fluent binder as a UNIX Epoch
+        /// </summary>
+        /// <param name="fb"></param>
+        /// <returns></returns>
+        public static FluentBinder<int, Experimental.Traits.Epoch> AsEpoch(this IFluentBinder<int> fb) =>
+            fb.WithTrait<int, Experimental.Traits.Epoch>();
+
+
     }
 }

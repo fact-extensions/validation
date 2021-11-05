@@ -147,41 +147,10 @@ namespace Fact.Extensions.Validation.Experimental
 
 
 
-        static bool FilterStatus(Status s)
-            => s.Level != Status.Code.OK;
-
-        public static IFluentBinder<T> Emit<T>(this IFluentBinder<T> fb, Action<T> emitter,
-            Func<Status, bool> whenStatus = null, bool bypassFilter = false)
-        {
-            if (whenStatus == null) whenStatus = FilterStatus;
-
-            fb.Binder.Processor.ProcessingAsync += (_, context) =>
-            {
-                IField field = context.Field;
-                IField<T> f = fb.Field;
-
-                if (bypassFilter || !field.Statuses.Any(whenStatus))
-                    emitter(f.Value);
-
-                return new ValueTask();
-            };
-            return fb;
-        }
-
-
         public static FluentBinder<T, TTrait> WithTrait<T, TTrait>(this IFluentBinder<T> fb,
             TTrait trait = default(TTrait)) =>
             // DEBT: Smooth out this cast
             new FluentBinder<T, TTrait>((IFieldBinder<T>)fb.Binder, false);
-
-
-        /// <summary>
-        /// Tags the fluent binder as a UNIX Epoch
-        /// </summary>
-        /// <param name="fb"></param>
-        /// <returns></returns>
-        public static FluentBinder<int, Traits.Epoch> AsEpoch(this IFluentBinder<int> fb) =>
-            fb.WithTrait<int, Traits.Epoch>();
 
 
         // EXPERIMENTAL
