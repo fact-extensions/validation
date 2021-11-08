@@ -58,15 +58,6 @@ namespace Fact.Extensions.Validation
             return new FieldBinder<T>(name, () => (T)getter());
         }
 
-        // Phasing AbortOnNull out at FieldBinder level
-        public bool AbortOnNull => false;
-
-
-        static bool DefaultIsNull(T value) =>
-            // We don't want this at all, for example int of 0 is valid in all kinds of scenarios
-            //Equals(value, default(T));
-            value == null;
-
         public Func<T> getter { get; }
 
         // DEBT: Pretty sure I do not like giving this a 'set;'
@@ -80,11 +71,9 @@ namespace Fact.Extensions.Validation
             this.getter = getter;
             this.setter = setter;
 
+            // DEBT: Somehow, we need at minimum this ProcessingAsync in here -- don't know why
             Processor.ProcessingAsync += (sender, context) =>
             {
-                if (AbortOnNull && DefaultIsNull((T)context.InitialValue))
-                    context.Abort = true;
-
                 return new ValueTask();
             };
         }

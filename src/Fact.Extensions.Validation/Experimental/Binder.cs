@@ -94,37 +94,6 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
-    public interface IBinder : IBinderBase
-    {
-        /// <summary>
-        /// When true, bound value is basically optional and processing aborts immediately
-        /// when a null is seen.  When false, null is passed right on through the processing
-        /// chain.  Defaults to true
-        /// </summary>
-        /// <remarks>
-        /// DEBT: May not want this here
-        /// </remarks>
-        bool AbortOnNull { get; set; }
-    }
-
-
-    [Obsolete("Replaced by FieldBinder")]
-    public class BinderBase
-    {
-        protected readonly IField field;
-
-        public IField Field => field;
-
-        protected BinderBase(IField field)
-        {
-            this.field = field;
-        }
-
-        // Bringing back binder-level commit ability
-        public Committer Committer { get; } = new Committer();
-    }
-
-
 #if UNUSED
     [Obsolete("Replaced by FieldBinder")]
     public class BinderBase<T> : BinderBase, IBinderBase<T>
