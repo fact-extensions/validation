@@ -22,6 +22,14 @@ namespace Fact.Extensions.Validation.Experimental
     {
         public PropertyInfo Property { get; }
 
+        public static PropertyBinderProvider Create(PropertyInfo property, Func<object> getObj)
+        {
+            var type = typeof(PropertyBinderProvider<>).MakeGenericType(property.PropertyType);
+            var ctor = type.GetRuntimeMethods().First(x => x.Name == nameof(PropertyBinderProvider<object>.Create));
+            var pbp = (PropertyBinderProvider)ctor.Invoke(null, new object[] { property, getObj });
+            return pbp;
+        }
+
         public static void InitValidation<T>(IFluentBinder<T> fluentBinder, PropertyInfo property)
         {
             var shimField = fluentBinder.Field;
@@ -64,6 +72,19 @@ namespace Fact.Extensions.Validation.Experimental
         IBinderProvider<T>
     {
         public new IFluentBinder<T> FluentBinder { get; }
+
+
+        /// <summary>
+        /// Creates a property binder where property hangs off instance returned by getObj
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="getObj"></param>
+        /// <returns></returns>
+        public new static PropertyBinderProvider<T> Create(PropertyInfo property, Func<object> getObj)
+        {
+            var fb = new FluentBinder<T>(property.Name, () => (T)property.GetValue(getObj()));
+            return new PropertyBinderProvider<T>(fb, property);
+        }
 
         public override void InitValidation()
         {
@@ -158,16 +179,27 @@ namespace Fact.Extensions.Validation.Experimental
     /// <summary>
     /// Most simplistic entity binder you can get.  Maybe underpowered
     /// </summary>
-    public class BasicEntityBinder : Binder3Base, IBinderBase
+    public class BasicEntityBinder : Binder3Base, IBinderBase, IAggregatedBinderProvider
     {
         readonly AggregatedBinder aggregatedBinder = new AggregatedBinder();
         
         public BasicEntityBinder(Type t, Func<object> getter)
         {
             this.getter = getter;
+
+            var properties = t.GetRuntimeProperties();
+
+            foreach(var property in properties)
+            {
+                var pbp = PropertyBinderProvider.Create(property, getter);
+
+                aggregatedBinder.Add(pbp);
+            }
         }
 
         public Func<object> getter { get; }
+
+        public IEnumerable<IBinderProvider> Providers => aggregatedBinder.Providers;
     }
 
     /// <summary>

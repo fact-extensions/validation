@@ -144,5 +144,26 @@ namespace Fact.Extensions.Validation.xUnit
             statuses = ab.Fields().SelectMany(f => f.Statuses).ToArray();
             statuses.Should().HaveCount(0);
         }
+
+
+        [Fact]
+        public void PropertyBinderProviderCreate()
+        {
+            var obj = new SyntheticEntity1();
+            var prop = obj.GetType().GetProperty(nameof(obj.Password1));
+            var pbp = PropertyBinderProvider.Create(prop, () => obj);
+            pbp.Should().BeOfType<PropertyBinderProvider<string>>();
+        }
+
+
+        [Fact]
+        public async Task BasicEntityBinderTest1()
+        {
+            var entity = new SyntheticEntity1();
+            var binder = new BasicEntityBinder(typeof(SyntheticEntity1), () => entity);
+            var context = new Context2(null, null, default);
+            await binder.Processor.ProcessAsync(context);
+            var fields = binder.Fields();
+        }
     }
 }
