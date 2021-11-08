@@ -154,6 +154,22 @@ namespace Fact.Extensions.Validation.Experimental
     }
 #endif
 
+
+    /// <summary>
+    /// Most simplistic entity binder you can get.  Maybe underpowered
+    /// </summary>
+    public class BasicEntityBinder : Binder3Base, IBinderBase
+    {
+        readonly AggregatedBinder aggregatedBinder = new AggregatedBinder();
+        
+        public BasicEntityBinder(Type t, Func<object> getter)
+        {
+            this.getter = getter;
+        }
+
+        public Func<object> getter { get; }
+    }
+
     /// <summary>
     /// Experimental helper for only-reflection-entity assistance
     /// </summary>

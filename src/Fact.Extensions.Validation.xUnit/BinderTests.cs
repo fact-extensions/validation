@@ -230,5 +230,16 @@ namespace Fact.Extensions.Validation.xUnit
 
             gotHere.Should().HaveCount(3);
         }
+
+
+        [Fact]
+        public void ForwardConstructorTest()
+        {
+            var fieldBinder = FieldBinder.Create(typeof(int), "int-val", () => 7);
+            var typedFieldBinder = fieldBinder.Should().BeOfType<FieldBinder<int>>().Subject;
+            
+            // Field itself is always default(T) at this point
+            //typedFieldBinder.Field.Value.Should().Be(7);
+        }
     }
 }

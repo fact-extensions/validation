@@ -1,22 +1,66 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation
 {
+    public class FieldBinder : Experimental.Binder3Base
+    {
+        public IField Field { get; }
+
+        protected FieldBinder(IField field)
+        {
+            Field = field;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="t"></param>
+        /// <param name="getter"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// DEBT: Doing this in part because GetConstructor isn't available for netstandard13
+        /// </remarks>
+        public static IFieldBinder Create(Type t, string name, Func<object> getter)
+        {
+            var ctorHelper = typeof(FieldBinder<>).MakeGenericType(t).
+                GetRuntimeMethods().First((x => x.Name == "Create"));
+            var fieldBinder = ctorHelper.Invoke(null, new object[] { name, getter });
+
+            return (IFieldBinder)fieldBinder;
+        }
+    }
+    
     /// <summary>
     /// Core field binder attached to a particular type T
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class FieldBinder<T> : Experimental.Binder3Base,
+    public class FieldBinder<T> : FieldBinder,
         IFieldBinder<T>
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="getter"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// DEBT: Sloppy cast on getter to accomodate FieldBinder.Create
+        /// </remarks>
+        public static FieldBinder<T> Create(string name, Func<object> getter)
+        {
+            return new FieldBinder<T>(name, () => (T)getter());
+        }
+
         // Phasing AbortOnNull out at FieldBinder level
         public bool AbortOnNull => false;
 
-        public IField Field { get; }
 
         static bool DefaultIsNull(T value) =>
             // We don't want this at all, for example int of 0 is valid in all kinds of scenarios
@@ -32,12 +76,12 @@ namespace Fact.Extensions.Validation
 
         Func<object> IBinderBase.getter => () => getter();
 
-        public FieldBinder(IField field, Func<T> getter, Action<T> setter = null)
+        public FieldBinder(IField field, Func<T> getter, Action<T> setter = null) : 
+            base(field)
         {
-            Field = field;
             this.getter = getter;
             this.setter = setter;
-            this.isNull = isNull ?? DefaultIsNull;
+            this.isNull = DefaultIsNull;
 
             Processor.ProcessingAsync += (sender, context) =>
             {
