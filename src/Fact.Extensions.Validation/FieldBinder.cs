@@ -30,7 +30,7 @@ namespace Fact.Extensions.Validation
         public static IFieldBinder Create(Type t, string name, Func<object> getter)
         {
             var ctorHelper = typeof(FieldBinder<>).MakeGenericType(t).
-                GetRuntimeMethods().First((x => x.Name == "Create"));
+                GetRuntimeMethods().First((x => x.Name == nameof(FieldBinder<object>.Create)));
             var fieldBinder = ctorHelper.Invoke(null, new object[] { name, getter });
 
             return (IFieldBinder)fieldBinder;
@@ -67,8 +67,6 @@ namespace Fact.Extensions.Validation
             //Equals(value, default(T));
             value == null;
 
-        readonly Func<T, bool> isNull;
-
         public Func<T> getter { get; }
 
         // DEBT: Pretty sure I do not like giving this a 'set;'
@@ -81,11 +79,10 @@ namespace Fact.Extensions.Validation
         {
             this.getter = getter;
             this.setter = setter;
-            this.isNull = DefaultIsNull;
 
             Processor.ProcessingAsync += (sender, context) =>
             {
-                if (AbortOnNull && isNull((T)context.InitialValue))
+                if (AbortOnNull && DefaultIsNull((T)context.InitialValue))
                     context.Abort = true;
 
                 return new ValueTask();
