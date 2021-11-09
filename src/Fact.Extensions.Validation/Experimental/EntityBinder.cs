@@ -181,7 +181,8 @@ namespace Fact.Extensions.Validation.Experimental
     /// </summary>
     public class BasicEntityBinder : Binder3Base, IBinderBase, IAggregatedBinderProvider
     {
-        readonly AggregatedBinder aggregatedBinder = new AggregatedBinder();
+        readonly AggregatedBinderBase3<PropertyBinderProvider> aggregatedBinder = 
+            new AggregatedBinderBase3<PropertyBinderProvider>();
         
         public BasicEntityBinder(Type t, Func<object> getter)
         {
@@ -193,8 +194,17 @@ namespace Fact.Extensions.Validation.Experimental
             {
                 var pbp = PropertyBinderProvider.Create(property, getter);
 
+                pbp.InitValidation();
+
                 aggregatedBinder.Add(pbp);
             }
+
+            // DEBT: Feels a little wrong encapsulating a whole process cycle in this one
+            // ProcessingAsync responder
+            Processor.ProcessingAsync += async (_, context) =>
+            {
+                await aggregatedBinder.Processor.ProcessAsync(context);
+            };
         }
 
         public Func<object> getter { get; }

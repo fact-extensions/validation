@@ -163,7 +163,11 @@ namespace Fact.Extensions.Validation.xUnit
             var binder = new BasicEntityBinder(typeof(SyntheticEntity1), () => entity);
             var context = new Context2(null, null, default);
             await binder.Processor.ProcessAsync(context);
-            var fields = binder.Fields();
+            var fields = binder.Fields().ToArray();
+            fields.Should().HaveCount(3);
+            var statuses = fields[0].Statuses.ToArray();
+            statuses.Should().HaveCount(1);
+            statuses[0].Level.Should().Be(Status.Code.Error);
         }
     }
 }
