@@ -15,7 +15,7 @@ namespace Fact.Extensions.Validation.WinForms
 {
     public static class AggregatedBinderExtensions
     {
-        static BinderManagerBase.Item<T> Setup<TAggregatedBinder, T>(TAggregatedBinder aggregatedBinder, Control control,
+        static SourceBinderProvider<Control, T> Setup<TAggregatedBinder, T>(TAggregatedBinder aggregatedBinder, Control control,
             Func<T> getter, 
             Action<Tracker<T>> initEvent,
             Func<InputContext> inputContextFactory,
@@ -30,9 +30,9 @@ namespace Fact.Extensions.Validation.WinForms
             var tracker = new Tracker<T>(getter());
             initEvent(tracker);
 
-            BinderManagerBase.Item<T> bp = aggregatedBinder.AddField(control.Name,
+            SourceBinderProvider<Control, T> bp = aggregatedBinder.AddField(control.Name,
                 () => tracker.Value,
-                _fb => new BinderManagerBase.Item<T>(_fb, control, tracker));
+                _fb => new SourceBinderProvider<Control, T>(_fb, control, tracker));
 
             var f = (FieldStatus<T>)bp.Binder.Field;   // DEBT: Sloppy cast
             tracker.Updated += async (v, c) =>
@@ -153,9 +153,9 @@ namespace Fact.Extensions.Validation.WinForms
     {
         BinderManagerBase.ColorOptions colorOptions = new BinderManagerBase.ColorOptions();
 
-        public void Initialize(BinderManagerBase.Item item) => ContentChanged(item);
+        public void Initialize(ISourceBinderProvider<Control> item) => ContentChanged(item);
 
-        public void ContentChanged(BinderManagerBase.Item item)
+        public void ContentChanged(ISourceBinderProvider<Control> item)
         {
             bool hasStatus = item.Binder.Field.Statuses.Any();
 
@@ -165,7 +165,7 @@ namespace Fact.Extensions.Validation.WinForms
         }
 
 
-        public void FocusLost(BinderManagerBase.Item item)
+        public void FocusLost(ISourceBinderProvider<Control> item)
         {
             bool hasStatus = item.Binder.Field.Statuses.Any();
 
@@ -175,7 +175,7 @@ namespace Fact.Extensions.Validation.WinForms
         }
 
 
-        public void FocusGained(BinderManagerBase.Item item)
+        public void FocusGained(ISourceBinderProvider<Control> item)
         {
             bool hasStatus = item.Binder.Field.Statuses.Any();
 

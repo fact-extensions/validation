@@ -93,9 +93,11 @@ namespace Fact.Extensions.Validation
     }
 
 
-    public class BinderProviderBase<T> : BinderProviderBase
+    public class BinderProviderBase<T> : BinderProviderBase, IBinderProvider<T>
     {
         public new FluentBinder<T> FluentBinder { get; }
+
+        IFluentBinder<T> IBinderProvider<T>.FluentBinder => FluentBinder;
 
         public BinderProviderBase(IFieldBinder binder, FluentBinder<T> fluentBinder) : base(binder, fluentBinder)
         {
@@ -108,76 +110,56 @@ namespace Fact.Extensions.Validation
         bool IsModified { get; }
     }
 
-    public class BinderManagerBase
+
+    /// <summary>
+    /// A binder provider which is aware of when its getter() value changes
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class InteractiveBinderProvider<T> : BinderProviderBase<T>, IModified
     {
+        public readonly Tracker<T> tracked;
+
+
         /// <summary>
-        /// Has smarts to track whether we're modified
+        /// As per tracker, indicates whether core bound value has been changed since we
+        /// started tracking its initial value
         /// </summary>
-        public class ItemBase : BinderProviderBase, IModified
-        {
-            public event Action Initialize;
-            public virtual bool IsModified => false;
+        public bool IsModified => tracked.IsModified;
 
-            public void DoInitialize() => Initialize?.Invoke();
-
-            public ItemBase(IFluentBinder fluentBinder) : 
+        public InteractiveBinderProvider(FluentBinder<T> fluentBinder, Tracker<T> tracker) :
                 base(fluentBinder.Binder, fluentBinder)
-            {
-            }
-        }
-
-        public class ItemBase<T> : ItemBase
         {
-            public new FluentBinder<T> FluentBinder { get; }
-
-            public ItemBase(FluentBinder<T> fluentBinder) : base(fluentBinder)
-            {
-                FluentBinder = fluentBinder;
-            }
+            tracked = tracker;
         }
     }
 
 
     /// <summary>
-    /// Semi-specifically for GUI controls, though really a small refactor could make this into TContext or TMeta
-    /// to make it fully inspecific
+    /// DEBT: Needs name cleanup - an interactive binder provider with associated metadata
     /// </summary>
     /// <typeparam name="TSource"></typeparam>
-    public class BinderManagerBase<TSource> : BinderManagerBase
+    /// <typeparam name="T"></typeparam>
+    public class SourceBinderProvider<TSource, T> : InteractiveBinderProvider<T>, ISourceBinderProvider<TSource>
     {
-        public class Item : ItemBase
+        public TSource Control { get; }
+
+        public SourceBinderProvider(FluentBinder<T> fluentBinder, TSource source, Tracker<T> tracker) :
+            base(fluentBinder, tracker)
         {
-            public TSource Control;
-
-
-
-            public Item(IFluentBinder fluentBinder, TSource source) : 
-                base(fluentBinder)
-            {
-                Control = source;
-            }
-        }
-
-        public class Item<T> : Item, IBinderProvider<T>
-        {
-            public readonly Tracker<T> tracked;
-
-
-            /// <summary>
-            /// As per tracker, indicates whether core bound value has been changed since we
-            /// started tracking its initial value
-            /// </summary>
-            public override bool IsModified => tracked.IsModified;
-
-            IFluentBinder<T> IBinderProvider<T>.FluentBinder => (IFluentBinder<T>)base.FluentBinder;
-
-            public Item(IFluentBinder<T> fluentBinder, TSource source, Tracker<T> tracker) :
-                base(fluentBinder, source)
-            {
-                tracked = tracker;
-            }
+            Control = source;
         }
     }
+
+
+    /// <summary>
+    /// DEBT: Needs name cleanup
+    /// </summary>
+    /// <typeparam name="TControl"></typeparam>
+    public interface ISourceBinderProvider<TControl> : IBinderProvider, IModified
+    {
+        TControl Control { get; }
+    }
+
 
 
     public static class IAggregatedBinderExtensions

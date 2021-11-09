@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace Fact.Extensions.Validation.WinForms
 {
-    public class BinderManagerBase : BinderManagerBase<Control>
+    public class BinderManagerBase
     {
         public class ColorOptions
         {

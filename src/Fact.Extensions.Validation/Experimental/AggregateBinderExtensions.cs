@@ -38,7 +38,7 @@ namespace Fact.Extensions.Validation.Experimental
 
 
         /// <summary>
-        /// Adds a field with new binders to the aggregator using stock standard BinderManagerBase provider
+        /// Adds a field with new binders to the aggregator using stock standard BinderProviderBase
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="binder"></param>
@@ -46,7 +46,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="getter"></param>
         /// <returns></returns>
         public static FluentBinder<T> AddField<T>(this IAggregatedBinderCollector binder, string name, Func<T> getter) =>
-            binder.AddField(name, getter, fb => new BinderManagerBase.ItemBase<T>(fb)).FluentBinder;
+            binder.AddField(name, getter, fb => new BinderProviderBase<T>(fb.Binder, fb)).FluentBinder;
 
 
         /// <summary>
