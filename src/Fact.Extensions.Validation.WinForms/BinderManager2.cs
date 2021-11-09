@@ -32,11 +32,11 @@ namespace Fact.Extensions.Validation.WinForms
         /// precluding a regular tracker.Update from picking up those results.
         /// DEBT: This can be moved out of the winforms-specific area
         /// </remarks>
-        static void ConfigureTracker<T>(IBinderProvider bp, Tracker<T> tracker, 
+        static void ConfigureTracker<T>(IFieldBinder binder, Tracker<T> tracker, 
             Func<InputContext> inputContextFactory,
             CancellationToken cancellationToken, Action continueWith)
         {
-            var f = (FieldStatus<T>)bp.Binder.Field;   // DEBT: Sloppy cast
+            var f = (FieldStatus<T>)binder.Field;   // DEBT: Sloppy cast
 
             // FIX: No win scenario here:
             // - performing this async means that it's predictable that update processing won't finish registering
@@ -52,7 +52,7 @@ namespace Fact.Extensions.Validation.WinForms
                 var context = new Context2(null, f, cancellationToken);
                 context.InputContext = inputContextFactory();
 
-                await bp.Binder.Processor.ProcessAsync(context, cancellationToken);
+                await binder.Processor.ProcessAsync(context, cancellationToken);
 
                 continueWith();
             };
@@ -77,7 +77,7 @@ namespace Fact.Extensions.Validation.WinForms
                 () => tracker.Value,
                 _fb => new SourceBinderProvider<Control, T>(_fb, control, tracker));
 
-            ConfigureTracker(bp, tracker, inputContextFactory, cancellationToken,
+            ConfigureTracker(bp.Binder, tracker, inputContextFactory, cancellationToken,
                 () => styleManager.ContentChanged(bp));
 
             // DEBT: Heed the isProcessing awareness so as to reflect async status
