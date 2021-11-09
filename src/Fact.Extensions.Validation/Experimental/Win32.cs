@@ -21,7 +21,7 @@ namespace Fact.Extensions.Validation.Experimental
 
     // DEBT: Wants to attach to a parent binder, since this isn't an aggregated binder of its own
     public class RegistryBinder : 
-        AggregatedBinderBase3<RegistryBinder.Provider>,
+        AggregatedBinderBase<RegistryBinder.Provider>,
         IRegistryBinder
     {
         /// <summary>
@@ -30,7 +30,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// <remarks>
         /// Could have used ItemBase directly, but breaking it out here in case we want to track extra things
         /// </remarks>
-        public class Provider : AggregatedBinderBase.ItemBase
+        public class Provider : BinderProviderBase
         {
             public Provider(IFluentBinder fb) : base(fb.Binder, fb)
             {

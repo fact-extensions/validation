@@ -11,13 +11,13 @@ namespace Fact.Extensions.Validation
 
     public delegate void BindersProcessedDelegate<TBinderProvider>(IEnumerable<TBinderProvider> binders, Context2 context);
 
-    public class AggregatedBinderBase3<TBinderProvider> : Experimental.Binder3Base,
+    public class AggregatedBinderBase<TBinderProvider> : Experimental.Binder3Base,
         IAggregatedBinderBase<TBinderProvider>
         where TBinderProvider : IBinderProvider
     {
         readonly List<TBinderProvider> providers = new List<TBinderProvider>();
 
-        public IEnumerable<IBinderProvider> Providers => providers.Cast<IBinderProvider>();
+        public IEnumerable<TBinderProvider> Providers => providers;
 
         /// <summary>
         /// Occurs after interactive/discrete binder processing, whether it generated new status or not
@@ -42,7 +42,7 @@ namespace Fact.Extensions.Validation
             };
         }
 
-        public AggregatedBinderBase3()
+        public AggregatedBinderBase()
         {
             Processor.ProcessingAsync += async (sender, context) =>
             {
@@ -76,7 +76,7 @@ namespace Fact.Extensions.Validation
     }
 
     public interface IAggregatedBinderBase<TBinderProvider> :
-        IAggregatedBinderProvider,
+        IAggregatedBinderProvider<TBinderProvider>,
         ICollector<TBinderProvider>
         where TBinderProvider : IBinderProvider
     {
@@ -92,7 +92,7 @@ namespace Fact.Extensions.Validation
     /// <summary>
     /// "v3" Aggregated Binder
     /// </summary>
-    public class AggregatedBinder : AggregatedBinderBase3<IBinderProvider>,
+    public class AggregatedBinder : AggregatedBinderBase<IBinderProvider>,
         IAggregatedBinder3
     {
         public IServiceProvider Services { get; }

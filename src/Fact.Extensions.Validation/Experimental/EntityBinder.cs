@@ -18,7 +18,7 @@ namespace Fact.Extensions.Validation.Experimental
     /// <summary>
     /// 
     /// </summary>
-    public abstract class PropertyBinderProvider : AggregatedBinderBase.ItemBase, IPropertyProvider
+    public abstract class PropertyBinderProvider : BinderProviderBase, IPropertyProvider
     {
         public PropertyInfo Property { get; }
 
@@ -181,8 +181,8 @@ namespace Fact.Extensions.Validation.Experimental
     /// </summary>
     public class BasicEntityBinder : Binder3Base, IBinderBase, IAggregatedBinderProvider
     {
-        readonly AggregatedBinderBase3<PropertyBinderProvider> aggregatedBinder = 
-            new AggregatedBinderBase3<PropertyBinderProvider>();
+        readonly AggregatedBinderBase<PropertyBinderProvider> aggregatedBinder = 
+            new AggregatedBinderBase<PropertyBinderProvider>();
         
         public BasicEntityBinder(Type t, Func<object> getter)
         {

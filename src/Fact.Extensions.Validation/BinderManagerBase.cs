@@ -76,30 +76,30 @@ namespace Fact.Extensions.Validation
         new IFluentBinder<T> FluentBinder { get; }
     }
 
-    public class AggregatedBinderBase
+    /// <summary>
+    /// Simplistic/reference IBinderProvider implementation
+    /// </summary>
+    public class BinderProviderBase : IBinderProvider
     {
-        public class ItemBase : IBinderProvider
-        {
-            public IFluentBinder FluentBinder { get; }
-            
-            public IFieldBinder Binder { get; }
+        public IFluentBinder FluentBinder { get; }
 
-            public ItemBase(IFieldBinder binder, IFluentBinder fluentBinder)
-            {
-                Binder = binder;
-                FluentBinder = fluentBinder;
-            }
+        public IFieldBinder Binder { get; }
+
+        public BinderProviderBase(IFieldBinder binder, IFluentBinder fluentBinder)
+        {
+            Binder = binder;
+            FluentBinder = fluentBinder;
         }
+    }
 
 
-        public class ItemBase<T> : ItemBase
+    public class BinderProviderBase<T> : BinderProviderBase
+    {
+        public new FluentBinder<T> FluentBinder { get; }
+
+        public BinderProviderBase(IFieldBinder binder, FluentBinder<T> fluentBinder) : base(binder, fluentBinder)
         {
-            public new FluentBinder<T> FluentBinder { get; }
-
-            public ItemBase(IFieldBinder binder, FluentBinder<T> fluentBinder) : base(binder, fluentBinder)
-            {
-                FluentBinder = fluentBinder;
-            }
+            FluentBinder = fluentBinder;
         }
     }
 
@@ -108,9 +108,12 @@ namespace Fact.Extensions.Validation
         bool IsModified { get; }
     }
 
-    public class BinderManagerBase : AggregatedBinderBase
+    public class BinderManagerBase
     {
-        public new class ItemBase : AggregatedBinderBase.ItemBase, IModified
+        /// <summary>
+        /// Has smarts to track whether we're modified
+        /// </summary>
+        public class ItemBase : BinderProviderBase, IModified
         {
             public event Action Initialize;
             public virtual bool IsModified => false;
@@ -123,7 +126,7 @@ namespace Fact.Extensions.Validation
             }
         }
 
-        public new class ItemBase<T> : ItemBase
+        public class ItemBase<T> : ItemBase
         {
             public new FluentBinder<T> FluentBinder { get; }
 
@@ -134,11 +137,14 @@ namespace Fact.Extensions.Validation
         }
     }
 
+
+    /// <summary>
+    /// Semi-specifically for GUI controls, though really a small refactor could make this into TContext or TMeta
+    /// to make it fully inspecific
+    /// </summary>
+    /// <typeparam name="TSource"></typeparam>
     public class BinderManagerBase<TSource> : BinderManagerBase
     {
-        // 1:1 Field binders
-        protected List<Item> binders = new List<Item>();
-
         public class Item : ItemBase
         {
             public TSource Control;
@@ -156,6 +162,11 @@ namespace Fact.Extensions.Validation
         {
             public readonly Tracker<T> tracked;
 
+
+            /// <summary>
+            /// As per tracker, indicates whether core bound value has been changed since we
+            /// started tracking its initial value
+            /// </summary>
             public override bool IsModified => tracked.IsModified;
 
             IFluentBinder<T> IBinderProvider<T>.FluentBinder => (IFluentBinder<T>)base.FluentBinder;
