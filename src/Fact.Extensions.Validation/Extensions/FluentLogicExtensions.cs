@@ -11,7 +11,7 @@ namespace Fact.Extensions.Validation
             Func<Status> getIsFalseStatus)
             where TFluentBinder : IFluentBinder<T>
         {
-            ((IFieldBinder)fb.Binder).Processor.ProcessingAsync += (_, context) =>
+            fb.Binder.Processor.ProcessingAsync += (_, context) =>
             {
                 IField<T> f = fb.Field;
                 if (!predicate(f.Value))
@@ -27,7 +27,7 @@ namespace Fact.Extensions.Validation
             Func<Status> getIsFalseStatus)
             where TFluentBinder : IFluentBinder
         {
-            ((IFieldBinder)fb.Binder).Processor.ProcessingAsync += (_, context) =>
+            fb.Binder.Processor.ProcessingAsync += (_, context) =>
             {
                 IField f = fb.Field;
                 if (!predicate(f.Value))
@@ -37,6 +37,19 @@ namespace Fact.Extensions.Validation
             };
             return fb;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fb"></param>
+        /// <param name="predicate"></param>
+        /// <param name="messageIfFalse"></param>
+        /// <param name="level"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// DEBT: Is needed because otherwise C# flows to the above 'object' only one
+        /// </remarks>
         public static IFluentBinder<T> IsTrue<T>(this IFluentBinder<T> fb, Func<T, bool> predicate,
             string messageIfFalse, Status.Code level = Status.Code.Error) =>
             fb.IsTrue(predicate, () => new Status(level, messageIfFalse));
@@ -73,7 +86,7 @@ namespace Fact.Extensions.Validation
 
         public static TFluentBinder IsNotEqualTo<TFluentBinder>(this TFluentBinder fb, object compareTo)
             where TFluentBinder : IFluentBinder =>
-            fb.IsTrueScalar(v => !v.Equals(compareTo), FieldStatus.ComparisonCode.EqualTo,
+            fb.IsTrueScalar(v => !v.Equals(compareTo), FieldStatus.ComparisonCode.NotEqualTo,
                 $"Must not be equal to: {compareTo}");
 
         public static TFluentBinder LessThan<TFluentBinder, T>(this TFluentBinder fb, T value,
@@ -99,7 +112,7 @@ namespace Fact.Extensions.Validation
             where TFluentBinder : IFluentBinder<T>
         {
             return fb.IsTrueScalar(v => v.CompareTo(value) > 0,
-                FieldStatus.ComparisonCode.GreaterThan, value);
+                FieldStatus.ComparisonCode.GreaterThanOrEqualTo, value);
         }
     }
 }

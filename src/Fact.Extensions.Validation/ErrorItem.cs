@@ -137,6 +137,8 @@ namespace Fact.Extensions.Validation
         /// </summary>
         /// <remarks>
         /// DEBT: Need disambiguation whether this code represents the desired condition or the error condition
+        /// By and large the code indicates the complaint -- so, for example, 'LessThan' means the input value
+        /// is less than a specific value, and that is an error
         /// </remarks>
         public enum ComparisonCode : short
         {

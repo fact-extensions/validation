@@ -12,11 +12,15 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public void Test1()
         {
-            var mp = new ModuleProvider<Optional<string>, Synthetic.SyntheticEntity1>(
+            var mp = new ModuleProvider<Optional<string>, Synthetic.SyntheticEntity1, FluentBinder<string>>(
                 new Optional<string>(),
-                new Synthetic.SyntheticEntity1());
+                new Synthetic.SyntheticEntity1(),
+                new FluentBinder<string>("test1", () => "test1val"));
+
+            string assigner;
 
             mp.Test1("value");
+            mp.Get(out assigner);
         }
     }
 }
