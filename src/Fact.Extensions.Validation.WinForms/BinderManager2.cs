@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -62,6 +64,7 @@ namespace Fact.Extensions.Validation.WinForms
             Func<T> getter, 
             Action<Tracker<T>> initEvent,
             Func<InputContext> inputContextFactory,
+            string name = null,
             Func<T, bool> isNull = null)
             where TAggregatedBinder: IAggregatedBinderBase, IServiceProviderProvider, IProcessorProvider<Context2>
         {
@@ -73,7 +76,7 @@ namespace Fact.Extensions.Validation.WinForms
             var tracker = new Tracker<T>(getter());
             initEvent(tracker);
 
-            SourceBinderProvider<Control, T> bp = aggregatedBinder.AddField(control.Name,
+            SourceBinderProvider<Control, T> bp = aggregatedBinder.AddField(name ?? control.Name,
                 () => tracker.Value,
                 _fb => new SourceBinderProvider<Control, T>(_fb, control, tracker));
 
@@ -116,11 +119,11 @@ namespace Fact.Extensions.Validation.WinForms
         /// <param name="control"></param>
         /// <param name="initialGetter"></param>
         /// <returns></returns>
-        public static IFluentBinder<string> BindText<TAggregatedBinder>(this TAggregatedBinder aggregatedBinder, Control control, 
+        public static FluentBinder<string> BindText<TAggregatedBinder>(this TAggregatedBinder aggregatedBinder, Control control, 
             Func<string> initialGetter = null)
             where TAggregatedBinder : IAggregatedBinderBase, IServiceProviderProvider, IProcessorProvider<Context2>
         {
-            IBinderProvider<string> bp = Setup(aggregatedBinder, control,
+            SourceBinderProvider<Control, string> bp = Setup(aggregatedBinder, control,
                 () => control.Text,
                 tracker => control.TextChanged += (s, e) => tracker.Value = control.Text,
                 () => new InputContext
@@ -130,11 +133,43 @@ namespace Fact.Extensions.Validation.WinForms
                     InitiatingEvent = InitiatingEvents.Keystroke,
                     InteractionLevel = Interaction.High
                 },
+                null,
                 v => string.IsNullOrWhiteSpace(v));
 
             bp.FluentBinder.Setter(v => control.Text = v, initialGetter);
 
             return bp.FluentBinder;
+        }
+
+
+        public static FluentBinder<TProperty> BindText<TEntity, TProperty>(this EntityProvider<TEntity> entityProvider, Control control,
+            Expression<Func<TEntity, TProperty>> propertyLambda)
+        {
+            // TODO: Consolidate some of this magic into EntityProvider or an EntityProviderExtensions
+            var name = propertyLambda.Name;
+            var member = propertyLambda.Body as MemberExpression;
+            var property = member.Member as PropertyInfo;
+
+            // DEBT: ToString() alone isn't gonna cut it for real conversions
+            FluentBinder<string> fluentBinder = entityProvider.Parent.BindText(
+                control, () => property.GetValue(entityProvider.Entity)?.ToString());
+            FluentBinder<TProperty> fluentBinderConverted;
+
+            if (typeof(TProperty) != typeof(string))
+            {
+                fluentBinderConverted = fluentBinder.Convert<TProperty>();
+            }
+            else
+            {
+                // DEBT: Only slightly sloppy, since we're verifying right above that TProperty == string
+                fluentBinderConverted = (FluentBinder<TProperty>)(object)fluentBinder;
+            }
+
+            PropertyBinderProvider.InitValidation(fluentBinderConverted, property);
+
+            fluentBinderConverted.Commit(v => property.SetValue(entityProvider.Entity, v));
+
+            return fluentBinderConverted;
         }
 
 

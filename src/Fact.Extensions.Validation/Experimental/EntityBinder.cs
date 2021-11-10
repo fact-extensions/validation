@@ -212,6 +212,34 @@ namespace Fact.Extensions.Validation.Experimental
         public IEnumerable<IBinderProvider> Providers => aggregatedBinder.Providers;
     }
 
+
+    /// <summary>
+    /// A combo pass-through aggregation collector and indicator as to a specific type and instance of entity
+    /// </summary>
+    public class EntityProvider<T> : IAggregatedBinderCollector
+    {
+        public IAggregatedBinder3 Parent { get; }
+        public T Entity { get; }
+
+        public EntityProvider(IAggregatedBinder3 parent, T entity)
+        {
+            Parent = parent;
+            Entity = entity;
+        }
+
+        public void Add(IBinderProvider collected) =>
+            Parent.Add(collected);
+    }
+
+
+    public static class EntityProviderExtensions
+    {
+        public static EntityProvider<T> Entity<T>(this IAggregatedBinder3 aggregatedBinder, T entity)
+        {
+            return new EntityProvider<T>(aggregatedBinder, entity);
+        }
+    }
+
     /// <summary>
     /// Experimental helper for only-reflection-entity assistance
     /// </summary>
@@ -682,10 +710,15 @@ namespace Fact.Extensions.Validation.Experimental
         {
             // DEBT: Need a much more robust "required" assessor than merely checking null
             // thing is, we'll likely need an IServiceProvider with a factory to generate
-            // checkers
+            // checkers - or perhaps lift it out of context somehow
             if (field.Value == null)
             {
                 field.Error(FieldStatus.ComparisonCode.IsNull, null, "Must not be null");
+                context.Abort = true;
+            }
+            else if(field.Value is string stringValue && string.IsNullOrWhiteSpace(stringValue))
+            {
+                field.Error(FieldStatus.ComparisonCode.IsNull, stringValue, "Must not be empty");
                 context.Abort = true;
             }
         }

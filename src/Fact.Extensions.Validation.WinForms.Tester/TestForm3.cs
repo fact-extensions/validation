@@ -33,10 +33,10 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             Initialize().Wait();
         }
 
+        Synthetic.SyntheticEntity1 entity = new Synthetic.SyntheticEntity1();
+
         async Task Initialize()
         {
-            // FIX: Abort processing not quite right, so Required() not functioning properly
-
             aggregatedBinder.BindText(txtEntry1).
                 Required().
                 Convert<int>().GreaterThan(10);
@@ -44,6 +44,11 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             aggregatedBinder.BindText(txtEntry2).
                 Required().
                 Convert<int>().LessThan(5);
+
+            entity.Password1 = "hi2u";
+
+            aggregatedBinder.Entity(entity).BindText(txtPassword1, e => e.Password1);
+            aggregatedBinder.Entity(entity).BindText(txtPassword2, e => e.Password2).StartsWith("123");
 
             aggregatedBinder.BindersProcessed += AggregatedBinder_BindersProcessed;
 
@@ -69,8 +74,10 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             btnOK.Enabled = statuses.Length == 0;
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
+        private async void btnOK_Click(object sender, EventArgs e)
         {
+            await aggregatedBinder.Committer.DoCommit();
+
             DialogResult = DialogResult.OK;
         }
     }

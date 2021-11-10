@@ -130,6 +130,10 @@ namespace Fact.Extensions.Validation.Experimental
 #endif
 
 
+    /// <summary>
+    /// DEBT: Can probably be phased out and we use Nullable instead
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class Optional<T>
     {
         public T Value { get; set; }

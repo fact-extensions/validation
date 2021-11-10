@@ -35,6 +35,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             this.lstStatuses = new System.Windows.Forms.ListView();
             this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
+            this.txtPassword1 = new System.Windows.Forms.TextBox();
+            this.txtPassword2 = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // btnOK
@@ -83,11 +85,27 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             this.columnHeader2.Text = "Status";
             this.columnHeader2.Width = 250;
             // 
+            // txtPassword1
+            // 
+            this.txtPassword1.Location = new System.Drawing.Point(199, 12);
+            this.txtPassword1.Name = "txtPassword1";
+            this.txtPassword1.Size = new System.Drawing.Size(100, 23);
+            this.txtPassword1.TabIndex = 4;
+            // 
+            // txtPassword2
+            // 
+            this.txtPassword2.Location = new System.Drawing.Point(199, 41);
+            this.txtPassword2.Name = "txtPassword2";
+            this.txtPassword2.Size = new System.Drawing.Size(100, 23);
+            this.txtPassword2.TabIndex = 5;
+            // 
             // TestForm3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.txtPassword2);
+            this.Controls.Add(this.txtPassword1);
             this.Controls.Add(this.lstStatuses);
             this.Controls.Add(this.txtEntry2);
             this.Controls.Add(this.txtEntry1);
@@ -107,5 +125,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         private System.Windows.Forms.ListView lstStatuses;
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader2;
+        private System.Windows.Forms.TextBox txtPassword1;
+        private System.Windows.Forms.TextBox txtPassword2;
     }
 }
