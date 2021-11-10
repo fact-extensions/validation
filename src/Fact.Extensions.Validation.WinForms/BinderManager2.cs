@@ -118,9 +118,10 @@ namespace Fact.Extensions.Validation.WinForms
         /// <param name="aggregatedBinder"></param>
         /// <param name="control"></param>
         /// <param name="initialGetter"></param>
+        /// <param name="name">specify name of field.  Default is control.Name - which you probably don't want</param>
         /// <returns></returns>
         public static FluentBinder<string> BindText<TAggregatedBinder>(this TAggregatedBinder aggregatedBinder, Control control, 
-            Func<string> initialGetter = null)
+            Func<string> initialGetter = null, string name = null)
             where TAggregatedBinder : IAggregatedBinderBase, IServiceProviderProvider, IProcessorProvider<Context2>
         {
             SourceBinderProvider<Control, string> bp = Setup(aggregatedBinder, control,
@@ -133,7 +134,7 @@ namespace Fact.Extensions.Validation.WinForms
                     InitiatingEvent = InitiatingEvents.Keystroke,
                     InteractionLevel = Interaction.High
                 },
-                null,
+                name,
                 v => string.IsNullOrWhiteSpace(v));
 
             bp.FluentBinder.Setter(v => control.Text = v, initialGetter);
@@ -152,7 +153,8 @@ namespace Fact.Extensions.Validation.WinForms
 
             // DEBT: ToString() alone isn't gonna cut it for real conversions
             FluentBinder<string> fluentBinder = entityProvider.Parent.BindText(
-                control, () => property.GetValue(entityProvider.Entity)?.ToString());
+                control, () => property.GetValue(entityProvider.Entity)?.ToString(),
+                property.Name);
             FluentBinder<TProperty> fluentBinderConverted;
 
             if (typeof(TProperty) != typeof(string))
