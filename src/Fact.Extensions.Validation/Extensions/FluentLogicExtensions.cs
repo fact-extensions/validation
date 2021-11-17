@@ -9,33 +9,17 @@ namespace Fact.Extensions.Validation
     {
         public static TFluentBinder IsTrue<TFluentBinder, T>(this TFluentBinder fb, Func<T, bool> predicate,
             Func<Status> getIsFalseStatus)
-            where TFluentBinder : IFluentBinder<T>
+            where TFluentBinder : IFieldProvider<IField<T>>, IBinderProviderBase<IFieldBinder>
         {
-            fb.Binder.Processor.ProcessingAsync += (_, context) =>
-            {
-                IField<T> f = fb.Field;
-                if (!predicate(f.Value))
-                    f.Add(getIsFalseStatus());
-
-                return new ValueTask();
-            };
-            return fb;
+            return fb.IsTrue(predicate, (field, _) => field.Add(getIsFalseStatus()));
         }
 
 
         public static TFluentBinder IsTrue<TFluentBinder>(this TFluentBinder fb, Func<object, bool> predicate,
             Func<Status> getIsFalseStatus)
-            where TFluentBinder : IFluentBinder
+            where TFluentBinder : IFieldProvider<IField>, IBinderProviderBase<IFieldBinder>
         {
-            fb.Binder.Processor.ProcessingAsync += (_, context) =>
-            {
-                IField f = fb.Field;
-                if (!predicate(f.Value))
-                    f.Add(getIsFalseStatus());
-
-                return new ValueTask();
-            };
-            return fb;
+            return fb.IsTrue(predicate, (field, _) => field.Add(getIsFalseStatus()));
         }
 
 
@@ -70,6 +54,21 @@ namespace Fact.Extensions.Validation
             return fb;
         }
 
+
+        public static TFluentBinder IsTrue<TFluentBinder, T>(this TFluentBinder fb, Func<T, ValueTask<bool>> predicate,
+            Action<IFieldStatus, Context> onFalse)
+            where TFluentBinder : IFieldProvider<IField<T>>, IBinderProviderBase<IFieldBinder>
+        {
+            fb.Binder.Processor.ProcessingAsync += async (_, context) =>
+            {
+                IField<T> f = fb.Field;
+                if (!await predicate(f.Value))
+                    onFalse(f, context);
+            };
+            return fb;
+        }
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -84,12 +83,12 @@ namespace Fact.Extensions.Validation
         /// </remarks>
         public static IFluentBinder<T> IsTrue<T>(this IFluentBinder<T> fb, Func<T, bool> predicate,
             string messageIfFalse, Status.Code level = Status.Code.Error) =>
-            fb.IsTrue(predicate, () => new Status(level, messageIfFalse));
+            fb.IsTrue(predicate, (f, _) => f.Add(level, messageIfFalse));
 
         public static TFluentBinder IsTrue<TFluentBinder, T>(this TFluentBinder fb, Func<T, bool> predicate,
             string messageIfFalse, Status.Code level = Status.Code.Error)
             where TFluentBinder : IFluentBinder<T> =>
-            fb.IsTrue(predicate, () => new Status(level, messageIfFalse));
+            fb.IsTrue(predicate, (f, _) => f.Add(level, messageIfFalse));
 
 
         public static IFluentBinder<T> IsTrueScalar<T>(this IFluentBinder<T> fb, Func<T, bool> predicate,
