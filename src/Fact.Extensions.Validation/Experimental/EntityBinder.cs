@@ -537,7 +537,7 @@ namespace Fact.Extensions.Validation.Experimental
         {
             return fluentBinder1.GroupValidate(fluentBinder2, (c, f1, f2) =>
             {
-                if(!f1.Value.Equals(f2))
+                if(!f1.Value.Equals(f2.Value))
                 {
                     f1.Error($"Must match field {f2.Name}");
                     f2.Error($"Must match field {f1.Name}");

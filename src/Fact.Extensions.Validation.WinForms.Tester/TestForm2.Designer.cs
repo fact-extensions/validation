@@ -34,6 +34,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             this.lstStatus = new System.Windows.Forms.ListBox();
             this.txtEntry2 = new System.Windows.Forms.TextBox();
             this.lstEntry1 = new System.Windows.Forms.ListBox();
+            this.txtPass1 = new System.Windows.Forms.TextBox();
+            this.txtPass2 = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // btnOK
@@ -83,11 +85,27 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             this.lstEntry1.Size = new System.Drawing.Size(120, 94);
             this.lstEntry1.TabIndex = 4;
             // 
+            // txtPass1
+            // 
+            this.txtPass1.Location = new System.Drawing.Point(244, 12);
+            this.txtPass1.Name = "txtPass1";
+            this.txtPass1.Size = new System.Drawing.Size(100, 23);
+            this.txtPass1.TabIndex = 5;
+            // 
+            // txtPass2
+            // 
+            this.txtPass2.Location = new System.Drawing.Point(244, 41);
+            this.txtPass2.Name = "txtPass2";
+            this.txtPass2.Size = new System.Drawing.Size(100, 23);
+            this.txtPass2.TabIndex = 6;
+            // 
             // TestForm2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.txtPass2);
+            this.Controls.Add(this.txtPass1);
             this.Controls.Add(this.lstEntry1);
             this.Controls.Add(this.txtEntry2);
             this.Controls.Add(this.lstStatus);
@@ -107,5 +125,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
         private System.Windows.Forms.ListBox lstStatus;
         private System.Windows.Forms.TextBox txtEntry2;
         private System.Windows.Forms.ListBox lstEntry1;
+        private System.Windows.Forms.TextBox txtPass1;
+        private System.Windows.Forms.TextBox txtPass2;
     }
 }

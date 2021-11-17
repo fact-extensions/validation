@@ -38,7 +38,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             var summaryField = new FieldStatus("summary");
 
             var regValue1 = reg.Add("Value1").IsNotNull();
-            var regValue2 = reg.Add("Value2").Required((object v) => v == null).Convert<int>();
+            var regValue2 = reg.Add("Value2").IsNotNull().Convert<int>();
             var regVersion = reg.Add("Version").
                 Convert<int>().GroupValidate(regValue2, (c, version, v2) =>
                 {
@@ -52,10 +52,11 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             reg.AddSummaryProcessor(summaryField);
 
             // regVersion.Convert<int>() flipping out
-            var context = new Context2(null, null, default);
+            var context = new Context2(Services, null, null, default);
             await reg.Processor.ProcessAsync(context);
 
             var statuses = summaryField.Statuses.ToArray();
+            statuses = reg.Providers.SelectMany(x => x.FluentBinder.Field.Statuses).ToArray();
 
             var field = new FieldStatus("test");
             binderManager = new AggregatedBinder(Services);
@@ -79,6 +80,16 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             var fb2str = fb2.Convert<string>().
                 Required().
                 StartsWith("Item");
+
+            var entity = new Synthetic.SyntheticEntity1();
+
+            var entityBinder = binderManager.Entity(entity);
+
+            var fbPass1 = entityBinder.BindText(txtPass1, x => x.Password1);
+            var fbPass2 = entityBinder.BindText(txtPass2, x => x.Password2);
+
+            // NOTE: Saw this get lost in 'Processing'/'gray mode' forever one time
+            fbPass1.IsMatch(fbPass2);
 
             await binderManager.Process();
         }

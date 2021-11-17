@@ -139,8 +139,8 @@ namespace Fact.Extensions.Validation.Experimental
                 if (success)
                     // DEBT: Kinda redundant, assigning value here -and- getter itself pointing to value
                     context.Value = converted;
-                else if(cannotConvert != null)
-                    field.Error( FieldStatus.ComparisonCode.Unspecified, typeof(TFrom),
+                else if (cannotConvert != null)
+                    field.Error(FieldStatus.ComparisonCode.Unspecified, typeof(TFrom),
                         cannotConvert ?? "Conversion from type {0} failed");
 
                 return new ValueTask();
@@ -159,7 +159,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         // EXPERIMENTAL
         // Convert and assign on initialization only
-        public static FluentBinder<TTo> Chain<T, TTo>(this IFluentBinder<T> fluentBinder, IFieldBinder binder, 
+        public static FluentBinder<TTo> Chain<T, TTo>(this IFluentBinder<T> fluentBinder, IFieldBinder binder,
             FluentConvertExtensions.tryConvertDelegate<IField<T>, TTo> convert, Action<TTo> setter)
         {
             // TODO: Rather than check a flag each time, remove the delegate from the ProcessedAsync chain
@@ -208,22 +208,19 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
+        static void OnRequiredError(IFieldStatus field, Context context)
+        {
+            field.Error(FieldStatus.ComparisonCode.IsNull, null, "Field is required");
+            context.Abort = true;
+        }
 
-        public static TFluentBinder Required<TFluentBinder>(this TFluentBinder fluentBinder, Func<object, bool> isEmpty)
+
+
+        public static TFluentBinder Required<TFluentBinder>(this TFluentBinder fluentBinder,
+            Func<object, bool> isEmpty, Action<IFieldStatus, Context> onError = null)
             where TFluentBinder : IFieldProvider<IField>, IBinderProviderBase<IFieldBinder>
         {
-            fluentBinder.Binder.Processor.ProcessingAsync += (_, context) =>
-            {
-                if (isEmpty(fluentBinder.Field.Value))
-                {
-                    // DEBT: IsNull is wrong code here, since v may actually be empty string or similar
-                    fluentBinder.Field.Error(FieldStatus.ComparisonCode.IsNull, null, "Field is required");
-                    context.Abort = true;
-                }
-
-                return new ValueTask();
-            };
-            return fluentBinder;
+            return fluentBinder.IsTrue(v => !isEmpty(v), onError ?? OnRequiredError);
         }
 
 
@@ -236,26 +233,16 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="isEmpty"></param>
         /// <returns></returns>
         /// <remarks>DEBT: Consolidate with above 'Required'</remarks>
-        public static TFluentBinder Required<TFluentBinder, T>(this TFluentBinder fluentBinder, Func<T, bool> isEmpty)
+        public static TFluentBinder Required<TFluentBinder, T>(this TFluentBinder fluentBinder, Func<T, bool> isEmpty,
+            Action<IFieldStatus, Context> onError = null)
             where TFluentBinder : IFieldProvider<IField<T>>, IBinderProviderBase<IFieldBinder>
         {
-            fluentBinder.Binder.Processor.ProcessingAsync += (_, context) =>
-            {
-                if (isEmpty(fluentBinder.Field.Value))
-                {
-                    // DEBT: IsNull is wrong code here, since v may actually be empty string or similar
-                    fluentBinder.Field.Error(FieldStatus.ComparisonCode.IsNull, null, "Field is required");
-                    context.Abort = true;
-                }
-
-                return new ValueTask();
-            };
-            return fluentBinder;
+            return fluentBinder.IsTrue((T v) => !isEmpty(v), onError ?? OnRequiredError);
         }
 
 
         /// <summary>
-        /// 
+        /// Asserts bound value is not null
         /// </summary>
         /// <param name="fluentBinder"></param>
         /// <typeparam name="TFluentBinder"></typeparam>
@@ -263,7 +250,12 @@ namespace Fact.Extensions.Validation.Experimental
         public static TFluentBinder IsNotNull<TFluentBinder>(this TFluentBinder fluentBinder)
             where TFluentBinder : IFluentBinder
             =>
-            fluentBinder.Required(v => v == null);
+            fluentBinder.Required(v => v == null,
+                (field, context) =>
+                {
+                    field.Error(FieldStatus.ComparisonCode.IsNull, null);
+                    context.Abort = true;
+                });
 
         public static TFluentBinder Required<TFluentBinder>(this TFluentBinder fluentBinder)
             where TFluentBinder : IFluentBinder<string> =>

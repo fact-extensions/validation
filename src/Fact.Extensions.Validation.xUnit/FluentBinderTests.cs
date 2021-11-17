@@ -73,6 +73,21 @@ namespace Fact.Extensions.Validation.xUnit
 
 
         [Fact]
+        public async Task IsNotNull2()
+        {
+            var field = new FieldStatus("test");
+            var fb = field.BindNonTyped(() => null);
+
+            var fb2 = fb.IsNotNull();
+
+            await fb.Binder.Process();
+
+            var statuses = field.Statuses.ToArray();
+            statuses.Should().HaveCount(1);
+        }
+
+
+        [Fact]
         public async Task EpochConversionTest()
         {
             var ag = new AggregatedBinder(services);

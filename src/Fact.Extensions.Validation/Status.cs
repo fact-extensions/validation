@@ -75,6 +75,9 @@ namespace Fact.Extensions.Validation
         {
             switch (code)
             {
+                case FieldStatus.ComparisonCode.IsNull:
+                    return "Must not be null";
+
                 case FieldStatus.ComparisonCode.NotEqualTo:
                     return "Must not equal {0}";
                 

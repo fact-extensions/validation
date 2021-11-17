@@ -38,6 +38,38 @@ namespace Fact.Extensions.Validation
             return fb;
         }
 
+
+        public static TFluentBinder IsTrue<TFluentBinder>(this TFluentBinder fb, Func<object, bool> predicate,
+            Action<IFieldStatus, Context> onFalse)
+            where TFluentBinder : IFieldProvider<IField>, IBinderProviderBase<IFieldBinder>
+        {
+            fb.Binder.Processor.ProcessingAsync += (_, context) =>
+            {
+                IField f = fb.Field;
+                if (!predicate(f.Value))
+                    onFalse(f, context);
+
+                return new ValueTask();
+            };
+            return fb;
+        }
+
+
+        public static TFluentBinder IsTrue<TFluentBinder, T>(this TFluentBinder fb, Func<T, bool> predicate,
+            Action<IFieldStatus, Context> onFalse)
+            where TFluentBinder : IFieldProvider<IField<T>>, IBinderProviderBase<IFieldBinder>
+        {
+            fb.Binder.Processor.ProcessingAsync += (_, context) =>
+            {
+                IField<T> f = fb.Field;
+                if (!predicate(f.Value))
+                    onFalse(f, context);
+
+                return new ValueTask();
+            };
+            return fb;
+        }
+
         /// <summary>
         /// 
         /// </summary>

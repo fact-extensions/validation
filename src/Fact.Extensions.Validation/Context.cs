@@ -44,7 +44,7 @@ namespace Fact.Extensions.Validation
     /// <summary>
     /// DEBT: Poor naming - this context has lots of UI/Field goodies where base one does not
     /// </summary>
-    public class Context2 : Context
+    public class Context2 : Context, IServiceProviderProvider
     {
         /// <summary>
         /// Current value, which starts as populated by the binder's getter but may
@@ -70,12 +70,21 @@ namespace Fact.Extensions.Validation
         /// </remarks>
         public IField Field { get; }
 
+        public IServiceProvider Services { get; }
+
         public Context2(object initialValue, IField field, CancellationToken cancellationToken)
         {
             Field = field;
             InitialValue = initialValue;
             Value = initialValue;
             CancellationToken = cancellationToken;
+        }
+
+
+        public Context2(IServiceProvider services, object initialValue, IField field, CancellationToken cancellationToken)
+            : this(initialValue, field, cancellationToken)
+        {
+            Services = services;
         }
     }
 
