@@ -7,13 +7,18 @@ namespace Fact.Extensions.Validation
     /// <summary>
     /// Associated with an IField
     /// </summary>
-    public interface IFluentBinder : IBinderProviderBase
+    public interface IFluentBinder : IBinderProviderBase,
+        IFieldProvider<IField>
     {
         /// <summary>
         /// Field associated specifically with this FluentBinder
         /// Errors registered here are localized to this FluentBinder
         /// </summary>
-        IField Field { get; }
+        /// <remarks>
+        /// Really underlying IFieldProvider does this job, but keeping here to benefit from
+        /// comments specific to this particular interface
+        /// </remarks>
+        new IField Field { get; }
 
         /// <summary>
         /// Type which this particular fluent binder is associated with

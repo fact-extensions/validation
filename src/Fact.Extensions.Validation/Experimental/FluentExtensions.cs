@@ -46,6 +46,10 @@ namespace Fact.Extensions.Validation.Experimental
         /// <typeparam name="T"></typeparam>
         /// <param name="fb"></param>
         /// <returns></returns>
+        /// <remarks>
+        /// Different from a conversion which assists in changing one type to another, this
+        /// method presumes the underlying binder IS the specified type
+        /// </remarks>
         public static FluentBinder<T> As<T>(this IFluentBinder fb)
         {
             if (fb is FluentBinder<T> fbTyped) return fbTyped;
@@ -205,8 +209,33 @@ namespace Fact.Extensions.Validation.Experimental
 
 
 
+        public static TFluentBinder Required<TFluentBinder>(this TFluentBinder fluentBinder, Func<object, bool> isEmpty)
+            where TFluentBinder : IFieldProvider<IField>, IBinderProviderBase<IFieldBinder>
+        {
+            fluentBinder.Binder.Processor.ProcessingAsync += (_, context) =>
+            {
+                if (isEmpty(fluentBinder.Field.Value))
+                {
+                    // DEBT: IsNull is wrong code here, since v may actually be empty string or similar
+                    fluentBinder.Field.Error(FieldStatus.ComparisonCode.IsNull, null, "Field is required");
+                    context.Abort = true;
+                }
 
-        
+                return new ValueTask();
+            };
+            return fluentBinder;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TFluentBinder"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fluentBinder"></param>
+        /// <param name="isEmpty"></param>
+        /// <returns></returns>
+        /// <remarks>DEBT: Consolidate with above 'Required'</remarks>
         public static TFluentBinder Required<TFluentBinder, T>(this TFluentBinder fluentBinder, Func<T, bool> isEmpty)
             where TFluentBinder : IFieldProvider<IField<T>>, IBinderProviderBase<IFieldBinder>
         {
@@ -231,14 +260,10 @@ namespace Fact.Extensions.Validation.Experimental
         /// <param name="fluentBinder"></param>
         /// <typeparam name="TFluentBinder"></typeparam>
         /// <returns></returns>
-        /// <remarks>
-        /// TODO: If we can somehow get IFluentBinder3 to be covariant, then this IsNotNull might be usable
-        /// more often
-        /// </remarks>
         public static TFluentBinder IsNotNull<TFluentBinder>(this TFluentBinder fluentBinder)
-            where TFluentBinder : IFluentBinder<object>
+            where TFluentBinder : IFluentBinder
             =>
-            fluentBinder.Required<TFluentBinder, object>(v => v == null);
+            fluentBinder.Required(v => v == null);
 
         public static TFluentBinder Required<TFluentBinder>(this TFluentBinder fluentBinder)
             where TFluentBinder : IFluentBinder<string> =>

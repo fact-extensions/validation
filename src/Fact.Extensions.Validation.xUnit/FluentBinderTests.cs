@@ -55,6 +55,23 @@ namespace Fact.Extensions.Validation.xUnit
             statuses.Should().HaveCount(2);
         }
 
+
+        [Fact]
+        public async Task IsNotNull()
+        {
+            var field = new FieldStatus("test");
+            var fb = field.BindNonTyped(() => 5);
+
+            var fb2 = fb.As<int>().
+                IsNotNull();
+
+            await fb.Binder.Process();
+
+            var statuses = field.Statuses.ToArray();
+            statuses.Should().HaveCount(0);
+        }
+
+
         [Fact]
         public async Task EpochConversionTest()
         {
