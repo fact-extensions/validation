@@ -86,15 +86,16 @@ namespace Fact.Extensions.Validation.WinForms
             // DEBT: Heed the isProcessing awareness so as to reflect async status
             // properly in styleManager
             bool isProcessing = false;
-            bp.Binder.Processor.StartingAsync += (_, context) =>
+            bp.Binder.Processor.StartingAsync += async (_, context) =>
             {
                 isProcessing = true;
-                return new ValueTask();
-            };
-            bp.Binder.Processor.ProcessingAsync += (_, context) =>
-            {
-                styleManager.ContentChanging(bp);
-                return new ValueTask();
+                // DEBT: Unsure how much of a performance penalty this is, but so far nothing
+                // obvious
+                // DEBT: Feels like this may be better performed elsewhere in general, though
+                // StyleManager itself not a candidate
+                await Task.Delay(200, cancellationToken);
+                if (isProcessing)
+                    styleManager.ContentChanging(bp);
             };
             bp.Binder.Processor.ProcessedAsync += (_, context) =>
             {
@@ -246,7 +247,7 @@ namespace Fact.Extensions.Validation.WinForms
 
         public void ContentChanging(ISourceBinderProvider<Control> item)
         {
-            item.Control.BackColor = Color.Gray;
+            item.Control.BackColor = Color.LightGray;
         }
 
         public void ContentChanged(ISourceBinderProvider<Control> item)

@@ -30,13 +30,17 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
             aggregatedBinder = new AggregatedBinder(services);
 
-            Initialize().Wait();
+            var _ = Initialize();
         }
 
         Synthetic.SyntheticEntity1 entity = new Synthetic.SyntheticEntity1();
 
         async Task Initialize()
         {
+            // DEBT: We want to do this enable/disable automatically
+            txtEntry1.Enabled = false;
+            txtEntry2.Enabled = false;
+
             aggregatedBinder.BindText(txtEntry1).
                 Required().
                 Convert<int>().GreaterThan(10);
@@ -52,7 +56,11 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
             aggregatedBinder.BindersProcessed += AggregatedBinder_BindersProcessed;
 
+            // Initial process to populate initial state
             await aggregatedBinder.Process();
+
+            txtEntry1.Enabled = true;
+            txtEntry2.Enabled = true;
         }
 
         private void AggregatedBinder_BindersProcessed(IEnumerable<IBinderProvider> binders, Context2 context)
