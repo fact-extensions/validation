@@ -91,6 +91,11 @@ namespace Fact.Extensions.Validation.WinForms
                 isProcessing = true;
                 return new ValueTask();
             };
+            bp.Binder.Processor.ProcessingAsync += (_, context) =>
+            {
+                styleManager.ContentChanging(bp);
+                return new ValueTask();
+            };
             bp.Binder.Processor.ProcessedAsync += (_, context) =>
             {
                 isProcessing = false;
@@ -237,6 +242,12 @@ namespace Fact.Extensions.Validation.WinForms
         BinderManagerBase.ColorOptions colorOptions = new BinderManagerBase.ColorOptions();
 
         public void Initialize(ISourceBinderProvider<Control> item) => ContentChanged(item);
+
+
+        public void ContentChanging(ISourceBinderProvider<Control> item)
+        {
+            item.Control.BackColor = Color.Gray;
+        }
 
         public void ContentChanged(ISourceBinderProvider<Control> item)
         {
