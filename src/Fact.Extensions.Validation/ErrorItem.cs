@@ -22,7 +22,6 @@ namespace Fact.Extensions.Validation
         IField,
         IFieldStatusExternalCollector
     {
-        //public FieldStatus() { }
         public FieldStatus(FieldStatus copyFrom) :
             this(copyFrom.Name, copyFrom.value)
         {
@@ -58,11 +57,11 @@ namespace Fact.Extensions.Validation
         // DEBT: Make this into an IEnumerable so that aggregator has an easier time of it
         readonly List<Status> statuses = new List<Status>();
 
-        List<IEnumerable<Status>> externalStatuses2 = new List<IEnumerable<Status>>();
+        List<IEnumerable<Status>> externalStatuses = new List<IEnumerable<Status>>();
 
         public void Add(IEnumerable<Status> external)
         {
-            externalStatuses2.Add(external);
+            externalStatuses.Add(external);
         }
 
         public IEnumerable<Status> Statuses
@@ -72,7 +71,7 @@ namespace Fact.Extensions.Validation
                 foreach (Status status in statuses)
                     yield return status;
 
-                foreach (Status status in externalStatuses2.SelectMany(x => x))
+                foreach (Status status in externalStatuses.SelectMany(x => x))
                     yield return status;
             }
         }

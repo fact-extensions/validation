@@ -17,24 +17,16 @@ namespace Fact.Extensions.Validation
     /// Surface for adding whole enumerations of status to this object
     /// Useful when external status changed independently
     /// </summary>
-    public interface IFieldStatusExternalCollector
-    {
-        /// <summary>
-        /// Bring in external status tracker
-        /// </summary>
-        /// <param name="statuses"></param>
-        /// <remarks>
-        /// Remember, this brings in a reference to the enumerable, meaning changes to
-        /// provided enumeration are reflected in this field itself
-        /// TODO: Consider adding a 'signal' delegate here
-        /// </remarks>
-        void Add(IEnumerable<Status> statuses);
-    }
-
-
-    public static class IFieldStatusProviderExtensions
+    /// <remarks>
+    /// Bring in external status tracker
+    /// Remember, this brings in a reference to the enumerable, meaning changes to
+    /// provided enumeration are reflected in this field itself
+    /// TODO: Consider adding a 'signal' delegate here
+    /// </remarks>
+    public interface IFieldStatusExternalCollector : ICollector<IEnumerable<Status>>
     {
     }
+
 
 
     public static class IFieldStatusCollectorExtensions
