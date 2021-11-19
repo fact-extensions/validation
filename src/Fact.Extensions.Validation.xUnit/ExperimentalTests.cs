@@ -50,6 +50,14 @@ namespace Fact.Extensions.Validation.xUnit
                 return new ValueTask();
             });
 
+            // this middle one should get lost, since the first one is waiting for tcs
+            lq.Add(() =>
+            {
+                val += 2;
+                tcs2.SetResult(val);
+                return new ValueTask();
+            });
+
             // this one will run, since it's the last entry before tcs.SetResult
             lq.Add(() =>
             {
@@ -63,7 +71,7 @@ namespace Fact.Extensions.Validation.xUnit
             var val3 = await tcs2.Task;
 
             val3.Should().Be(105);
-            dropCount.Should().Be(1);
+            dropCount.Should().Be(2);
         }
     }
 }

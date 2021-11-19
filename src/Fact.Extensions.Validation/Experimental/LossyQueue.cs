@@ -16,19 +16,17 @@ namespace Fact.Extensions.Validation.Experimental
         // TODO: Add way to abort current() so that queued delegate can immediately run and displace it
         async ValueTask Runner()
         {
-            await current();
             await mutex.WaitAsync();
-            current = null;
-            if (queued != null)
+            while(current != null)
             {
+                mutex.Release();
+                await current();
+
+                await mutex.WaitAsync();
                 current = queued;
                 queued = null;
-                mutex.Release();
-
-                _ = Runner();
             }
-            else
-                mutex.Release();
+            mutex.Release();
         }
 
         /// <summary>
