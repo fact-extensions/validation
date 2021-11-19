@@ -33,6 +33,9 @@ namespace Fact.Extensions.Validation.xUnit
             var tcs = new TaskCompletionSource<int>();
             var tcs2 = new TaskCompletionSource<int>();
             int val = 0;
+            int dropCount = 0;
+
+            lq.Dropped += () => ++dropCount;
 
             lq.Add(async () =>
             {
@@ -60,6 +63,7 @@ namespace Fact.Extensions.Validation.xUnit
             var val3 = await tcs2.Task;
 
             val3.Should().Be(105);
+            dropCount.Should().Be(1);
         }
     }
 }

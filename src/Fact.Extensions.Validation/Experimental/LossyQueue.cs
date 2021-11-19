@@ -30,6 +30,11 @@ namespace Fact.Extensions.Validation.Experimental
                 mutex.Release();
         }
 
+        /// <summary>
+        /// Fired when a queued func displaces an unexecuted queued func
+        /// </summary>
+        public event Action Dropped;
+
         public void Add(Func<ValueTask> func)
         {
             mutex.Wait();
@@ -41,8 +46,12 @@ namespace Fact.Extensions.Validation.Experimental
             }
             else
             {
+                bool dropping = queued != null;
+
                 queued = func;
                 mutex.Release();
+
+                if (dropping && Dropped != null) Dropped();
             }
         }
     }
