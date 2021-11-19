@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation.Experimental
@@ -10,42 +11,38 @@ namespace Fact.Extensions.Validation.Experimental
         Func<ValueTask> queued;
         Func<ValueTask> current;
 
+        SemaphoreSlim mutex = new SemaphoreSlim(1);
+
         async ValueTask Runner()
         {
             await current();
+            await mutex.WaitAsync();
             current = null;
-            if(queued != null)
+            if (queued != null)
             {
-                // to avoid infinite loop
-                var temp = queued;
+                current = queued;
                 queued = null;
+                mutex.Release();
 
-                Current = temp;
-            }
-        }
-
-        Func<ValueTask> Current
-        {
-            get
-            {
-                return current;
-            }
-            set
-            {
-                current = value;
                 _ = Runner();
             }
+            else
+                mutex.Release();
         }
 
         public void Add(Func<ValueTask> func)
         {
-            if(current == null)
+            mutex.Wait();
+            if (current == null)
             {
-                Current = func;
+                current = func;
+                mutex.Release();
+                _ = Runner();
             }
             else
             {
                 queued = func;
+                mutex.Release();
             }
         }
     }
