@@ -13,6 +13,7 @@ namespace Fact.Extensions.Validation.Experimental
         async ValueTask Runner()
         {
             await current();
+            current = null;
             if(queued != null)
             {
                 // to avoid infinite loop

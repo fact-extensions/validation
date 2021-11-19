@@ -39,6 +39,7 @@ namespace Fact.Extensions.Validation.WinForms
             CancellationToken cancellationToken, Action continueWith)
         {
             var f = (FieldStatus<T>)binder.Field;   // DEBT: Sloppy cast
+            LossyQueue lossyQueue = new LossyQueue();
 
             // FIX: No win scenario here:
             // - performing this async means that it's predictable that update processing won't finish registering
@@ -50,13 +51,21 @@ namespace Fact.Extensions.Validation.WinForms
             {
                 f.Value = v;
 
-                // DEBT: Likely we actually need a contextFactory not an inputContextFactory
-                var context = new Context2(null, f, cancellationToken);
-                context.InputContext = inputContextFactory();
+                Func<ValueTask> runner = async () =>
+                {
+                    // DEBT: Likely we actually need a contextFactory not an inputContextFactory
+                    var context = new Context2(null, f, cancellationToken);
+                    context.InputContext = inputContextFactory();
 
-                await binder.Processor.ProcessAsync(context, cancellationToken);
+                    await binder.Processor.ProcessAsync(context, cancellationToken);
 
-                continueWith();
+                    continueWith();
+                };
+
+                if (lossyQueue != null)
+                    lossyQueue.Add(runner);
+                else
+                    await runner();
             };
         }
 
