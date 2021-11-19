@@ -16,6 +16,11 @@ namespace Fact.Extensions.Validation
         /// parallel.  Defaults to true 
         /// </summary>
         bool Sequential { get; set; }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// </summary>
+        bool FreeRunning { get; set; }
     }
 
     public class Context : IContext
@@ -31,6 +36,8 @@ namespace Fact.Extensions.Validation
         /// Indicates synchronous operation requested (vs async)
         /// </summary>
         public bool Sequential { get; set; }
+
+        public bool FreeRunning { get; set; }
     }
 
 

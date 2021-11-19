@@ -52,7 +52,18 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             entity.Password1 = "hi2u";
 
             aggregatedBinder.Entity(entity).BindText(txtPassword1, e => e.Password1);
-            aggregatedBinder.Entity(entity).BindText(txtPassword2, e => e.Password2).StartsWith("123");
+            aggregatedBinder.Entity(entity).BindText(txtPassword2, e => e.Password2).
+                StartsWith("123").
+                IsTrueAsync(async s =>
+                {
+                    // NOTE: Saw a stack overflow happen one time after adding this code.  Never happened again
+                    if (s.Contains("slow"))
+                    {
+                        await Task.Delay(2000);
+                        return false;
+                    }
+                    return true;
+                }, "Now you go slow", sequential: false);
 
             aggregatedBinder.BindersProcessed += AggregatedBinder_BindersProcessed;
 

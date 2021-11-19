@@ -81,6 +81,8 @@ namespace Fact.Extensions.Validation
             foreach (ProcessingDelegateAsync<TContext> d in delegates)
             {
                 context.Sequential = true;
+                context.FreeRunning = false;
+
                 ValueTask task = d(this, context);
                 if (context.Abort)
                 {
@@ -90,7 +92,7 @@ namespace Fact.Extensions.Validation
                 }
                 if (context.Sequential)
                     await task;
-                else
+                else if(!context.FreeRunning)
                     nonsequential.AddLast(task.AsTask());
             }
 

@@ -13,6 +13,7 @@ namespace Fact.Extensions.Validation.Experimental
 
         SemaphoreSlim mutex = new SemaphoreSlim(1);
 
+        // TODO: Add way to abort current() so that queued delegate can immediately run and displace it
         async ValueTask Runner()
         {
             await current();
