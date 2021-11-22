@@ -306,6 +306,13 @@ namespace Fact.Extensions.Validation.Experimental
 
         }
 
+
+        /// <summary>
+        /// Via reflection/lambda, grab a PropertyBinderProvider
+        /// </summary>
+        /// <typeparam name="TProperty"></typeparam>
+        /// <param name="propertyLambda"></param>
+        /// <returns></returns>
         public PropertyBinderProvider<TProperty> Get<TProperty>(Expression<Func<T, TProperty>> propertyLambda)
         {
             var name = propertyLambda.Name;
@@ -520,60 +527,8 @@ namespace Fact.Extensions.Validation.Experimental
         }
 
 
-        public class SummaryProcessor
-        {
-            internal Dictionary<IBinderProvider, Item> items = new Dictionary<IBinderProvider, Item>();
 
-            public class Item
-            {
-                public int Warnings { get; set; }
-                public int Errors { get; set; }
 
-                public void Update(IEnumerable<Status> statuses)
-                {
-                    // TODO: Fire off events when these change so that Statuses down below has to do less work
-
-                    Warnings = statuses.Count(x => x.Level == Status.Code.Warning);
-                    Errors = statuses.Count(x => x.Level == Status.Code.Error);
-                }
-            }
-
-            public IEnumerable<Status> Statuses
-            {
-                get
-                {
-                    int errors = items.Values.Sum(x => x.Errors);
-                    int warnings = items.Values.Sum(x => x.Warnings);
-
-                    if (errors > 0) yield return new Status(Status.Code.Error, $"Encountered {errors} errors");
-                    if (warnings > 0) yield return new Status(Status.Code.Error, $"Encountered {warnings} warnings");
-                }
-            }
-        }
-
-        public static void AddSummaryProcessor<TBinderProvider>(this IAggregatedBinderBase<TBinderProvider> aggregatedBinder,
-            FieldStatus summaryField)
-            where TBinderProvider: IBinderProvider
-        {
-            var sp = new SummaryProcessor();
-
-            summaryField.Add(sp.Statuses);
-
-            foreach(var provider in aggregatedBinder.Providers)
-            {
-                var item = new SummaryProcessor.Item();
-                item.Update(provider.Binder.Field.Statuses);
-                sp.items.Add(provider, item);
-            }
-
-            aggregatedBinder.BindersProcessed += (providers, context) =>
-            {
-                foreach(var provider in providers)
-                {
-                    sp.items[provider].Update(provider.Binder.Field.Statuses);
-                }
-            };
-        }
 
 
         public static IFluentBinder<T1> IsMatch<T1, T2>(this
@@ -606,6 +561,11 @@ namespace Fact.Extensions.Validation.Experimental
         }*/
 
 
+        /// <summary>
+        /// Field whose value comes from a getter, statuses from self-maintained source
+        /// and associated with a FluentBinder.  Exposed via IBinderProvider
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         public class ShimField3<T> : ShimFieldBase2<T>, IBinderProvider
         {
             public IFieldBinder Binder { get; }
@@ -636,8 +596,8 @@ namespace Fact.Extensions.Validation.Experimental
             bool isProcessing = false;
             bool isProcessed = false;
 
-            var f1v3binder = fluentBinder1.Binder as IFieldBinder;
-            var f2v3binder = fluentBinder2.Binder as IFieldBinder;
+            var f1v3binder = fluentBinder1.Binder;
+            var f2v3binder = fluentBinder2.Binder;
 
             var processing = new ProcessingDelegateAsync(async (f, c) =>
             {

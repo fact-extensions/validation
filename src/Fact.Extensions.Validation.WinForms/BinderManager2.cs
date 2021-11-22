@@ -107,8 +107,6 @@ namespace Fact.Extensions.Validation.WinForms
             ConfigureTracker(bp.Binder, tracker, inputContextFactory, cancellationToken,
                 () => styleManager.ContentChanged(bp));
 
-            // DEBT: Heed the isProcessing awareness so as to reflect async status
-            // properly in styleManager
             bool isProcessing = false;
             bp.Binder.Processor.StartingAsync += (_, context) =>
             {
@@ -144,7 +142,6 @@ namespace Fact.Extensions.Validation.WinForms
 
             // Aggregator-wide init of this particular field so that on any call to
             // aggregatorBinder.Process() current field state style is exactly reflected
-            // TODO: Use StartingAsync instead
             aggregatedBinder.Processor.ProcessedAsync += (_, c) =>
             {
                 styleManager.Update(bp);
@@ -326,7 +323,7 @@ namespace Fact.Extensions.Validation.WinForms
 
 
         /// <summary>
-        /// Triggered when content has changed and now we are in process of processing it
+        /// Triggered when content has changed and now we are in the midst of processing it
         /// </summary>
         /// <param name="item"></param>
         public void ContentChanging(ISourceBinderProvider<Control> item)

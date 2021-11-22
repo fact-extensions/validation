@@ -73,7 +73,9 @@ namespace Fact.Extensions.Validation.Experimental
             this.getter = getter;
         }
 
-        // Clear only the locally shimmed in statuses - leave original field alone
+        /// <summary>
+        /// Clear only the locally shimmed in statuses - leave original field alone
+        /// </summary>
         public void ClearShim() => statuses.Clear();
 
         public void Add(Status status) => statuses.Add(status);
