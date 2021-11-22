@@ -160,13 +160,15 @@ namespace Fact.Extensions.Validation.WinForms
         /// </summary>
         /// <param name="aggregatedBinder"></param>
         /// <param name="control"></param>
-        /// <param name="initialGetter"></param>
+        /// <param name="initialGetter">retrieves value to prepopulate field with</param>
         /// <param name="name">specify name of field.  Default is control.Name - which you probably don't want</param>
         /// <returns></returns>
         public static FluentBinder<string> BindText<TAggregatedBinder>(this TAggregatedBinder aggregatedBinder, Control control, 
             Func<string> initialGetter = null, string name = null)
             where TAggregatedBinder : IAggregatedBinderBase, IServiceProviderProvider, IProcessorProvider<Context2>
         {
+            if (initialGetter != null) control.Text = initialGetter();
+
             SourceBinderProvider<Control, string> bp = Setup(aggregatedBinder, control,
                 () => control.Text,
                 tracker => control.TextChanged += (s, e) => tracker.Value = control.Text,
@@ -180,8 +182,8 @@ namespace Fact.Extensions.Validation.WinForms
                 name,
                 v => string.IsNullOrWhiteSpace(v));
 
-            // DEBT: Tracker registers this initialGetter as an IsModified = true
-            bp.FluentBinder.Setter(v => control.Text = v, initialGetter);
+            // EXPERIMENTAL
+            bp.FluentBinder.Setter((string v) => control.Text = v);
 
             return bp.FluentBinder;
         }
@@ -231,6 +233,9 @@ namespace Fact.Extensions.Validation.WinForms
         public static IFluentBinder BindSelectedItem(this IAggregatedBinder3 aggregatedBinder, ListBox control,
             Func<object> initialGetter = null)
         {
+            if(initialGetter != null)
+                control.SelectedItem = initialGetter();
+
             IBinderProvider<object> bp = Setup(aggregatedBinder, control,
                 () => control.SelectedItem,
                 tracker => control.SelectedIndexChanged += (s, e) => tracker.Value = control.SelectedItem,
@@ -242,7 +247,8 @@ namespace Fact.Extensions.Validation.WinForms
                     InteractionLevel = Interaction.High
                 });
 
-            bp.FluentBinder.Setter(v => control.SelectedItem = v, initialGetter);
+            // EXPERIMENTAL
+            bp.FluentBinder.Setter((object v) => control.SelectedItem = v);
 
             return bp.FluentBinder;
         }
