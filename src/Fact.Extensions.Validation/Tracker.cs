@@ -9,17 +9,27 @@ namespace Fact.Extensions.Validation
     {
         public object DefaultContext = null;
 
-        public DateTimeOffset CreatedAt { get; protected set; }
+        public DateTimeOffset CreatedAt { get; }
         public DateTimeOffset TouchedAt { get; protected set; }
         // DEBT: Updating event fires every time (really is a Touching/Touched event)
         // But UpdatedAt only is set when a value not equal to old one is specified.
         // Consider changing this to 'ChangedAt' (would use 'ModifiedAt' but modified has a
         // special meaning for us)
         public DateTimeOffset UpdatedAt { get; protected set; }
+
+        protected TrackerBase(DateTimeOffset now)
+        {
+            if (now == default)
+                now = DateTimeOffset.Now;
+
+            CreatedAt = now;
+            TouchedAt = now;
+            UpdatedAt = now;
+        }
     }
 
 
-    public class Tracker<T> : TrackerBase
+    public class Tracker<T> : TrackerBase, IModified
     {
         static bool DefaultEquals(T t1, T t2)
         {
@@ -31,14 +41,9 @@ namespace Fact.Extensions.Validation
 
         public Tracker(T initialValue = default, Func<T, T, bool> equals = null, 
             int historyDepth = 0,
-            DateTimeOffset now = default)
+            DateTimeOffset now = default) : base(now)
         {
             InitialValue = value = initialValue;
-            if (now == default)
-                now = DateTimeOffset.Now;
-            CreatedAt = now;
-            TouchedAt = now;
-            UpdatedAt = now;
             this.equals = equals ?? DefaultEquals;
             if(historyDepth > 0)
             {
@@ -101,6 +106,11 @@ namespace Fact.Extensions.Validation
         /// </summary>
         public bool IsModified => !equals(InitialValue, value);
 
+
+        /// <summary>
+        /// Indicates whether any update has occurred on this value, even if it matches
+        /// the original value
+        /// </summary>
         public bool IsTouched => TouchedAt > CreatedAt;
     }
 }

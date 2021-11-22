@@ -20,6 +20,9 @@ namespace Fact.Extensions.Validation.WinForms
             /// When a field starts out with some kind of status (such as required)
             /// </summary>
             public Color InitialStatus { get; set; } = Color.LightYellow;
+            /// <summary>
+            /// When a field has status but is not focused
+            /// </summary>
             public Color UnfocusedStatus { get; set; } = Color.Red;
             public Color ClearedStatus { get; set; } = Color.White;
         }

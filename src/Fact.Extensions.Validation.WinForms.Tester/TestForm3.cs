@@ -49,6 +49,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
                 Required().
                 Convert<int>().LessThan(5);
 
+            // DEBT: The way entity processing works, this ends up registering as 'IsModified' = true
+            // which is not what we want
             entity.Password1 = "hi2u";
 
             aggregatedBinder.Entity(entity).BindText(txtPassword1, e => e.Password1);

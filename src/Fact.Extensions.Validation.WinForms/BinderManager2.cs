@@ -145,9 +145,9 @@ namespace Fact.Extensions.Validation.WinForms
             // Aggregator-wide init of this particular field so that on any call to
             // aggregatorBinder.Process() current field state style is exactly reflected
             // TODO: Use StartingAsync instead
-            aggregatedBinder.Processor.ProcessingAsync += (_, c) =>
+            aggregatedBinder.Processor.ProcessedAsync += (_, c) =>
             {
-                styleManager.Initialize(bp);
+                styleManager.Update(bp);
                 return new ValueTask();
             };
 
@@ -180,6 +180,7 @@ namespace Fact.Extensions.Validation.WinForms
                 name,
                 v => string.IsNullOrWhiteSpace(v));
 
+            // DEBT: Tracker registers this initialGetter as an IsModified = true
             bp.FluentBinder.Setter(v => control.Text = v, initialGetter);
 
             return bp.FluentBinder;
@@ -294,7 +295,19 @@ namespace Fact.Extensions.Validation.WinForms
     {
         BinderManagerBase.ColorOptions colorOptions = new BinderManagerBase.ColorOptions();
 
-        public void Initialize(ISourceBinderProvider<Control> item) => ContentChanged(item);
+        /// <summary>
+        /// Perform rendering of control given its current status
+        /// </summary>
+        /// <param name="item"></param>
+        public void Update(ISourceBinderProvider<Control> item)
+        {
+            // If focused, of course render as focused
+            // If not modified, FocusGained has an 'Initial' state to render things with
+            if (item.Control.Focused || !item.IsModified)
+                FocusGained(item);
+            else
+                FocusLost(item);
+        }
 
 
         /// <summary>
@@ -308,6 +321,7 @@ namespace Fact.Extensions.Validation.WinForms
 
         /// <summary>
         /// Called when content change processing is completed
+        /// It is assumed field has focus at this time
         /// </summary>
         /// <param name="item"></param>
         public void ContentChanged(ISourceBinderProvider<Control> item)
@@ -320,6 +334,10 @@ namespace Fact.Extensions.Validation.WinForms
         }
 
 
+        /// <summary>
+        /// Renders control when focus is lost, considering any field statuses
+        /// </summary>
+        /// <param name="item"></param>
         public void FocusLost(ISourceBinderProvider<Control> item)
         {
             bool hasStatus = item.Binder.Field.Statuses.Any();
@@ -330,6 +348,10 @@ namespace Fact.Extensions.Validation.WinForms
         }
 
 
+        /// <summary>
+        /// Renders control when focus is gained, considering any field statuses
+        /// </summary>
+        /// <param name="item"></param>
         public void FocusGained(ISourceBinderProvider<Control> item)
         {
             bool hasStatus = item.Binder.Field.Statuses.Any();

@@ -107,6 +107,9 @@ namespace Fact.Extensions.Validation
 
     public interface IModified
     {
+        /// <summary>
+        /// Indicates whether value has been modified since we started tracking it
+        /// </summary>
         bool IsModified { get; }
     }
 
