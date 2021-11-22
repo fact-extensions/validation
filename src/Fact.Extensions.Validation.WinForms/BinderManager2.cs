@@ -289,7 +289,8 @@ namespace Fact.Extensions.Validation.WinForms
     /// 
     /// </summary>
     /// <remarks>
-    /// DEBT: Change method signatures to take Control and IFieldBinder
+    /// DEBT: Change method signatures to take Control and IFieldBinder, if possible
+    /// DEBT: Consolidate some of these methods
     /// </remarks>
     public class StyleManager : IStyleManager
     {
@@ -301,12 +302,20 @@ namespace Fact.Extensions.Validation.WinForms
         /// <param name="item"></param>
         public void Update(ISourceBinderProvider<Control> item)
         {
+            Control control = item.Control;
             // If focused, of course render as focused
             // If not modified, FocusGained has an 'Initial' state to render things with
-            if (item.Control.Focused || !item.IsModified)
-                FocusGained(item);
+            bool hasStatus = item.Binder.Field.Statuses.Any();
+
+            if (hasStatus)
+            {
+                if (item.IsModified)
+                    control.BackColor = control.Focused ? colorOptions.FocusedStatus : colorOptions.UnfocusedStatus;
+                else
+                    control.BackColor = colorOptions.InitialStatus;
+            }
             else
-                FocusLost(item);
+                control.BackColor = colorOptions.ClearedStatus;
         }
 
 
