@@ -234,6 +234,14 @@ namespace Fact.Extensions.Validation.Experimental
 
     public static class EntityProviderExtensions
     {
+        /// <summary>
+        /// Creates a strongly typed shim in front of aggregatedBinder which maps to type and
+        /// instance of 'entity'
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="aggregatedBinder"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         public static EntityProvider<T> Entity<T>(this IAggregatedBinder3 aggregatedBinder, T entity)
         {
             return new EntityProvider<T>(aggregatedBinder, entity);

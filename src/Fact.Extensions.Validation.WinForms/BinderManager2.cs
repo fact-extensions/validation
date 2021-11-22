@@ -21,9 +21,9 @@ namespace Fact.Extensions.Validation.WinForms
         /// Configures binder provider to rewrite back to its Field.Value when tracker changes
         /// Also kicks off a validation chain at that time semi-asynchronously
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="bp"></param>
-        /// <param name="tracker"></param>
+        /// <typeparam name="T">Value type associated with tracker</typeparam>
+        /// <param name="binder">Binder whose field and processor we're attaching to</param>
+        /// <param name="tracker">Tracker whose Updated event we're attaching to</param>
         /// <param name="inputContextFactory"></param>
         /// <param name="cancellationToken"></param>
         /// <param name="continueWith">called right after this binder processor runs</param>
@@ -32,7 +32,7 @@ namespace Fact.Extensions.Validation.WinForms
         /// continueWith is important because .NET doesn't appear to natively support async event handlers
         /// so the tracker.Updated would likely come back before registering any validation statuses thus
         /// precluding a regular tracker.Update from picking up those results.
-        /// DEBT: This can be moved out of the winforms-specific area
+        /// DEBT: This can be moved out of the winforms-specific area, once Context2 is more decoupled
         /// </remarks>
         static void ConfigureTracker<T>(IFieldBinder binder, Tracker<T> tracker, 
             Func<InputContext> inputContextFactory,
@@ -69,6 +69,21 @@ namespace Fact.Extensions.Validation.WinForms
             };
         }
 
+        /// <summary>
+        /// Binds a WinForms control using delegates to set up property and change events
+        /// </summary>
+        /// <typeparam name="TAggregatedBinder"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="aggregatedBinder"></param>
+        /// <param name="control"></param>
+        /// <param name="getter">Mechanism to acquire bound value from control</param>
+        /// <param name="initEvent">
+        /// Initialize tracker which serves as an abstract go-between the Validation system and the bound control Property
+        /// </param>
+        /// <param name="inputContextFactory"></param>
+        /// <param name="name">If not null, override Control.Name naming of created Field with this</param>
+        /// <param name="isNull">DEBT: Temporarily not in use</param>
+        /// <returns></returns>
         static SourceBinderProvider<Control, T> Setup<TAggregatedBinder, T>(TAggregatedBinder aggregatedBinder, Control control,
             Func<T> getter, 
             Action<Tracker<T>> initEvent,
@@ -129,6 +144,7 @@ namespace Fact.Extensions.Validation.WinForms
 
             // Aggregator-wide init of this particular field so that on any call to
             // aggregatorBinder.Process() current field state style is exactly reflected
+            // TODO: Use StartingAsync instead
             aggregatedBinder.Processor.ProcessingAsync += (_, c) =>
             {
                 styleManager.Initialize(bp);
@@ -170,6 +186,15 @@ namespace Fact.Extensions.Validation.WinForms
         }
 
 
+        /// <summary>
+        /// Binds the Text property of a control to a particular property of <typeparamref name="TEntity"/>
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="TProperty"></typeparam>
+        /// <param name="entityProvider"></param>
+        /// <param name="control"></param>
+        /// <param name="propertyLambda"></param>
+        /// <returns></returns>
         public static FluentBinder<TProperty> BindText<TEntity, TProperty>(this EntityProvider<TEntity> entityProvider, Control control,
             Expression<Func<TEntity, TProperty>> propertyLambda)
         {
@@ -259,6 +284,12 @@ namespace Fact.Extensions.Validation.WinForms
 
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <remarks>
+    /// DEBT: Change method signatures to take Control and IFieldBinder
+    /// </remarks>
     public class StyleManager : IStyleManager
     {
         BinderManagerBase.ColorOptions colorOptions = new BinderManagerBase.ColorOptions();
@@ -266,11 +297,19 @@ namespace Fact.Extensions.Validation.WinForms
         public void Initialize(ISourceBinderProvider<Control> item) => ContentChanged(item);
 
 
+        /// <summary>
+        /// Triggered when content has changed and now we are in process of processing it
+        /// </summary>
+        /// <param name="item"></param>
         public void ContentChanging(ISourceBinderProvider<Control> item)
         {
             item.Control.BackColor = Color.LightGray;
         }
 
+        /// <summary>
+        /// Called when content change processing is completed
+        /// </summary>
+        /// <param name="item"></param>
         public void ContentChanged(ISourceBinderProvider<Control> item)
         {
             bool hasStatus = item.Binder.Field.Statuses.Any();
