@@ -19,9 +19,10 @@ namespace Fact.Extensions.Validation.Experimental
     /// DEBT: Decouple from Context2 since Context2 has a 1:1 field relationship, but Binder3Base'd stuff
     /// isn't always
     /// </remarks>
-    public class Binder3Base : IProcessorProvider<Context2>
+    public class Binder3Base<TContext> : IProcessorProvider<TContext>
+        where TContext: IContext
     {
-        public Processor<Context2> Processor { get; } = new Processor<Context2>();
+        public Processor<TContext> Processor { get; } = new Processor<TContext>();
 
         /*
         public Task ProcessAsync(InputContext inputContext = null, CancellationToken cancellationToken = null)

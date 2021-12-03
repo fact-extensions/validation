@@ -11,7 +11,7 @@ namespace Fact.Extensions.Validation
 
     public delegate void BindersProcessedDelegate<TBinderProvider>(IEnumerable<TBinderProvider> binders, Context2 context);
 
-    public class AggregatedBinderBase<TBinderProvider> : Experimental.Binder3Base,
+    public class AggregatedBinderBase<TBinderProvider> : Experimental.Binder3Base<Context2>,
         IAggregatedBinderBase<TBinderProvider>
         where TBinderProvider : IBinderProvider
     {

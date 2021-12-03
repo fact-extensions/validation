@@ -5,7 +5,7 @@ using System.Text;
 namespace Fact.Extensions.Validation
 {
     /// <summary>
-    /// Low level binder inteface bringing in Processor and simplistic object getter
+    /// Low level binder inteface which couples a Processor and simplistic object getter
     /// </summary>
     /// <remarks>
     /// DEBT: Decouple from Context2 since Context2 has a 1:1 field relationship, but Binder3Base'd stuff

@@ -179,7 +179,7 @@ namespace Fact.Extensions.Validation.Experimental
     /// <summary>
     /// Most simplistic entity binder you can get.  Maybe underpowered
     /// </summary>
-    public class BasicEntityBinder : Binder3Base, IBinderBase, IAggregatedBinderProvider
+    public class BasicEntityBinder : Binder3Base<Context2>, IBinderBase, IAggregatedBinderProvider
     {
         readonly AggregatedBinderBase<PropertyBinderProvider> aggregatedBinder = 
             new AggregatedBinderBase<PropertyBinderProvider>();

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Fact.Extensions.Validation
 {
-    public class FieldBinder : Experimental.Binder3Base
+    public class FieldBinder : Experimental.Binder3Base<Context2>
     {
         public IField Field { get; }
 

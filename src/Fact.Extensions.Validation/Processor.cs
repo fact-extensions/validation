@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 
+// DEBT: This is better suited in a different namespace, it's not validation specific really
 namespace Fact.Extensions.Validation
 {
     public delegate ValueTask ProcessingDelegateAsync<in TContext>(object sender, TContext context);
