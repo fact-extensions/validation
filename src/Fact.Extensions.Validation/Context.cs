@@ -21,6 +21,15 @@ namespace Fact.Extensions.Validation
         /// EXPERIMENTAL
         /// </summary>
         bool FreeRunning { get; set; }
+
+        /// <summary>
+        /// EXPERIMENTAL
+        /// </summary>
+        /// <remarks>
+        /// DEBT: Regular ProcessAsync() call is passed CancellationToken, but with aggregators passing things around
+        /// to other processors this may be useful.  If so, undebt and unexperimental this
+        /// </remarks>
+        CancellationToken CancellationToken { get; }
     }
 
     public class Context : IContext
@@ -38,6 +47,13 @@ namespace Fact.Extensions.Validation
         public bool Sequential { get; set; }
 
         public bool FreeRunning { get; set; }
+
+        public CancellationToken CancellationToken { get; }
+
+        public Context(CancellationToken cancellationToken = default)
+        {
+            CancellationToken = cancellationToken;
+        }
     }
 
 
@@ -47,11 +63,6 @@ namespace Fact.Extensions.Validation
         IField Field { get; }
 
         Experimental.InputContext InputContext { get; }
-
-        /// <summary>
-        /// DEBT: Move this to IContext
-        /// </summary>
-        CancellationToken CancellationToken { get; }
     }
 
 
@@ -71,8 +82,6 @@ namespace Fact.Extensions.Validation
         /// </summary>
         public object InitialValue { get; }
 
-        public CancellationToken CancellationToken { get; }
-
         // Still experimental 
         public Experimental.InputContext InputContext { get; set; }
 
@@ -86,12 +95,12 @@ namespace Fact.Extensions.Validation
 
         public IServiceProvider Services { get; }
 
-        public Context2(object initialValue, IField field, CancellationToken cancellationToken)
+        public Context2(object initialValue, IField field, CancellationToken cancellationToken) :
+            base(cancellationToken)
         {
             Field = field;
             InitialValue = initialValue;
             Value = initialValue;
-            CancellationToken = cancellationToken;
         }
 
 
