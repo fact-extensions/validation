@@ -198,7 +198,7 @@ namespace Fact.Extensions.Validation
         public static void GroupValidate<T, T1, T2>(this EntityBinder<T> binder, //IAggregatedBinder parent, 
             Expression<Func<T, T1>> field1Lambda,
             Expression<Func<T, T2>> field2Lambda,
-            Action<Context2, IField<T1>, IField<T2>> handler)
+            Action<IFieldContext, IField<T1>, IField<T2>> handler)
         {
             /*
             var field1 = binder.CreateShimField(field1Lambda);

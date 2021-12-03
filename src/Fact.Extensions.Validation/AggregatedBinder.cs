@@ -9,9 +9,9 @@ namespace Fact.Extensions.Validation
     // DEBT: For .Process() Extension and InitiatingEvents both of which work, but are sloppy in name and function
     using Experimental;
 
-    public delegate void BindersProcessedDelegate<TBinderProvider>(IEnumerable<TBinderProvider> binders, Context2 context);
+    public delegate void BindersProcessedDelegate<TBinderProvider>(IEnumerable<TBinderProvider> binders, IFieldContext context);
 
-    public class AggregatedBinderBase<TBinderProvider> : Experimental.Binder3Base<Context2>,
+    public class AggregatedBinderBase<TBinderProvider> : Experimental.Binder3Base<IFieldContext>,
         IAggregatedBinderBase<TBinderProvider>
         where TBinderProvider : IBinderProvider
     {
@@ -24,7 +24,7 @@ namespace Fact.Extensions.Validation
         /// </summary>
         public event BindersProcessedDelegate<TBinderProvider> BindersProcessed;
 
-        protected void FireFieldsProcessed(IEnumerable<TBinderProvider> fields, Context2 context) =>
+        protected void FireFieldsProcessed(IEnumerable<TBinderProvider> fields, IFieldContext context) =>
             BindersProcessed?.Invoke(fields, context);
 
         public void Add(TBinderProvider binderProvider)
@@ -85,7 +85,7 @@ namespace Fact.Extensions.Validation
 
 
     public interface IAggregatedBinder3 :
-        IAggregatedBinderBase, IServiceProviderProvider, IProcessorProvider<Context2>
+        IAggregatedBinderBase, IServiceProviderProvider, IProcessorProvider<IFieldContext>
     {
     }
 

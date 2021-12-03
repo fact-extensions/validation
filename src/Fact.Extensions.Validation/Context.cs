@@ -7,7 +7,7 @@ namespace Fact.Extensions.Validation
 {
     public interface IContext
     {
-        bool Abort { get; }
+        bool Abort { get; set; }
 
         /// <summary>
         /// When true, signals Binder.Process that particular processor is completely
@@ -41,10 +41,24 @@ namespace Fact.Extensions.Validation
     }
 
 
+    public interface IFieldContext : IContext, IServiceProviderProvider
+    {
+        object Value { get; set; }
+        IField Field { get; }
+
+        Experimental.InputContext InputContext { get; }
+
+        /// <summary>
+        /// DEBT: Move this to IContext
+        /// </summary>
+        CancellationToken CancellationToken { get; }
+    }
+
+
     /// <summary>
     /// DEBT: Poor naming - this context has lots of UI/Field goodies where base one does not
     /// </summary>
-    public class Context2 : Context, IServiceProviderProvider
+    public class Context2 : Context, IFieldContext
     {
         /// <summary>
         /// Current value, which starts as populated by the binder's getter but may

@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 namespace Fact.Extensions.Validation.Experimental
 {
 
-    public delegate void ProcessingDelegate(IField f, Context2 context);
+    public delegate void ProcessingDelegate(IField f, IFieldContext context);
     // ValueTask guidance here:
     // https://devblogs.microsoft.com/dotnet/understanding-the-whys-whats-and-whens-of-valuetask/
-    public delegate ValueTask ProcessingDelegateAsync(IField f, Context2 context);
+    public delegate ValueTask ProcessingDelegateAsync(IField f, IFieldContext context);
 
 
 #if UNUSED

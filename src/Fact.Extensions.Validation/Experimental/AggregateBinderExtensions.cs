@@ -60,7 +60,7 @@ namespace Fact.Extensions.Validation.Experimental
         public static async Task Process<TAggregatedBinder>(this TAggregatedBinder aggregatedBinder,
             InputContext inputContext = null,
             CancellationToken cancellationToken = default)
-            where TAggregatedBinder : IProcessorProvider<Context2>, IAggregatedBinderBase
+            where TAggregatedBinder : IProcessorProvider<IFieldContext>, IAggregatedBinderBase
         {
             // DEBT: AggregatedBinder3 won't have field or initialvalue
             var context = new Context2(null, null, cancellationToken);

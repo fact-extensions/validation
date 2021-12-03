@@ -7,7 +7,7 @@ namespace Fact.Extensions.Validation
 {
     public static class FluentNullExtensions
     {
-        static void OnRequiredError(IFieldStatus field, Context context)
+        static void OnRequiredError(IFieldStatus field, IContext context)
         {
             field.Error(FieldStatus.ComparisonCode.IsNull, null, "Field is required");
             context.Abort = true;
@@ -16,7 +16,7 @@ namespace Fact.Extensions.Validation
 
 
         public static TFluentBinder Required<TFluentBinder>(this TFluentBinder fluentBinder,
-            Func<object, bool> isEmpty, Action<IFieldStatus, Context> onError = null)
+            Func<object, bool> isEmpty, Action<IFieldStatus, IContext> onError = null)
             where TFluentBinder : IFieldProvider<IField>, IBinderProviderBase<IFieldBinder>
         {
             return fluentBinder.IsTrue(v => !isEmpty(v), onError ?? OnRequiredError);
@@ -33,7 +33,7 @@ namespace Fact.Extensions.Validation
         /// <returns></returns>
         /// <remarks>DEBT: Consolidate with above 'Required'</remarks>
         public static TFluentBinder Required<TFluentBinder, T>(this TFluentBinder fluentBinder, Func<T, bool> isEmpty,
-            Action<IFieldStatus, Context> onError = null)
+            Action<IFieldStatus, IContext> onError = null)
             where TFluentBinder : IFieldProvider<IField<T>>, IBinderProviderBase<IFieldBinder>
         {
             return fluentBinder.IsTrue((T v) => !isEmpty(v), onError ?? OnRequiredError);

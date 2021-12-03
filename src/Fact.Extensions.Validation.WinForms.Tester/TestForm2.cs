@@ -99,14 +99,14 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             Services = services;
         }
 
-        private void BinderManager_Validated1(IEnumerable<IBinderProvider> fields, Context2 context)
+        private void BinderManager_Validated1(IEnumerable<IBinderProvider> fields, IContext context)
         {
             var hasStatus = binderManager.Fields().SelectMany(x => x.Statuses).Any();
 
             btnOK.Enabled = !hasStatus;
         }
 
-        private void BinderManager_Validated(IEnumerable<IBinderProvider> binders, Context2 context)
+        private void BinderManager_Validated(IEnumerable<IBinderProvider> binders, IContext context)
         {
             lstStatus.Items.Clear();
             var fields2 = binderManager.Fields();

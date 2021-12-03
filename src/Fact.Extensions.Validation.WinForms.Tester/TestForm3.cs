@@ -76,7 +76,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             txtEntry2.Enabled = true;
         }
 
-        private void AggregatedBinder_BindersProcessed(IEnumerable<IBinderProvider> binders, Context2 context)
+        private void AggregatedBinder_BindersProcessed(IEnumerable<IBinderProvider> binders, IFieldContext context)
         {
             // Although we are handled only the binders which are affected, we process them all
             // to see what overall status is each time.  Could be optimized.

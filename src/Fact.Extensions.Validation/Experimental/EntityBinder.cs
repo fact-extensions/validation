@@ -179,7 +179,7 @@ namespace Fact.Extensions.Validation.Experimental
     /// <summary>
     /// Most simplistic entity binder you can get.  Maybe underpowered
     /// </summary>
-    public class BasicEntityBinder : Binder3Base<Context2>, IBinderBase, IAggregatedBinderProvider
+    public class BasicEntityBinder : Binder3Base<IFieldContext>, IBinderBase, IAggregatedBinderProvider
     {
         readonly AggregatedBinderBase<PropertyBinderProvider> aggregatedBinder = 
             new AggregatedBinderBase<PropertyBinderProvider>();
@@ -584,7 +584,7 @@ namespace Fact.Extensions.Validation.Experimental
         public static IFluentBinder<T1> GroupValidate<T1, T2>(this 
             IFluentBinder<T1> fluentBinder1,
             IFluentBinder<T2> fluentBinder2,
-            Func<Context2, IField<T1>, IField<T2>, ValueTask> handler)
+            Func<IFieldContext, IField<T1>, IField<T2>, ValueTask> handler)
         {
             var field1 = new ShimField3<T1>(fluentBinder1);
             var field2 = new ShimField3<T2>(fluentBinder2);
@@ -669,12 +669,12 @@ namespace Fact.Extensions.Validation.Experimental
 
         }
 
-        public abstract void Validate<T>(IField<T> field, Context2 context);
+        public abstract void Validate<T>(IField<T> field, IFieldContext context);
     }
 
     public class RequiredAttribute : ValidationAttribute
     {
-        public override void Validate<T>(IField<T> field, Context2 context)
+        public override void Validate<T>(IField<T> field, IFieldContext context)
         {
             // DEBT: Need a much more robust "required" assessor than merely checking null
             // thing is, we'll likely need an IServiceProvider with a factory to generate

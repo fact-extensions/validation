@@ -24,7 +24,7 @@ namespace Fact.Extensions.Validation
 
 
         public static TFluentBinder IsTrue<TFluentBinder>(this TFluentBinder fb, Func<object, bool> predicate,
-            Action<IFieldStatus, Context> onFalse)
+            Action<IFieldStatus, IContext> onFalse)
             where TFluentBinder : IFieldProvider<IField>, IBinderProviderBase<IFieldBinder>
         {
             fb.Binder.Processor.ProcessingAsync += (_, context) =>
@@ -40,7 +40,7 @@ namespace Fact.Extensions.Validation
 
 
         public static TFluentBinder IsTrue<TFluentBinder, T>(this TFluentBinder fb, Func<T, bool> predicate,
-            Action<IFieldStatus, Context> onFalse)
+            Action<IFieldStatus, IContext> onFalse)
             where TFluentBinder : IFieldProvider<IField<T>>, IBinderProviderBase<IFieldBinder>
         {
             fb.Binder.Processor.ProcessingAsync += (_, context) =>
@@ -56,7 +56,7 @@ namespace Fact.Extensions.Validation
 
 
         public static TFluentBinder IsTrue<TFluentBinder, T>(this TFluentBinder fb, Func<T, ValueTask<bool>> predicate,
-            Action<IFieldStatus, Context> onFalse)
+            Action<IFieldStatus, IContext> onFalse)
             where TFluentBinder : IFieldProvider<IField<T>>, IBinderProviderBase<IFieldBinder>
         {
             fb.Binder.Processor.ProcessingAsync += async (_, context) =>
