@@ -85,8 +85,7 @@ namespace Fact.Extensions.Validation.WinForms
         /// <param name="isNull">DEBT: Temporarily not in use</param>
         /// <returns></returns>
         static SourceBinderProvider<Control, T> Setup<TAggregatedBinder, T>(TAggregatedBinder aggregatedBinder, Control control,
-            Func<T> getter, 
-            Action<Tracker<T>> initEvent,
+            Tracker<T> tracker,
             Func<InputContext> inputContextFactory,
             string name = null,
             Func<T, bool> isNull = null)
@@ -95,10 +94,9 @@ namespace Fact.Extensions.Validation.WinForms
             var services = aggregatedBinder.Services;
             var styleManager = services.GetRequiredService<StyleManager>();
             //var cancellationToken = services.GetService<CancellationToken>(); // Because it's a struct this doesn't work
-            // DEBT: Need to feed this cancellationtoken still
+            // DEBT: Need to feed this some kind of semi-global CancellationToken still.  One which only gets
+            // cancelled on shutdown
             var cancellationToken = new CancellationToken();
-            var tracker = new Tracker<T>(getter());
-            initEvent(tracker);
 
             SourceBinderProvider<Control, T> bp = aggregatedBinder.AddField(name ?? control.Name,
                 () => tracker.Value,
@@ -166,9 +164,12 @@ namespace Fact.Extensions.Validation.WinForms
         {
             if (initialGetter != null) control.Text = initialGetter();
 
+            var tracker = new Tracker<string>(control.Text);
+
+            control.TextChanged += (s, e) => tracker.Value = control.Text;
+
             SourceBinderProvider<Control, string> bp = Setup(aggregatedBinder, control,
-                () => control.Text,
-                tracker => control.TextChanged += (s, e) => tracker.Value = control.Text,
+                tracker,
                 () => new InputContext
                 {
                     // NOTE: We have to make a new one for each keystroke since we have the
@@ -196,16 +197,19 @@ namespace Fact.Extensions.Validation.WinForms
         /// <param name="propertyLambda"></param>
         /// <returns></returns>
         public static FluentBinder<TProperty> BindText<TEntity, TProperty>(this EntityProvider<TEntity> entityProvider, Control control,
-            Expression<Func<TEntity, TProperty>> propertyLambda)
+            Expression<Func<TEntity, TProperty>> propertyLambda, Func<TProperty, string> toString = null)
         {
             // TODO: Consolidate some of this magic into EntityProvider or an EntityProviderExtensions
             var member = propertyLambda.Body as MemberExpression;
             var property = member.Member as PropertyInfo;
             var name = property.Name;
 
+            if (toString == null)
+                toString = v => v?.ToString();
+
             // DEBT: ToString() alone isn't gonna cut it for real conversions
             FluentBinder<string> fluentBinder = entityProvider.Parent.BindText(
-                control, () => property.GetValue(entityProvider.Entity)?.ToString(),
+                control, () => toString((TProperty)property.GetValue(entityProvider.Entity)),
                 property.Name);
             FluentBinder<TProperty> fluentBinderConverted;
 
@@ -233,9 +237,12 @@ namespace Fact.Extensions.Validation.WinForms
             if(initialGetter != null)
                 control.SelectedItem = initialGetter();
 
+            var tracker = new Tracker<object>(control.SelectedItem);
+
+            control.SelectedIndexChanged += (s, e) => tracker.Value = control.SelectedItem;
+
             IBinderProvider<object> bp = Setup(aggregatedBinder, control,
-                () => control.SelectedItem,
-                tracker => control.SelectedIndexChanged += (s, e) => tracker.Value = control.SelectedItem,
+                tracker,
                 () => new InputContext
                 {
                     // NOTE: We have to make a new one for each keystroke since we have the
@@ -300,7 +307,7 @@ namespace Fact.Extensions.Validation.WinForms
         BinderManagerBase.ColorOptions colorOptions = new BinderManagerBase.ColorOptions();
 
         /// <summary>
-        /// Perform rendering of control given its current status
+        /// Renders control reflecting its current status
         /// </summary>
         /// <param name="item"></param>
         public void Update(ISourceBinderProvider<Control> item)
@@ -338,11 +345,13 @@ namespace Fact.Extensions.Validation.WinForms
         /// <param name="item"></param>
         public void ContentChanged(ISourceBinderProvider<Control> item)
         {
+            Update(item);
+            /*
             bool hasStatus = item.Binder.Field.Statuses.Any();
 
             item.Source.BackColor = hasStatus ?
                 (item.IsModified ? colorOptions.FocusedStatus : colorOptions.InitialStatus) :
-                colorOptions.ClearedStatus;
+                colorOptions.ClearedStatus; */
         }
 
 

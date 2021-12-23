@@ -88,7 +88,11 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             var fbPass1 = entityBinder.BindText(txtPass1, x => x.Password1);
             var fbPass2 = entityBinder.BindText(txtPass2, x => x.Password2);
 
-            // NOTE: Saw this get lost in 'Processing'/'gray mode' forever one time
+            // FIX: This get lost sometimes in 'Processing'/'gray mode' forever if you do the sequence:
+            // 1. Enter 'a' in first field
+            // 2. Enter 'b' in second field
+            // 3. Back off 'b' in second field
+            // All this must be done without touching the other fields
             fbPass1.IsMatch(fbPass2);
 
             await binderManager.Process();
