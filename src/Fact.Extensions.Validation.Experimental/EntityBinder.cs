@@ -233,7 +233,7 @@ namespace Fact.Extensions.Validation.Experimental
         /// <summary>
         /// feature flag to help ensure just one FluentBinder gets associated to this property 
         /// </summary>
-        internal bool cached = true;
+        internal bool cached = false;
         internal Dictionary<PropertyInfo, FluentBinder> fluentBinders = new Dictionary<PropertyInfo, FluentBinder>();
         // ---
 

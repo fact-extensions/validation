@@ -144,12 +144,12 @@ namespace Fact.Extensions.Validation
     /// <typeparam name="T"></typeparam>
     public class SourceBinderProvider<TSource, T> : InteractiveBinderProvider<T>, ISourceBinderProvider<TSource>
     {
-        public TSource Control { get; }
+        public TSource Source { get; }
 
         public SourceBinderProvider(FluentBinder<T> fluentBinder, TSource source, Tracker<T> tracker) :
             base(fluentBinder, tracker)
         {
-            Control = source;
+            Source = source;
         }
     }
 
@@ -157,10 +157,10 @@ namespace Fact.Extensions.Validation
     /// <summary>
     /// DEBT: Needs name cleanup
     /// </summary>
-    /// <typeparam name="TControl"></typeparam>
-    public interface ISourceBinderProvider<TControl> : IBinderProvider, IModified
+    /// <typeparam name="TSource"></typeparam>
+    public interface ISourceBinderProvider<TSource> : IBinderProvider, IModified
     {
-        TControl Control { get; }
+        TSource Source { get; }
     }
 
 
