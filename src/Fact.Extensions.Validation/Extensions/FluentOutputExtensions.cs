@@ -13,6 +13,15 @@ namespace Fact.Extensions.Validation
         static bool FilterStatus(Status s)
             => s.Level != Status.Code.OK;
 
+        /// <summary>
+        /// Emit value in its current state of processing
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fb"></param>
+        /// <param name="emitter"></param>
+        /// <param name="whenStatus"></param>
+        /// <param name="bypassFilter"></param>
+        /// <returns></returns>
         public static IFluentBinder<T> Emit<T>(this IFluentBinder<T> fb, Action<T> emitter,
             Func<Status, bool> whenStatus = null, bool bypassFilter = false)
         {
@@ -75,6 +84,13 @@ namespace Fact.Extensions.Validation
         }
 
 
+        /// <summary>
+        /// Take a particular action during commit phase of this binder
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fluentBinder"></param>
+        /// <param name="commit"></param>
+        /// <returns></returns>
         public static IFluentBinder<T> Commit<T>(this IFluentBinder<T> fluentBinder, Action<T> commit) =>
             fluentBinder.Commit(fluentBinder.Binder.Committer, commit);
     }
