@@ -5,8 +5,16 @@ using System.Threading;
 
 namespace Fact.Extensions.Validation
 {
+    /// <summary>
+    /// Context tracking data for Prcessor
+    /// </summary>
     public interface IContext
     {
+        /// <summary>
+        /// When true, evaluation context proceeds normally (implicitly all the way until the end)
+        /// When false, evaluation halts completely (catestrophic failure)
+        /// Defaults to true
+        /// </summary>
         bool Abort { get; set; }
 
         /// <summary>
@@ -35,9 +43,7 @@ namespace Fact.Extensions.Validation
     public class Context : IContext
     {
         /// <summary>
-        /// When true, evaluation context proceeds normally (implicitly all the way until the end)
-        /// When false, evaluation halts completely (catestrophic failure)
-        /// Defaults to true
+        /// <see cref="IContext.Abort" />
         /// </summary>
         public bool Abort { get; set; } = false;
 
@@ -57,6 +63,9 @@ namespace Fact.Extensions.Validation
     }
 
 
+    /// <summary>
+    /// Context tracking data for processor, associated to a particular field
+    /// </summary>
     public interface IFieldContext : IContext, IServiceProviderProvider
     {
         object Value { get; set; }

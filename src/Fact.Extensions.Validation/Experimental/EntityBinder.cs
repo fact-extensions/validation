@@ -30,6 +30,13 @@ namespace Fact.Extensions.Validation.Experimental
             return pbp;
         }
 
+
+        /// <summary>
+        /// Scoop up any ValidationAttribute on 'property' and associate it to fluentbinder
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fluentBinder"></param>
+        /// <param name="property"></param>
         public static void InitValidation<T>(IFluentBinder<T> fluentBinder, PropertyInfo property)
         {
             var shimField = fluentBinder.Field;
