@@ -253,6 +253,34 @@ namespace Fact.Extensions.Validation.Experimental
         {
             return new EntityProvider<T>(aggregatedBinder, entity);
         }
+
+
+        /// <summary>
+        /// UNTESTED
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="TProperty"></typeparam>
+        /// <param name="entityProvider"></param>
+        /// <param name="propertyLambda"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// Feels like we did this somewhere before, and not BindText either
+        /// </remarks>
+        public static FluentBinder<TProperty> AddField<TEntity, TProperty>(this EntityProvider<TEntity> entityProvider, 
+            Expression<Func<TEntity, TProperty>> propertyLambda)
+        {
+            var name = propertyLambda.Name;
+            var member = (MemberExpression) propertyLambda.Body;
+            var property = (PropertyInfo) member.Member;
+
+            FluentBinder<TProperty> fb = entityProvider.AddField(name, () => (TProperty)property.GetValue(entityProvider.Entity));
+
+            PropertyBinderProvider.InitValidation(fb, property);
+
+            fb.Commit(v => property.SetValue(entityProvider.Entity, v));
+
+            return fb;
+        }
     }
 
     /// <summary>
