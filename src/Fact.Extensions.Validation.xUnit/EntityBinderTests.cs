@@ -189,5 +189,19 @@ namespace Fact.Extensions.Validation.xUnit
 
             statuses.Should().HaveCount(1);
         }
+
+
+        [Fact]
+        public async Task Test7()
+        {
+            var binder = new AggregatedBinder();
+            var entity = new Synthetic.SyntheticEntity1();
+
+            var entityProvider = binder.Entity(entity);
+            
+            var fbPassword1 = entityProvider.AddField(x => x.Password1);
+
+            await binder.Process();
+        }
     }
 }

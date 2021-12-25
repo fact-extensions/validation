@@ -228,6 +228,15 @@ namespace Fact.Extensions.Validation.Experimental
         public IAggregatedBinder3 Parent { get; }
         public T Entity { get; }
 
+        // +++ EXPERIMENTAL
+        
+        /// <summary>
+        /// feature flag to help ensure just one FluentBinder gets associated to this property 
+        /// </summary>
+        internal bool cached = true;
+        internal Dictionary<PropertyInfo, FluentBinder> fluentBinders = new Dictionary<PropertyInfo, FluentBinder>();
+        // ---
+
         public EntityProvider(IAggregatedBinder3 parent, T entity)
         {
             Parent = parent;
@@ -269,15 +278,27 @@ namespace Fact.Extensions.Validation.Experimental
         public static FluentBinder<TProperty> AddField<TEntity, TProperty>(this EntityProvider<TEntity> entityProvider, 
             Expression<Func<TEntity, TProperty>> propertyLambda)
         {
-            var name = propertyLambda.Name;
             var member = (MemberExpression) propertyLambda.Body;
             var property = (PropertyInfo) member.Member;
+            var name = property.Name;
+            
+            // +++ EXPERIMENTAL
+            if(entityProvider.fluentBinders.TryGetValue(property, out FluentBinder cached))
+            {
+                return (FluentBinder<TProperty>)cached;
+            }
+            // ---
 
             FluentBinder<TProperty> fb = entityProvider.AddField(name, () => (TProperty)property.GetValue(entityProvider.Entity));
 
             PropertyBinderProvider.InitValidation(fb, property);
 
             fb.Commit(v => property.SetValue(entityProvider.Entity, v));
+            
+            // +++ EXPERIMENTAL
+            if(entityProvider.cached)
+                entityProvider.fluentBinders.Add(property, fb);
+            // ---
 
             return fb;
         }

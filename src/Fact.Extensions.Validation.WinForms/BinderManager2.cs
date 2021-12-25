@@ -199,9 +199,9 @@ namespace Fact.Extensions.Validation.WinForms
             Expression<Func<TEntity, TProperty>> propertyLambda)
         {
             // TODO: Consolidate some of this magic into EntityProvider or an EntityProviderExtensions
-            var name = propertyLambda.Name;
             var member = propertyLambda.Body as MemberExpression;
             var property = member.Member as PropertyInfo;
+            var name = property.Name;
 
             // DEBT: ToString() alone isn't gonna cut it for real conversions
             FluentBinder<string> fluentBinder = entityProvider.Parent.BindText(
