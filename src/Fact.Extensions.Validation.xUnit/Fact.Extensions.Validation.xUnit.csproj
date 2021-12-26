@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Fact.Extensions.Validation.Experimental\Fact.Extensions.Validation.Experimental.csproj" />
     <ProjectReference Include="..\Fact.Extensions.Validation.Synthetic\Fact.Extensions.Validation.Synthetic.csproj" />
     <ProjectReference Include="..\Fact.Extensions.Validation\Fact.Extensions.Validation.csproj" />
   </ItemGroup>
