@@ -65,12 +65,12 @@ Global
 		{14EEE453-8DCF-4D38-97C6-E8002ED94372}.Release|macOS.Build.0 = Release|macOS
 		{5FC40A20-430C-489B-9744-7769A97A3FBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5FC40A20-430C-489B-9744-7769A97A3FBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5FC40A20-430C-489B-9744-7769A97A3FBD}.Debug|macOS.ActiveCfg = Debug|Any CPU
-		{5FC40A20-430C-489B-9744-7769A97A3FBD}.Debug|macOS.Build.0 = Debug|Any CPU
 		{5FC40A20-430C-489B-9744-7769A97A3FBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FC40A20-430C-489B-9744-7769A97A3FBD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5FC40A20-430C-489B-9744-7769A97A3FBD}.Release|macOS.ActiveCfg = Release|Any CPU
 		{5FC40A20-430C-489B-9744-7769A97A3FBD}.Release|macOS.Build.0 = Release|Any CPU
+		{5FC40A20-430C-489B-9744-7769A97A3FBD}.Debug|macOS.ActiveCfg = Debug|macOS
+		{5FC40A20-430C-489B-9744-7769A97A3FBD}.Debug|macOS.Build.0 = Debug|macOS
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
