@@ -151,7 +151,13 @@ namespace Fact.Extensions.Validation.Experimental
 
         public T Value => getter();
 
-        internal ShimFieldBase2(string name, ICollection<Status> statuses, 
+        /// <summary>
+        /// DEBT: Should be protected/internal
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="statuses"></param>
+        /// <param name="getter"></param>
+        public ShimFieldBase2(string name, ICollection<Status> statuses, 
             Func<T> getter) :
             base(name, statuses, () => getter())
         {

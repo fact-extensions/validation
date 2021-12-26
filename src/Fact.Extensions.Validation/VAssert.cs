@@ -66,18 +66,6 @@ namespace Fact.Extensions.Validation
     }
 
 
-    public class VAssert<T> : VAssert
-    {
-        public Experimental.IEntityBinder<T> Binder { get; }
-
-        public VAssert(T entity) :
-            base(new AggregatedBinder())
-        {
-            Binder = aggregatedBinder.BindInput2(entity);
-        }
-    }
-
-
     /// <summary>
     /// Assertions for one parameter only
     /// </summary>

@@ -645,8 +645,8 @@ namespace Fact.Extensions.Validation.Experimental
             var field1 = new ShimField3<T1>(fluentBinder1);
             var field2 = new ShimField3<T2>(fluentBinder2);
 
-            ((IFieldStatusExternalCollector)fluentBinder1.Binder.Field).Add(field1.statuses);
-            ((IFieldStatusExternalCollector)fluentBinder2.Binder.Field).Add(field2.statuses);
+            ((IFieldStatusExternalCollector)fluentBinder1.Binder.Field).Add(field1.Statuses);
+            ((IFieldStatusExternalCollector)fluentBinder2.Binder.Field).Add(field2.Statuses);
 
             // FIX: Want to make these MT safe
             bool isProcessing = false;
