@@ -36,9 +36,16 @@ namespace Fact.Extensions.Validation.xUnit
         public async Task Test2()
         {
             var binder = new AggregatedBinder();
-            var entity = new Synthetic.UsAddress();
 
+            // DEBT: Make an =default here once we shake out stronger input binding
+            
+            // TODO: Make AddField not require an instance so that we can bind inputs later
+            // from something other than 'entity'
+            //var entityProvider = binder.Entity<Synthetic.UsAddress>(null);
+            var entity = new Synthetic.UsAddress();
             var entityProvider = binder.Entity(entity);
+            
+            entityProvider.AddField(x => x.City);
             
             await binder.Process();
         }
