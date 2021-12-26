@@ -6,4 +6,8 @@
         <Platforms>AnyCPU;macOS</Platforms>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Fact.Extensions.Validation\Fact.Extensions.Validation.csproj" />
+    </ItemGroup>
+
 </Project>
