@@ -73,5 +73,31 @@ namespace Fact.Extensions.Validation.xUnit
             val3.Should().Be(105);
             dropCount.Should().Be(2);
         }
+
+        [Fact]
+        public async Task InputProcessorTest()
+        {
+            var inputProcessor = new InputProcessor();
+            object result;
+            string initialValue = "hi2u";
+            string item2value = "hello world";
+
+            var item1 = inputProcessor.Add((item, v) => initialValue);
+            var item2 = inputProcessor.Add((item, v) =>
+            {
+                if (item.HasChanged)
+                {
+                    return "TBD";
+                }
+                else if (item.Previous.HasChanged)
+                {
+                    return "TBD";
+                }
+                else
+                    return item.LastValue;
+            });
+
+            result = await inputProcessor.Process(null);
+        }
     }
 }
