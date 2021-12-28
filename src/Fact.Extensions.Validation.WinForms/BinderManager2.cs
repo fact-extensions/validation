@@ -123,6 +123,7 @@ namespace Fact.Extensions.Validation.WinForms
                     await Task.Delay(150, cancellationToken);
                     if (isProcessing)
                     {
+                        // DEBT: Potential race condition, this might run after below call to styleManager.Update
                         await control.BeginInvokeAsync(() => styleManager.ContentChanging(bp));
                     }
                 });
@@ -144,6 +145,7 @@ namespace Fact.Extensions.Validation.WinForms
             // aggregatorBinder.Process() current field state style is exactly reflected
             aggregatedBinder.Processor.ProcessedAsync += (_, c) =>
             {
+                // DEBT: Potential race condition, this might run before above 'ContentChanging' BeginInvoke completes
                 if (c.InputContext.UiContext != null)
                     c.InputContext.UiContext.Post(delegate { styleManager.Update(bp); }, null);
                 else
