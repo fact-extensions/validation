@@ -122,7 +122,9 @@ namespace Fact.Extensions.Validation.WinForms
                     // similar and optimized mechanism to deal with Task.Delay
                     await Task.Delay(150, cancellationToken);
                     if (isProcessing)
-                        styleManager.ContentChanging(bp);
+                    {
+                        await control.BeginInvokeAsync(() => styleManager.ContentChanging(bp));
+                    }
                 });
 
                 _ = runner();
@@ -142,7 +144,11 @@ namespace Fact.Extensions.Validation.WinForms
             // aggregatorBinder.Process() current field state style is exactly reflected
             aggregatedBinder.Processor.ProcessedAsync += (_, c) =>
             {
-                styleManager.Update(bp);
+                if (c.InputContext.UiContext != null)
+                    c.InputContext.UiContext.Post(delegate { styleManager.Update(bp); }, null);
+                else
+                    control.BeginInvokeAsync(() => styleManager.Update(bp));
+
                 return new ValueTask();
             };
 

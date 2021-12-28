@@ -47,6 +47,8 @@ namespace Fact.Extensions.Validation.Experimental
         // TODO: Do a binder cache mechanism which knows to look at getter's cached response
         // and evaluate whether to use cached Statuses or re-process
         public HashSet<IBinderBase> AlreadyRun { get; } = new HashSet<IBinderBase>();
+
+        public System.Threading.SynchronizationContext UiContext { get; set; }
     }
 
 

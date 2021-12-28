@@ -23,12 +23,45 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             InitializeComponent();
         }
 
+        async Task InitialProcess()
+        {
+            // Initial process to populate initial state
+            try
+            {
+                var inputContext = new InputContext
+                {
+                    InitiatingEvent = InitiatingEvents.Load,
+                    InteractionLevel = Interaction.Low,
+                    // This magic line lets underlying system do gaurunteed UI-thread operations
+                    // before window handle is created
+                    UiContext = System.Threading.SynchronizationContext.Current
+                };
+
+                await aggregatedBinder.Process(inputContext);
+
+                txtEntry1.Enabled = true;
+                txtEntry2.Enabled = true;
+            }
+            catch (Exception e2)
+            {
+                // "Invoke or BeginInvoke cannot be called on a control until the window handle has been created."
+            }
+        }
+
+        // DEBT: Have to do this out here because
+        // aggregatedBinder does control.Invoke which requires an available form
+        private async void TestForm3_Load(object sender, EventArgs e)
+        {
+            await InitialProcess();
+        }
 
         public TestForm3(IServiceProvider services) : this()
         {
             this.services = services;
 
             aggregatedBinder = new AggregatedBinder(services);
+
+            //Load += TestForm3_Load;
 
             var _ = Initialize();
         }
@@ -69,11 +102,9 @@ namespace Fact.Extensions.Validation.WinForms.Tester
 
             aggregatedBinder.BindersProcessed += AggregatedBinder_BindersProcessed;
 
-            // Initial process to populate initial state
-            await aggregatedBinder.Process();
+            //TestForm3_Load(this, new EventArgs());
 
-            txtEntry1.Enabled = true;
-            txtEntry2.Enabled = true;
+            await InitialProcess();
         }
 
         private void AggregatedBinder_BindersProcessed(IEnumerable<IBinderProvider> binders, IFieldContext context)
