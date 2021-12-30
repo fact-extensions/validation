@@ -235,12 +235,15 @@ namespace Fact.Extensions.Validation.Experimental
         /// </summary>
         internal bool cached = false;
         internal Dictionary<PropertyInfo, FluentBinder> fluentBinders = new Dictionary<PropertyInfo, FluentBinder>();
+
+        public string Prefix { get; }
         // ---
 
-        public EntityProvider(IAggregatedBinder3 parent, T entity)
+        public EntityProvider(IAggregatedBinder3 parent, T entity, string prefix)
         {
             Parent = parent;
             Entity = entity;
+            Prefix = prefix;
         }
 
         public void Add(IBinderProvider collected) =>
@@ -251,16 +254,50 @@ namespace Fact.Extensions.Validation.Experimental
     public static class EntityProviderExtensions
     {
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="entityProvider"></param>
+        /// <param name="propertyLambda"></param>
+        /// <param name="name">Normally entity is named via property name.  This overrides that</param>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TProperty"></typeparam>
+        /// <returns></returns>
+        /// <remarks>
+        /// DEBT: Probably can consolidate this with other 'Entity' call
+        /// DEBT: Probably bad to have same name as 'Entity' property
+        /// </remarks>
+        public static EntityProvider<TProperty> Entity<T, TProperty>(this EntityProvider<T> entityProvider, Expression
+            <Func<T, TProperty>> propertyLambda, string name = null)
+        {
+            var member = (MemberExpression) propertyLambda.Body;
+            var property = (PropertyInfo) member.Member;
+            if(name == null)
+                name = property.Name;
+            // Sub-entity
+            var value = (TProperty)property.GetValue(entityProvider.Entity);
+            
+            string prefix = entityProvider.Prefix;
+
+            if (prefix != null)
+                prefix = prefix + "." + name;
+            else
+                prefix = name;
+
+            return entityProvider.Parent.Entity(value, prefix);
+        }
+        
+        /// <summary>
         /// Creates a strongly typed shim in front of aggregatedBinder which maps to type and
         /// instance of 'entity'
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="aggregatedBinder"></param>
         /// <param name="entity"></param>
+        /// <param name="prefix">EXPERIMENTAL</param>
         /// <returns></returns>
-        public static EntityProvider<T> Entity<T>(this IAggregatedBinder3 aggregatedBinder, T entity)
+        public static EntityProvider<T> Entity<T>(this IAggregatedBinder3 aggregatedBinder, T entity, string prefix = null)
         {
-            return new EntityProvider<T>(aggregatedBinder, entity);
+            return new EntityProvider<T>(aggregatedBinder, entity, prefix);
         }
 
 
@@ -283,6 +320,13 @@ namespace Fact.Extensions.Validation.Experimental
             var name = property.Name;
             
             // +++ EXPERIMENTAL
+            string prefix = entityProvider.Prefix;
+            if (prefix == null)
+                prefix = name;
+            else
+                prefix = prefix + "." + name;
+            name = prefix;
+            
             if(entityProvider.fluentBinders.TryGetValue(property, out FluentBinder cached))
             {
                 return (FluentBinder<TProperty>)cached;
