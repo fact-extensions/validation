@@ -17,6 +17,10 @@ namespace Fact.Extensions.Validation.xUnit
 
         public static class Strings
         {
+            public static class Uris
+            {
+                public const string Google = "https://google.com";
+            }
         }
     }
 }

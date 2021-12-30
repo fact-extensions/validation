@@ -95,7 +95,8 @@ namespace Fact.Extensions.Validation
         public Experimental.InputContext InputContext { get; set; }
 
         /// <summary>
-        /// Same as IBinder.Field
+        /// Same as IBinder.Field when doing field-specific processing
+        /// When doing other types, such as overall/init processing, this is null
         /// </summary>
         /// <remarks>
         /// EXPERIMENTAL putting this here 

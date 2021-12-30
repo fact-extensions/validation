@@ -19,8 +19,12 @@ namespace Fact.Extensions.Validation
         /// <typeparam name="T"></typeparam>
         /// <param name="fb"></param>
         /// <param name="emitter"></param>
-        /// <param name="whenStatus"></param>
-        /// <param name="bypassFilter"></param>
+        /// <param name="whenStatus">filter predicate for Statuses.Any()</param>
+        /// <param name="bypassFilter">
+        /// When false, only emits value if processing chain is clear of statuses (after whenStatus filter)
+        /// When true, pays no attention to field status state
+        /// Defaults to false
+        /// </param>
         /// <returns></returns>
         public static IFluentBinder<T> Emit<T>(this IFluentBinder<T> fb, Action<T> emitter,
             Func<Status, bool> whenStatus = null, bool bypassFilter = false)
@@ -29,11 +33,14 @@ namespace Fact.Extensions.Validation
 
             fb.Binder.Processor.ProcessingAsync += (_, context) =>
             {
-                IField field = context.Field;
-                IField<T> f = fb.Field;
+                IField field = fb.Binder.Field; // Core field, any errors aborts emit
 
                 if (bypassFilter || !field.Statuses.Any(whenStatus))
+                {
+                    IField<T> f = fb.Field; // current fb field, will have current type T value via shim
+                    // DEBT: We might prefer context.Value here
                     emitter(f.Value);
+                }
 
                 return new ValueTask();
             };
