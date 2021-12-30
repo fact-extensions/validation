@@ -1,7 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
+    <!--
+        Technique from https://weblog.west-wind.com/posts/2017/sep/18/conditional-targetframeworks-for-multitargeted-net-sdk-projects-on-crossplatform-builds
+        Though might prefer to do it based on overall SLN configuration 
+    -->
+    <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+        <TargetFrameworks>net4.6;netstandard2.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
+        <TargetFrameworks>netstandard1.6;netstandard2.0</TargetFrameworks>
+    </PropertyGroup>
+
 
     <PropertyGroup>
-        <TargetFrameworks>net4.6;netstandard2.0</TargetFrameworks>
         <Configurations>Debug;Release</Configurations>
         <Platforms>AnyCPU;macOS</Platforms>
     </PropertyGroup>
