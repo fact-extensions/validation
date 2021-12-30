@@ -18,58 +18,6 @@ namespace Fact.Extensions.Validation.WinForms
     public static class AggregatedBinderExtensions
     {
         /// <summary>
-        /// Configures binder provider to rewrite back to its Field.Value when tracker changes
-        /// Also kicks off a validation chain at that time semi-asynchronously
-        /// </summary>
-        /// <typeparam name="T">Value type associated with tracker</typeparam>
-        /// <param name="binder">Binder whose field and processor we're attaching to</param>
-        /// <param name="tracker">Tracker whose Updated event we're attaching to</param>
-        /// <param name="inputContextFactory"></param>
-        /// <param name="cancellationToken"></param>
-        /// <param name="continueWith">called right after this binder processor runs</param>
-        /// <remarks>
-        /// DEBT: Poor naming
-        /// continueWith is important because .NET doesn't appear to natively support async event handlers
-        /// so the tracker.Updated would likely come back before registering any validation statuses thus
-        /// precluding a regular tracker.Update from picking up those results.
-        /// DEBT: This can be moved out of the winforms-specific area, once Context2 is more decoupled
-        /// </remarks>
-        static void ConfigureTracker<T>(IServiceProvider services, IFieldBinder binder, Tracker<T> tracker, 
-            Func<InputContext> inputContextFactory,
-            CancellationToken cancellationToken, Action continueWith)
-        {
-            var f = (FieldStatus<T>)binder.Field;   // DEBT: Sloppy cast
-            LossyQueue lossyQueue = new LossyQueue();
-
-            // FIX: No win scenario here:
-            // - performing this async means that it's predictable that update processing won't finish registering
-            //   statuses meaning things like GotFocus/LostFocus may register incorrect status
-            // - if one doesn't perform this as async, then long running validations (like DB checks) will freeze up
-            //   UI
-            // The 'isProcessing' flag experimented with elsewhere is a road to a potential solution
-            tracker.Updated += async (v, c) =>
-            {
-                f.Value = v;
-
-                Func<ValueTask> runner = async () =>
-                {
-                    // DEBT: Likely we actually need a contextFactory not an inputContextFactory
-                    var context = new Context2(services, null, f, cancellationToken);
-                    context.InputContext = inputContextFactory();
-
-                    await binder.Processor.ProcessAsync(context, cancellationToken);
-
-                    continueWith();
-                };
-
-                if (lossyQueue != null)
-                    lossyQueue.Add(runner);
-                else
-                    await runner();
-            };
-        }
-
-        /// <summary>
         /// Binds a WinForms control using delegates to set up property and change events
         /// </summary>
         /// <typeparam name="TAggregatedBinder"></typeparam>
@@ -102,7 +50,7 @@ namespace Fact.Extensions.Validation.WinForms
                 () => tracker.Value,
                 _fb => new SourceBinderProvider<Control, T>(_fb, control, tracker));
 
-            ConfigureTracker(services, bp.Binder, tracker, inputContextFactory, cancellationToken,
+            TrackerUtility.ConfigureTracker(services, bp.Binder, tracker, inputContextFactory, cancellationToken,
                 () => styleManager.ContentChanged(bp));
 
             bool isProcessing = false;
