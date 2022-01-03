@@ -792,12 +792,33 @@ namespace Fact.Extensions.Validation.Experimental
         }
     }
 
+    public interface IGroupValidatorProvider
+    {
+        string Name { get; }
+    }
+
+
+    /// <summary>
+    /// FIX: Needs better name
+    /// </summary>
+    public interface IGroupValidatorHelper
+    {
+        void ConfigureGroup(IGroupValidatorProvider groupValidatorProvider);
+    }
+
 
     // NOTE: Not doable yet since we don't have easy access to the entity which this is attached.
     // However, knowing that these attributes MUST be attached to an entity indicates we can and possibly
     // should augment Configure with EntityProvider or similar or perhaps a special IGroup 
-    public class MatchAttribute : ValidationAttribute
+    public class MatchAttribute : ValidationAttribute, IGroupValidatorHelper
     {
+        IGroupValidatorProvider groupValidatorProvider;
+
+        public void ConfigureGroup(IGroupValidatorProvider groupValidatorProvider)
+        {
+            this.groupValidatorProvider = groupValidatorProvider;
+        }
+
         public MatchAttribute(string group)
         {
 
