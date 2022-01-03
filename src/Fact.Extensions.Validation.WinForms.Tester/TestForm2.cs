@@ -81,7 +81,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
                 Required().
                 StartsWith("Item");
 
-            var entity = new Synthetic.SyntheticEntity1();
+            var entity = new Synthetic.User();
 
             var entityBinder = binderManager.Entity(entity);
 

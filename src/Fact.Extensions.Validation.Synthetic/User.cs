@@ -6,7 +6,7 @@ namespace Fact.Extensions.Validation.Synthetic
 {
     using Experimental;
 
-    public class SyntheticEntity1
+    public class User
     {
         [Required]
         public string UserName { get; set; }

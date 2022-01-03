@@ -23,7 +23,7 @@ namespace Fact.Extensions.Validation.xUnit
         public async Task Test1()
         {
             var binder = new AggregatedBinder();
-            var entity = new Synthetic.SyntheticEntity1();
+            var entity = new Synthetic.User();
 
             var entityProvider = binder.Entity(entity);
             var tracker = new Tracker<string>(entity.Password1);
@@ -64,7 +64,7 @@ namespace Fact.Extensions.Validation.xUnit
         public async Task Test3()
         {
             var binder = new AggregatedBinder();
-            var entity = new Synthetic.SyntheticEntity1();
+            var entity = new Synthetic.User();
 
             var entityProvider = binder.Entity(entity);
             var tracker = new Tracker<string>(entity.Password1);

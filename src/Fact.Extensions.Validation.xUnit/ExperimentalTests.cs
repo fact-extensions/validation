@@ -14,9 +14,9 @@ namespace Fact.Extensions.Validation.xUnit
         [Fact]
         public void Test1()
         {
-            var mp = new ModuleProvider<Optional<string>, Synthetic.SyntheticEntity1, FluentBinder<string>>(
+            var mp = new ModuleProvider<Optional<string>, Synthetic.User, FluentBinder<string>>(
                 new Optional<string>(),
-                new Synthetic.SyntheticEntity1(),
+                new Synthetic.User(),
                 new FluentBinder<string>("test1", () => "test1val"));
 
             string assigner;

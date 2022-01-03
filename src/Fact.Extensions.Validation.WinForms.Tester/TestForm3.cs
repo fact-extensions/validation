@@ -66,7 +66,7 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             var _ = Initialize();
         }
 
-        Synthetic.SyntheticEntity1 entity = new Synthetic.SyntheticEntity1();
+        Synthetic.User entity = new Synthetic.User();
 
         async Task Initialize()
         {

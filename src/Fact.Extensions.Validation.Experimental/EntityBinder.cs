@@ -793,6 +793,23 @@ namespace Fact.Extensions.Validation.Experimental
     }
 
 
+    // NOTE: Not doable yet since we don't have easy access to the entity which this is attached.
+    // However, knowing that these attributes MUST be attached to an entity indicates we can and possibly
+    // should augment Configure with EntityProvider or similar or perhaps a special IGroup 
+    public class MatchAttribute : ValidationAttribute
+    {
+        public MatchAttribute(string group)
+        {
+
+        }
+
+        public override void Validate<T>(IField<T> field, IFieldContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
     public static class FieldAssertExtensions
     {
     }
