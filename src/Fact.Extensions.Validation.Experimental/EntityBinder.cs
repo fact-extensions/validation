@@ -37,10 +37,25 @@ namespace Fact.Extensions.Validation.Experimental
         /// <typeparam name="T"></typeparam>
         /// <param name="fluentBinder"></param>
         /// <param name="property"></param>
-        public static void InitValidation<T>(IFluentBinder<T> fluentBinder, PropertyInfo property)
+        public static void InitValidation<T>(IFluentBinder<T> fluentBinder, PropertyInfo property, 
+            IDictionary<string, IGroupValidatorProvider> groupProviders = null)
         {
             var shimField = fluentBinder.Field;
             var attributes = property.GetCustomAttributes().OfType<ValidationAttribute>();
+
+            if(groupProviders != null)
+            {
+                foreach(var _a in attributes.OfType<IGroupValidatorHelper>())
+                {
+                    if (!groupProviders.TryGetValue(_a.GroupName, out IGroupValidatorProvider value))
+                    {
+                        value = new GroupValidatorProvider();
+                        groupProviders.Add(_a.GroupName, value);
+                    }
+
+                    _a.ConfigureGroup(value);
+                }
+            }
 
             foreach (var a in attributes)
                 a.Configure(fluentBinder);
@@ -237,6 +252,9 @@ namespace Fact.Extensions.Validation.Experimental
         internal Dictionary<PropertyInfo, FluentBinder> fluentBinders = new Dictionary<PropertyInfo, FluentBinder>();
 
         public string Prefix { get; }
+
+        readonly public Dictionary<string, IGroupValidatorProvider> GroupValidatorProvider = 
+            new Dictionary<string, IGroupValidatorProvider>();
         // ---
 
         public EntityProvider(IAggregatedBinder3 parent, T entity, string prefix)

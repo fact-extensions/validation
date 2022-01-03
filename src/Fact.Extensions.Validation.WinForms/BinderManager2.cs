@@ -184,7 +184,8 @@ namespace Fact.Extensions.Validation.WinForms
                 fluentBinderConverted = (FluentBinder<TProperty>)(object)fluentBinder;
             }
 
-            PropertyBinderProvider.InitValidation(fluentBinderConverted, property);
+            PropertyBinderProvider.InitValidation(fluentBinderConverted, property,
+                entityProvider.GroupValidatorProvider);
 
             fluentBinderConverted.Commit(v => property.SetValue(entityProvider.Entity, v));
 

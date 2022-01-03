@@ -165,6 +165,8 @@ namespace Fact.Extensions.Validation
                     continueWith();
                 };
 
+                // We like lossy queue so that a whole bunch of change events only result in one change event, since for
+                // interactive validation we generally only care what you ended up typing, not validating every single letter
                 if (lossyQueue != null)
                     lossyQueue.Add(runner);
                 else

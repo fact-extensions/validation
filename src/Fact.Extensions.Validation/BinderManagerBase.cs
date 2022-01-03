@@ -144,6 +144,9 @@ namespace Fact.Extensions.Validation
     /// <typeparam name="T"></typeparam>
     public class SourceBinderProvider<TSource, T> : InteractiveBinderProvider<T>, ISourceBinderProvider<TSource>
     {
+        /// <summary>
+        /// Tends to be the surrounding object associated with tracker
+        /// </summary>
         public TSource Source { get; }
 
         public SourceBinderProvider(FluentBinder<T> fluentBinder, TSource source, Tracker<T> tracker) :
