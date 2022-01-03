@@ -30,5 +30,11 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             var form = new TestForm2(Services);
             form.ShowDialog();
         }
+
+        private void btnTestForm4_Click(object sender, EventArgs e)
+        {
+            var form = new TestForm4();
+            form.ShowDialog();
+        }
     }
 }
