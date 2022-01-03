@@ -51,7 +51,8 @@ namespace Fact.Extensions.Validation.WinForms.Tester
             var fbPassword1 = profileBinder.BindText(txtPassword1, x => x.Password1);
             var fbPassword2 = profileBinder.BindText(txtPassword2, x => x.Password2);
 
-            // FIX: This doesn't instantly turn the other field red/pink
+            // FIX: This doesn't instantly turn the other field red/pink, though overall
+            // AggregatedBinder_BindersProcessed will detect all proper statuses in that case
             fbPassword1.IsMatch(fbPassword2);
 
             aggregatedBinder.BindersProcessed += AggregatedBinder_BindersProcessed;
