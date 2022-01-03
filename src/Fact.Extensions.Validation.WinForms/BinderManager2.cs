@@ -71,8 +71,13 @@ namespace Fact.Extensions.Validation.WinForms
                     await Task.Delay(150, cancellationToken);
                     if (isProcessing)
                     {
-                        // DEBT: Potential race condition, this might run after below call to styleManager.Update
-                        await control.BeginInvokeAsync(() => styleManager.ContentChanging(bp));
+                        await control.BeginInvokeAsync(() =>
+                        {
+                            // NOTE: Was having race condition, keep an eye on it
+                            // NOTE: Doing double check as an optimization of sorts as well as a guard against race condition
+                            if (isProcessing)
+                                styleManager.ContentChanging(bp);
+                        });
                     }
                 });
 
